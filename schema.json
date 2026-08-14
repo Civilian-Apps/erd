@@ -1,0 +1,1296 @@
+{
+  "tables": {
+    "oauth_refresh_token": {
+      "name": "oauth_refresh_token",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "reference_id": {
+          "name": "reference_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "scopes": {
+          "name": "scopes",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "revoked": {
+          "name": "revoked",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "auth_time": {
+          "name": "auth_time",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "oauth_refresh_token_user_id_idx": {
+          "name": "oauth_refresh_token_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        },
+        "oauth_refresh_token_client_id_idx": {
+          "name": "oauth_refresh_token_client_id_idx",
+          "unique": false,
+          "columns": [
+            "client_id"
+          ],
+          "type": "btree"
+        },
+        "oauth_refresh_token_session_id_idx": {
+          "name": "oauth_refresh_token_session_id_idx",
+          "unique": false,
+          "columns": [
+            "session_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "oauth_refresh_token_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "oauth_refresh_token_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "oauth_refresh_token_token_unique": {
+          "type": "UNIQUE",
+          "name": "oauth_refresh_token_token_unique",
+          "columnNames": [
+            "token"
+          ]
+        },
+        "oauth_refresh_token_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "oauth_refresh_token_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
+    "oauth_access_token": {
+      "name": "oauth_access_token",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "access_token_expires_at": {
+          "name": "access_token_expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "refresh_token_expires_at": {
+          "name": "refresh_token_expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "scopes": {
+          "name": "scopes",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "oauth_access_token_user_id_idx": {
+          "name": "oauth_access_token_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "oauth_access_token_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "oauth_access_token_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "oauth_access_token_access_token_unique": {
+          "type": "UNIQUE",
+          "name": "oauth_access_token_access_token_unique",
+          "columnNames": [
+            "access_token"
+          ]
+        },
+        "oauth_access_token_refresh_token_unique": {
+          "type": "UNIQUE",
+          "name": "oauth_access_token_refresh_token_unique",
+          "columnNames": [
+            "refresh_token"
+          ]
+        },
+        "oauth_access_token_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "oauth_access_token_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
+    "oauth_client": {
+      "name": "oauth_client",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "client_secret": {
+          "name": "client_secret",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "redirect_uris": {
+          "name": "redirect_uris",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "type": "bool",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "oauth_client_client_id_idx": {
+          "name": "oauth_client_client_id_idx",
+          "unique": false,
+          "columns": [
+            "client_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "oauth_client_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "oauth_client_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "oauth_client_client_id_unique": {
+          "type": "UNIQUE",
+          "name": "oauth_client_client_id_unique",
+          "columnNames": [
+            "client_id"
+          ]
+        }
+      }
+    },
+    "oauth_consent": {
+      "name": "oauth_consent",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "scopes": {
+          "name": "scopes",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "oauth_consent_user_id_idx": {
+          "name": "oauth_consent_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        },
+        "oauth_consent_user_client_uidx": {
+          "name": "oauth_consent_user_client_uidx",
+          "unique": true,
+          "columns": [
+            "user_id",
+            "client_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "oauth_consent_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "oauth_consent_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "oauth_consent_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "oauth_consent_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
+    "account": {
+      "name": "account",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "access_token_expires_at": {
+          "name": "access_token_expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "refresh_token_expires_at": {
+          "name": "refresh_token_expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "scope": {
+          "name": "scope",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "id_token": {
+          "name": "id_token",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "account_user_id_idx": {
+          "name": "account_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "account_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "account_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "account_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "account_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
+    "example": {
+      "name": "example",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "example_user_id_idx": {
+          "name": "example_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "example_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "example_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "example_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "example_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
+    "idempotency_keys": {
+      "name": "idempotency_keys",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "operation": {
+          "name": "operation",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "request_hash": {
+          "name": "request_hash",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "response_ref": {
+          "name": "response_ref",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "idempotency_keys_user_id_idx": {
+          "name": "idempotency_keys_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        },
+        "idempotency_keys_user_op_key_uidx": {
+          "name": "idempotency_keys_user_op_key_uidx",
+          "unique": true,
+          "columns": [
+            "user_id",
+            "operation",
+            "idempotency_key"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "idempotency_keys_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "idempotency_keys_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "idempotency_keys_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "idempotency_keys_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
+    "jwks": {
+      "name": "jwks",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "public_key": {
+          "name": "public_key",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "private_key": {
+          "name": "private_key",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {},
+      "constraints": {
+        "jwks_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "jwks_pkey",
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    },
+    "product_events": {
+      "name": "product_events",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "event_type": {
+          "name": "event_type",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "properties": {
+          "name": "properties",
+          "type": "jsonb",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "stripe_customer_id": {
+          "name": "stripe_customer_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "subscription_id": {
+          "name": "subscription_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "product_events_user_id_idx": {
+          "name": "product_events_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        },
+        "product_events_event_type_idx": {
+          "name": "product_events_event_type_idx",
+          "unique": false,
+          "columns": [
+            "event_type"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "product_events_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "product_events_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "product_events_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "product_events_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "SET_NULL"
+        }
+      }
+    },
+    "session": {
+      "name": "session",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {
+        "session_user_id_idx": {
+          "name": "session_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "session_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "session_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "session_token_unique": {
+          "type": "UNIQUE",
+          "name": "session_token_unique",
+          "columnNames": [
+            "token"
+          ]
+        },
+        "session_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "session_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
+    "user": {
+      "name": "user",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "bool",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "subscription_status": {
+          "name": "subscription_status",
+          "type": "text",
+          "default": "incomplete",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "stripe_customer_id": {
+          "name": "stripe_customer_id",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {},
+      "constraints": {
+        "user_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "user_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "user_email_unique": {
+          "type": "UNIQUE",
+          "name": "user_email_unique",
+          "columnNames": [
+            "email"
+          ]
+        },
+        "user_stripe_customer_id_unique": {
+          "type": "UNIQUE",
+          "name": "user_stripe_customer_id_unique",
+          "columnNames": [
+            "stripe_customer_id"
+          ]
+        },
+        "user_subscription_status_check": {
+          "type": "CHECK",
+          "name": "user_subscription_status_check",
+          "detail": "\"user\".\"subscription_status\" in ('incomplete', 'active', 'past_due', 'canceled')"
+        }
+      }
+    },
+    "verification": {
+      "name": "verification",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": null,
+      "indexes": {},
+      "constraints": {
+        "verification_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "verification_pkey",
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {},
+  "extensions": {}
+}
