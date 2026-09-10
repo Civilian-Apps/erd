@@ -14,10 +14,8 @@
         --color-gray-800: #2e3031;
         --color-gray-700: #383a3b;
         --color-gray-600: #393b3c;
-        --color-gray-500: #434546;
         --color-gray-300: #6d7174;
         --color-gray-100: #bebfc1;
-        --color-gray-50: #d1d2d3;
         --color-white: #ffffff;
         --color-green-400: #1ded83;
         --color-green-300: #4af19c;
@@ -26,30 +24,18 @@
         --overlay-20: rgb(255 255 255 / 20%);
         --overlay-60: rgb(255 255 255 / 60%);
         --overlay-70: rgb(255 255 255 / 70%);
-        --border-radius-base: 4px;
-        --border-radius-md: 6px;
-        --border-radius-lg: 8px;
-        --spacing-1: 4px;
-        --spacing-2: 8px;
-        --spacing-3: 12px;
-        --spacing-4: 16px;
-        --spacing-6: 24px;
-        --spacing-8: 32px;
+        --radius: 6px;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-6: 24px;
+        --space-8: 32px;
         --main-font:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
           "Segoe UI", sans-serif;
         --code-font:
           ui-monospace, "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-        --global-background: var(--color-gray-1000);
-        --global-muted-background: var(--color-gray-900);
-        --global-foreground: var(--color-white);
-        --global-border: var(--color-gray-700);
-        --global-mute-text: var(--color-gray-100);
-        --primary-accent: var(--color-green-400);
-        --primary-hover: var(--color-green-300);
-        --pane-background: var(--color-gray-900);
-        --pane-muted-background: var(--color-gray-800);
-        --pane-border-hover: var(--color-gray-300);
       }
 
       *,
@@ -61,17 +47,15 @@
       html {
         min-width: 320px;
         min-height: 100%;
-        background: var(--global-background);
+        background: var(--color-gray-1000);
       }
 
       body {
         min-height: 100vh;
         margin: 0;
-        color: var(--global-foreground);
-        font-family: var(--main-font);
-        font-size: 14px;
-        line-height: 1.5;
-        background-color: var(--global-background);
+        color: var(--color-white);
+        font: 14px/1.5 var(--main-font);
+        background-color: var(--color-gray-1000);
         background-image: radial-gradient(
           circle,
           var(--color-gray-600) 1px,
@@ -81,22 +65,18 @@
         background-size: 16px 16px;
       }
 
-      a {
-        color: inherit;
-      }
-
       .app-bar {
         display: flex;
         align-items: center;
         height: 52px;
-        padding: 0 var(--spacing-4);
-        background: var(--pane-background);
-        border-bottom: 1px solid var(--global-border);
+        padding: 0 var(--space-4);
+        background: var(--color-gray-900);
+        border-bottom: 1px solid var(--color-gray-700);
       }
 
       .brand {
         display: inline-flex;
-        gap: var(--spacing-2);
+        gap: var(--space-2);
         align-items: center;
         color: var(--overlay-60);
         font-size: 13px;
@@ -104,20 +84,23 @@
         text-decoration: none;
       }
 
-      .brand-mark {
+      .brand-mark,
+      .project-icon {
         display: grid;
+        place-items: center;
+      }
+
+      .brand-mark {
         width: 20px;
         height: 20px;
-        place-items: center;
         color: var(--color-gray-1000);
-        background: var(--primary-accent);
+        background: var(--color-green-400);
         border-radius: 50%;
       }
 
       .brand-mark svg {
         width: 12px;
         height: 12px;
-        stroke-width: 2;
       }
 
       main {
@@ -127,11 +110,9 @@
       }
 
       .eyebrow {
-        margin: 0 0 var(--spacing-2);
-        color: var(--primary-accent);
-        font-family: var(--code-font);
-        font-size: 11px;
-        font-weight: 500;
+        margin: 0 0 var(--space-2);
+        color: var(--color-green-400);
+        font: 500 11px/1.5 var(--code-font);
         text-transform: uppercase;
       }
 
@@ -145,30 +126,31 @@
 
       .intro {
         max-width: 540px;
-        margin: var(--spacing-3) 0 0;
+        margin: var(--space-3) 0 0;
         color: var(--overlay-70);
         font-size: 13px;
       }
 
       .project-list {
         display: grid;
-        gap: var(--spacing-2);
+        gap: var(--space-2);
         padding: 0;
-        margin: var(--spacing-8) 0 0;
+        margin: var(--space-8) 0 0;
         list-style: none;
       }
 
       .project-link {
         display: grid;
         grid-template-columns: 36px minmax(0, 1fr) auto;
-        gap: var(--spacing-3);
+        gap: var(--space-3);
         align-items: center;
         min-height: 68px;
-        padding: var(--spacing-3) var(--spacing-4);
+        padding: var(--space-3) var(--space-4);
+        color: inherit;
         text-decoration: none;
-        background: var(--global-muted-background);
+        background: var(--color-gray-900);
         border: 1px solid var(--overlay-20);
-        border-radius: var(--border-radius-md);
+        border-radius: var(--radius);
         box-shadow: 0 4px 20px rgb(0 0 0 / 40%);
         transition:
           background-color 100ms ease-out,
@@ -176,30 +158,27 @@
       }
 
       .project-link:hover {
-        background: var(--pane-muted-background);
-        border-color: var(--pane-border-hover);
+        background: var(--color-gray-800);
+        border-color: var(--color-gray-300);
       }
 
       .project-link:focus-visible {
-        outline: 2px solid var(--primary-accent);
+        outline: 2px solid var(--color-green-400);
         outline-offset: 3px;
       }
 
       .project-icon {
-        display: grid;
         width: 36px;
         height: 36px;
-        place-items: center;
         color: var(--overlay-70);
         background: var(--overlay-5);
         border: 1px solid var(--overlay-10);
-        border-radius: var(--border-radius-base);
+        border-radius: 4px;
       }
 
       .project-icon svg {
         width: 18px;
         height: 18px;
-        stroke-width: 1.5;
       }
 
       .project-copy {
@@ -209,25 +188,23 @@
       .project-name {
         display: block;
         overflow: hidden;
-        font-family: var(--code-font);
-        font-size: 14px;
-        font-weight: 500;
+        font: 500 14px/1.5 var(--code-font);
         text-overflow: ellipsis;
         white-space: nowrap;
       }
 
       .project-meta {
         display: block;
-        margin-top: var(--spacing-1);
+        margin-top: var(--space-1);
         color: var(--overlay-60);
         font-size: 11px;
       }
 
       .open-label {
         display: inline-flex;
-        gap: var(--spacing-2);
+        gap: var(--space-2);
         align-items: center;
-        color: var(--global-mute-text);
+        color: var(--color-gray-100);
         font-size: 12px;
       }
 
@@ -237,27 +214,23 @@
         transition: transform 100ms ease-out;
       }
 
-      .project-link:hover .open-label {
-        color: var(--global-foreground);
-      }
-
       .project-link:hover .open-label svg {
         transform: translateX(2px);
       }
 
       footer {
-        margin-top: var(--spacing-6);
+        margin-top: var(--space-6);
         color: var(--overlay-60);
         font-size: 11px;
       }
 
       footer a {
-        color: var(--global-mute-text);
+        color: var(--color-gray-100);
         text-underline-offset: 3px;
       }
 
       footer a:hover {
-        color: var(--primary-hover);
+        color: var(--color-green-300);
       }
 
       @media (max-width: 520px) {
@@ -286,7 +259,7 @@
   </head>
   <body>
     <header class="app-bar">
-      <a class="brand" href="/" aria-label="Civilian Apps ER diagrams home">
+      <a class="brand" href="./" aria-label="Civilian Apps ER diagrams home">
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <ellipse cx="12" cy="5" rx="7" ry="3"></ellipse>
@@ -306,8 +279,8 @@
       </p>
 
       <ul class="project-list" aria-label="Available ER diagrams">
-        <li>
-          <a class="project-link" href="/personal-ai-coach/">
+                <li>
+          <a class="project-link" href="./personal-ai-coach/">
             <span class="project-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <ellipse cx="12" cy="5" rx="7" ry="3"></ellipse>
@@ -316,17 +289,12 @@
               </svg>
             </span>
             <span class="project-copy">
-              <span class="project-name">personal-ai-coach</span>
+              <span class="project-name">Personal AI Coach</span>
               <span class="project-meta">Interactive schema diagram</span>
             </span>
             <span class="open-label">
               Open diagram
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path d="m9 18 6-6-6-6"></path>
               </svg>
             </span>

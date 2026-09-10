@@ -1,0 +1,57 @@
+{
+  "personal-ai-coach": {
+    "repository": "Civilian-Apps/personal-ai-coach",
+    "ref": "main",
+    "schema": "packages/core/src/contracts/schema.ts",
+    "revision": "f6b21bee0e7da436c96f5cbd7f984377922e5ebc",
+    "schemaSha256": "71d43e45deea0552aef8689d417ce96db97e76ea88d73f9dd96fe7d60b6e446d",
+    "kind": "local",
+    "dirty": true,
+    "publication": "draft",
+    "inputs": {
+      "packages/core/src/contracts/schema.ts": "71d43e45deea0552aef8689d417ce96db97e76ea88d73f9dd96fe7d60b6e446d"
+    },
+    "diagramSha256": "2138a20a7003408a7efb785dd86950b3ec46cccea962cd5b797cc6f0dd538694",
+    "renderer": {
+      "liam": "0.7.24",
+      "drizzle": "0.45.2",
+      "ingestion": "evaluated-metadata"
+    },
+    "coverage": {
+      "tables": 21,
+      "columns": 213,
+      "foreignKeys": 28
+    },
+    "migrations": [
+      {
+        "path": "drizzle/0000_panoramic_cammi.sql",
+        "sha256": "43323aaaae1258cdd757a413840461ff1b0b70b5def4af9b9dc20b18d730828e"
+      },
+      {
+        "path": "drizzle/0001_coach_app_rt_grants.sql",
+        "sha256": "77c8f1dd828573d899ef5fc6583d7def768a4aca9a42776a39531b21626d83d2"
+      },
+      {
+        "path": "drizzle/0002_rls_empty_string_safe.sql",
+        "sha256": "711e01c2a022dee64919db898e330d83c5b2f6ddabfb9568ea810c1ec6648872"
+      },
+      {
+        "path": "drizzle/0003_soft_aaron_stack.sql",
+        "sha256": "495690fa8587b8795ab4fc7cfbf28774b79177e40a0853b1dd507b531373146d"
+      },
+      {
+        "path": "drizzle/0004_yummy_starhawk.sql",
+        "sha256": "8f0efa8b612f3037b37034ee728c78a6835ffe5b1932151745b22229a0f72cdf"
+      },
+      {
+        "path": "drizzle/0005_violet_ted_forrester.sql",
+        "sha256": "2cc908fcb8367b64dd9e6a1b6559780d5173a748853f2a53749ac8348c7e80a6"
+      },
+      {
+        "path": "drizzle/0006_product_integrity.sql",
+        "sha256": "1720ffe10c1dde462c1872c0b20c8aa8e7345c7d30f17d514c06f94f6ddfcb4a"
+      }
+    ],
+    "rulesSha256": "92f4b3d7a3a09fe153b7b3d4d3a3ebdce0ed79b7a6c166790c93edfa05590f3f"
+  }
+}
