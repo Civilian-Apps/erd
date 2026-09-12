@@ -3,23 +3,23 @@
   "ref": "main",
   "schema": "packages/core/src/contracts/schema.ts",
   "revision": "f6b21bee0e7da436c96f5cbd7f984377922e5ebc",
-  "schemaSha256": "1aec911e4df434f85d54043b4b9480a28517e237c217837ea42421f61200ab3c",
+  "schemaSha256": "1a41cc4d6729ce51b41a6565eab9b367f1df6c9911ffe8c2237405664975f007",
   "kind": "local",
   "dirty": true,
   "publication": "draft",
   "inputs": {
-    "packages/core/src/contracts/schema.ts": "1aec911e4df434f85d54043b4b9480a28517e237c217837ea42421f61200ab3c"
+    "packages/core/src/contracts/schema.ts": "1a41cc4d6729ce51b41a6565eab9b367f1df6c9911ffe8c2237405664975f007"
   },
-  "diagramSha256": "a8f7de368152431013c2a0fa098ea73019d2085a56c4b91d7e60fd501105d247",
+  "diagramSha256": "5cb670e76e82e0e2d6968574b6e1958ed6089f709b1c7d67427dbb8239c6c3fb",
   "renderer": {
     "liam": "0.7.24",
     "drizzle": "0.45.2",
     "ingestion": "evaluated-metadata"
   },
   "coverage": {
-    "tables": 20,
-    "columns": 207,
-    "foreignKeys": 27
+    "tables": 21,
+    "columns": 210,
+    "foreignKeys": 28
   },
   "migrations": [
     {
@@ -51,8 +51,8 @@
       "sha256": "1720ffe10c1dde462c1872c0b20c8aa8e7345c7d30f17d514c06f94f6ddfcb4a"
     },
     {
-      "path": "drizzle/0007_retire_scaffold_example.sql",
-      "sha256": "9a6d7d144c60e4e548e6543a110ed5e5d36cc129e8bebb7c027c8f5e4fe6b5af"
+      "path": "drizzle/0007_retain_scaffold_example.sql",
+      "sha256": "c86d27c59dbf18ac1c9d4f9d91978720f8cf527c51b763196438f09c1b323807"
     },
     {
       "path": "drizzle/0008_rename_result_logs.sql",
@@ -69,7 +69,11 @@
     {
       "path": "drizzle/0011_habit_log_integrity.sql",
       "sha256": "eb59d7b239045d4c7805954a7ad6b8490ef9d92a835c4cdf45d0f19b1751f39c"
+    },
+    {
+      "path": "drizzle/0012_streamline_receipts_retain_example.sql",
+      "sha256": "275b56a6bab038676e21d476bf0a05993c38463f39ca1d71da34f02f9ac36a2a"
     }
   ],
-  "rulesSha256": "7a925a00527dcf318c8906b0622c2a1757a928aeba5e5575f2108fa1891fd1b7"
+  "rulesSha256": "ee0084b0be09d626140939b9333b00032e6c1095f3f43783afeaac8e962b83e2"
 }

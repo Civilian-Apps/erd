@@ -46,6 +46,13 @@ INDEX cycles_user_id_idx USING btree (user_id ASC NULLS LAST)
 UNIQUE INDEX cycles_one_active_uidx USING btree (user_id ASC NULLS LAST) WHERE &quot;cycles&quot;.&quot;status&quot; = 'active'
 
 CHECK cycles_date_range_check: &quot;cycles&quot;.&quot;end_at&quot; > &quot;cycles&quot;.&quot;start_at&quot;</pre></details>
+<details><summary>example</summary><pre>Row-level security: enabled.
+
+POLICY example_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
+
+INDEX example_user_id_idx USING btree (user_id ASC NULLS LAST)
+
+</pre></details>
 <details><summary>habit_logs</summary><pre>Row-level security: enabled.
 
 POLICY habit_logs_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
@@ -899,8 +906,10 @@ END $$;
 CREATE TRIGGER habit_marks_day_type_check BEFORE INSERT ON habit_marks
 FOR EACH ROW EXECUTE FUNCTION public.coach_validate_habit_mark();
 </pre></details>
-<details><summary>drizzle/0007_retire_scaffold_example.sql · SHA-256 9a6d7d144c60e4e548e6543a110ed5e5d36cc129e8bebb7c027c8f5e4fe6b5af</summary><pre>DROP POLICY &quot;example_tenant_isolation&quot; ON &quot;example&quot; CASCADE;--> statement-breakpoint
-DROP TABLE &quot;example&quot; CASCADE;</pre></details>
+<details><summary>drizzle/0007_retain_scaffold_example.sql · SHA-256 c86d27c59dbf18ac1c9d4f9d91978720f8cf527c51b763196438f09c1b323807</summary><pre>-- Solo retains the existing scaffold until implementation has a replacement.
+-- This draft migration never ran against a persistent database. Preserve existing rows.
+SELECT 1;
+</pre></details>
 <details><summary>drizzle/0008_rename_result_logs.sql · SHA-256 42f80494153b8152093f50f5dbaf8fdbbbf19220db2764faea0963ff89b15ae7</summary><pre>ALTER TABLE &quot;result_updates&quot; RENAME TO &quot;result_logs&quot;;--> statement-breakpoint
 ALTER TABLE &quot;result_logs&quot; DROP CONSTRAINT &quot;result_updates_finite_value_check&quot;;--> statement-breakpoint
 ALTER TABLE &quot;result_logs&quot; DROP CONSTRAINT &quot;result_updates_user_id_user_id_fk&quot;;
@@ -1019,4 +1028,7 @@ BEGIN
   END IF;
   RETURN NEW;
 END $$;
-</pre></details></body></html>
+</pre></details>
+<details><summary>drizzle/0012_streamline_receipts_retain_example.sql · SHA-256 275b56a6bab038676e21d476bf0a05993c38463f39ca1d71da34f02f9ac36a2a</summary><pre>ALTER TABLE &quot;idempotency_keys&quot; DROP COLUMN &quot;expires_at&quot;;--> statement-breakpoint
+ALTER TABLE &quot;idempotency_keys&quot; DROP COLUMN &quot;updated_at&quot;;--> statement-breakpoint
+ALTER TABLE &quot;example&quot; DROP COLUMN &quot;deleted_at&quot;;</pre></details></body></html>

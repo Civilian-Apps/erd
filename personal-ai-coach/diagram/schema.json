@@ -655,6 +655,84 @@
         }
       }
     },
+    "example": {
+      "name": "example",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": "Row-level security: enabled.\n\nPOLICY example_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX example_user_id_idx USING btree (user_id ASC NULLS LAST)",
+      "indexes": {
+        "example_user_id_idx": {
+          "name": "example_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "example_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "example_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "example_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "example_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
     "habit_logs": {
       "name": "habit_logs",
       "columns": {
@@ -849,24 +927,8 @@
           "notNull": false,
           "comment": null
         },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
-        },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
-          "default": "now()",
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "updated_at": {
-          "name": "updated_at",
           "type": "timestamp with time zone",
           "default": "now()",
           "check": null,
