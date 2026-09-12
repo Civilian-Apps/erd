@@ -46,24 +46,17 @@ INDEX cycles_user_id_idx USING btree (user_id ASC NULLS LAST)
 UNIQUE INDEX cycles_one_active_uidx USING btree (user_id ASC NULLS LAST) WHERE &quot;cycles&quot;.&quot;status&quot; = 'active'
 
 CHECK cycles_date_range_check: &quot;cycles&quot;.&quot;end_at&quot; > &quot;cycles&quot;.&quot;start_at&quot;</pre></details>
-<details><summary>example</summary><pre>Row-level security: enabled.
+<details><summary>habit_logs</summary><pre>Row-level security: enabled.
 
-POLICY example_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
+POLICY habit_logs_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
-INDEX example_user_id_idx USING btree (user_id ASC NULLS LAST)
+INDEX habit_logs_user_id_idx USING btree (user_id ASC NULLS LAST)
 
-</pre></details>
-<details><summary>habit_marks</summary><pre>Row-level security: enabled.
+INDEX habit_logs_result_user_idx USING btree (result_id ASC NULLS LAST, user_id ASC NULLS LAST)
 
-POLICY habit_marks_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
+INDEX habit_logs_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)
 
-INDEX habit_marks_user_id_idx USING btree (user_id ASC NULLS LAST)
-
-INDEX habit_marks_result_user_idx USING btree (result_id ASC NULLS LAST, user_id ASC NULLS LAST)
-
-INDEX habit_marks_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)
-
-UNIQUE INDEX habit_marks_result_day_uidx USING btree (result_id ASC NULLS LAST, day ASC NULLS LAST)
+UNIQUE INDEX habit_logs_result_day_uidx USING btree (result_id ASC NULLS LAST, day ASC NULLS LAST)
 
 </pre></details>
 <details><summary>idempotency_keys</summary><pre>Row-level security: enabled.
@@ -151,19 +144,19 @@ INDEX product_events_user_id_idx USING btree (user_id ASC NULLS LAST)
 INDEX product_events_event_type_idx USING btree (event_type ASC NULLS LAST)
 
 </pre></details>
-<details><summary>result_updates</summary><pre>Row-level security: enabled.
+<details><summary>result_logs</summary><pre>Row-level security: enabled.
 
-POLICY result_updates_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
+POLICY result_logs_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
-INDEX result_updates_user_id_idx USING btree (user_id ASC NULLS LAST)
+INDEX result_logs_user_id_idx USING btree (user_id ASC NULLS LAST)
 
-INDEX result_updates_result_user_idx USING btree (result_id ASC NULLS LAST, user_id ASC NULLS LAST)
+INDEX result_logs_result_user_idx USING btree (result_id ASC NULLS LAST, user_id ASC NULLS LAST)
 
-INDEX result_updates_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)
+INDEX result_logs_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)
 
-INDEX result_updates_history_idx USING btree (result_id ASC NULLS LAST, recorded_at DESC NULLS LAST, id DESC NULLS LAST)
+INDEX result_logs_history_idx USING btree (result_id ASC NULLS LAST, recorded_at DESC NULLS LAST, id DESC NULLS LAST)
 
-CHECK result_updates_finite_value_check: &quot;result_updates&quot;.&quot;value&quot; IS NULL OR &quot;result_updates&quot;.&quot;value&quot; NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)</pre></details>
+CHECK result_logs_finite_value_check: &quot;result_logs&quot;.&quot;value&quot; IS NULL OR &quot;result_logs&quot;.&quot;value&quot; NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)</pre></details>
 <details><summary>results</summary><pre>Row-level security: enabled.
 
 POLICY results_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
@@ -905,4 +898,125 @@ END $$;
 --> statement-breakpoint
 CREATE TRIGGER habit_marks_day_type_check BEFORE INSERT ON habit_marks
 FOR EACH ROW EXECUTE FUNCTION public.coach_validate_habit_mark();
+</pre></details>
+<details><summary>drizzle/0007_retire_scaffold_example.sql · SHA-256 9a6d7d144c60e4e548e6543a110ed5e5d36cc129e8bebb7c027c8f5e4fe6b5af</summary><pre>DROP POLICY &quot;example_tenant_isolation&quot; ON &quot;example&quot; CASCADE;--> statement-breakpoint
+DROP TABLE &quot;example&quot; CASCADE;</pre></details>
+<details><summary>drizzle/0008_rename_result_logs.sql · SHA-256 42f80494153b8152093f50f5dbaf8fdbbbf19220db2764faea0963ff89b15ae7</summary><pre>ALTER TABLE &quot;result_updates&quot; RENAME TO &quot;result_logs&quot;;--> statement-breakpoint
+ALTER TABLE &quot;result_logs&quot; DROP CONSTRAINT &quot;result_updates_finite_value_check&quot;;--> statement-breakpoint
+ALTER TABLE &quot;result_logs&quot; DROP CONSTRAINT &quot;result_updates_user_id_user_id_fk&quot;;
+--> statement-breakpoint
+ALTER TABLE &quot;result_logs&quot; DROP CONSTRAINT &quot;result_updates_result_tenant_fk&quot;;
+--> statement-breakpoint
+ALTER TABLE &quot;result_logs&quot; DROP CONSTRAINT &quot;result_updates_session_tenant_fk&quot;;
+--> statement-breakpoint
+DROP INDEX &quot;result_updates_user_id_idx&quot;;--> statement-breakpoint
+DROP INDEX &quot;result_updates_result_user_idx&quot;;--> statement-breakpoint
+DROP INDEX &quot;result_updates_session_user_idx&quot;;--> statement-breakpoint
+DROP INDEX &quot;result_updates_history_idx&quot;;--> statement-breakpoint
+ALTER TABLE &quot;result_logs&quot; ADD CONSTRAINT &quot;result_logs_user_id_user_id_fk&quot; FOREIGN KEY (&quot;user_id&quot;) REFERENCES &quot;public&quot;.&quot;user&quot;(&quot;id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;result_logs&quot; ADD CONSTRAINT &quot;result_logs_result_tenant_fk&quot; FOREIGN KEY (&quot;result_id&quot;,&quot;user_id&quot;) REFERENCES &quot;public&quot;.&quot;results&quot;(&quot;id&quot;,&quot;user_id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;result_logs&quot; ADD CONSTRAINT &quot;result_logs_session_tenant_fk&quot; FOREIGN KEY (&quot;session_id&quot;,&quot;user_id&quot;) REFERENCES &quot;public&quot;.&quot;sessions&quot;(&quot;id&quot;,&quot;user_id&quot;) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX &quot;result_logs_user_id_idx&quot; ON &quot;result_logs&quot; USING btree (&quot;user_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;result_logs_result_user_idx&quot; ON &quot;result_logs&quot; USING btree (&quot;result_id&quot;,&quot;user_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;result_logs_session_user_idx&quot; ON &quot;result_logs&quot; USING btree (&quot;session_id&quot;,&quot;user_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;result_logs_history_idx&quot; ON &quot;result_logs&quot; USING btree (&quot;result_id&quot;,&quot;recorded_at&quot; DESC NULLS LAST,&quot;id&quot; DESC NULLS LAST);--> statement-breakpoint
+ALTER TABLE &quot;result_logs&quot; ADD CONSTRAINT &quot;result_logs_finite_value_check&quot; CHECK (&quot;result_logs&quot;.&quot;value&quot; IS NULL OR &quot;result_logs&quot;.&quot;value&quot; NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric));--> statement-breakpoint
+ALTER POLICY &quot;result_updates_tenant_isolation&quot; ON &quot;result_logs&quot; RENAME TO &quot;result_logs_tenant_isolation&quot;;</pre></details>
+<details><summary>drizzle/0009_result_log_integrity.sql · SHA-256 4a1c729a82c4088c210a58ec032f32ee453749c6d0a0dd37104fcb074e0e0874</summary><pre>-- Table renaming preserves rows, grants and trigger bindings, but PL/pgSQL
+-- bodies use SQL names at runtime. Update those bodies in this migration.
+ALTER TABLE result_logs RENAME CONSTRAINT result_updates_pkey TO result_logs_pkey;
+--> statement-breakpoint
+ALTER TRIGGER result_updates_value_type_check ON result_logs RENAME TO result_logs_value_type_check;
+--> statement-breakpoint
+CREATE OR REPLACE FUNCTION public.coach_guard_metric_type() RETURNS trigger
+LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
+BEGIN
+  IF NEW.metric_type IS DISTINCT FROM OLD.metric_type AND (
+    EXISTS (SELECT 1 FROM public.result_logs WHERE result_id = OLD.id AND user_id = OLD.user_id)
+    OR EXISTS (SELECT 1 FROM public.habit_marks WHERE result_id = OLD.id AND user_id = OLD.user_id)
+  ) THEN
+    RAISE EXCEPTION 'Result metric type cannot change after evidence exists'
+      USING ERRCODE = '23514', CONSTRAINT = 'results_metric_type_immutable';
+  END IF;
+  RETURN NEW;
+END $$;
+--> statement-breakpoint
+CREATE OR REPLACE FUNCTION public.coach_validate_result_update() RETURNS trigger
+LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
+DECLARE kind public.metric_type;
+BEGIN
+  UPDATE public.results SET updated_at = updated_at
+    WHERE id = NEW.result_id AND user_id = NEW.user_id RETURNING metric_type INTO kind;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Result not found' USING ERRCODE = '23503';
+  END IF;
+  IF (kind = 'habit' AND NEW.value IS NOT NULL)
+    OR (kind &lt;> 'habit' AND NEW.value IS NULL)
+    OR (kind = 'percentage' AND NEW.value NOT BETWEEN 0 AND 100)
+    OR (kind = 'milestone' AND NEW.value NOT IN (0, 1))
+    OR (kind = 'performance' AND NEW.value &lt;> round(NEW.value, 1)) THEN
+    RAISE EXCEPTION 'Evidence value does not match result metric type'
+      USING ERRCODE = '23514', CONSTRAINT = 'result_logs_value_type_check';
+  END IF;
+  IF kind = 'habit' AND (NEW.comment IS NULL OR NEW.comment !~ '[^[:space:]]') THEN
+    RAISE EXCEPTION 'Habit comment entry requires text'
+      USING ERRCODE = '23514', CONSTRAINT = 'result_logs_habit_comment_check';
+  END IF;
+  RETURN NEW;
+END $$;
+</pre></details>
+<details><summary>drizzle/0010_rename_habit_logs.sql · SHA-256 ee20632c6d9e216d2896d75c6fd532b9fa7bfdc00fd3820d95de035fed1cf70d</summary><pre>ALTER TABLE &quot;habit_marks&quot; RENAME TO &quot;habit_logs&quot;;--> statement-breakpoint
+ALTER TABLE &quot;habit_logs&quot; DROP CONSTRAINT &quot;habit_marks_user_id_user_id_fk&quot;;
+--> statement-breakpoint
+ALTER TABLE &quot;habit_logs&quot; DROP CONSTRAINT &quot;habit_marks_result_tenant_fk&quot;;
+--> statement-breakpoint
+ALTER TABLE &quot;habit_logs&quot; DROP CONSTRAINT &quot;habit_marks_session_tenant_fk&quot;;
+--> statement-breakpoint
+DROP INDEX &quot;habit_marks_user_id_idx&quot;;--> statement-breakpoint
+DROP INDEX &quot;habit_marks_result_user_idx&quot;;--> statement-breakpoint
+DROP INDEX &quot;habit_marks_session_user_idx&quot;;--> statement-breakpoint
+DROP INDEX &quot;habit_marks_result_day_uidx&quot;;--> statement-breakpoint
+ALTER TABLE &quot;habit_logs&quot; ADD CONSTRAINT &quot;habit_logs_user_id_user_id_fk&quot; FOREIGN KEY (&quot;user_id&quot;) REFERENCES &quot;public&quot;.&quot;user&quot;(&quot;id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;habit_logs&quot; ADD CONSTRAINT &quot;habit_logs_result_tenant_fk&quot; FOREIGN KEY (&quot;result_id&quot;,&quot;user_id&quot;) REFERENCES &quot;public&quot;.&quot;results&quot;(&quot;id&quot;,&quot;user_id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;habit_logs&quot; ADD CONSTRAINT &quot;habit_logs_session_tenant_fk&quot; FOREIGN KEY (&quot;session_id&quot;,&quot;user_id&quot;) REFERENCES &quot;public&quot;.&quot;sessions&quot;(&quot;id&quot;,&quot;user_id&quot;) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX &quot;habit_logs_user_id_idx&quot; ON &quot;habit_logs&quot; USING btree (&quot;user_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;habit_logs_result_user_idx&quot; ON &quot;habit_logs&quot; USING btree (&quot;result_id&quot;,&quot;user_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;habit_logs_session_user_idx&quot; ON &quot;habit_logs&quot; USING btree (&quot;session_id&quot;,&quot;user_id&quot;);--> statement-breakpoint
+CREATE UNIQUE INDEX &quot;habit_logs_result_day_uidx&quot; ON &quot;habit_logs&quot; USING btree (&quot;result_id&quot;,&quot;day&quot;);--> statement-breakpoint
+ALTER POLICY &quot;habit_marks_tenant_isolation&quot; ON &quot;habit_logs&quot; RENAME TO &quot;habit_logs_tenant_isolation&quot;;</pre></details>
+<details><summary>drizzle/0011_habit_log_integrity.sql · SHA-256 eb59d7b239045d4c7805954a7ad6b8490ef9d92a835c4cdf45d0f19b1751f39c</summary><pre>-- Physical rename only: checked-day state, row identity and toggle behavior remain.
+ALTER TABLE habit_logs RENAME CONSTRAINT habit_marks_pkey TO habit_logs_pkey;
+--> statement-breakpoint
+ALTER TRIGGER habit_marks_day_type_check ON habit_logs RENAME TO habit_logs_day_type_check;
+--> statement-breakpoint
+CREATE OR REPLACE FUNCTION public.coach_guard_metric_type() RETURNS trigger
+LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
+BEGIN
+  IF NEW.metric_type IS DISTINCT FROM OLD.metric_type AND (
+    EXISTS (SELECT 1 FROM public.result_logs WHERE result_id = OLD.id AND user_id = OLD.user_id)
+    OR EXISTS (SELECT 1 FROM public.habit_logs WHERE result_id = OLD.id AND user_id = OLD.user_id)
+  ) THEN
+    RAISE EXCEPTION 'Result metric type cannot change after evidence exists'
+      USING ERRCODE = '23514', CONSTRAINT = 'results_metric_type_immutable';
+  END IF;
+  RETURN NEW;
+END $$;
+--> statement-breakpoint
+CREATE OR REPLACE FUNCTION public.coach_validate_habit_mark() RETURNS trigger
+LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
+DECLARE parent public.results%ROWTYPE; zone text;
+BEGIN
+  UPDATE public.results SET updated_at = updated_at
+    WHERE id = NEW.result_id AND user_id = NEW.user_id RETURNING * INTO parent;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Result not found' USING ERRCODE = '23503';
+  END IF;
+  SELECT timezone INTO zone FROM public.&quot;user&quot; WHERE id = NEW.user_id;
+  IF parent.metric_type &lt;> 'habit' OR NEW.day &lt; parent.since
+    OR NEW.day > (CURRENT_TIMESTAMP AT TIME ZONE zone)::date THEN
+    RAISE EXCEPTION 'Habit mark must reference a habit and fall between its start and today'
+      USING ERRCODE = '23514', CONSTRAINT = 'habit_logs_day_type_check';
+  END IF;
+  RETURN NEW;
+END $$;
 </pre></details></body></html>

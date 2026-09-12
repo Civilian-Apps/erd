@@ -655,94 +655,8 @@
         }
       }
     },
-    "example": {
-      "name": "example",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "default": "gen_random_uuid()",
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "default": null,
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "default": null,
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "default": "now()",
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "default": "now()",
-          "check": null,
-          "notNull": true,
-          "comment": null
-        }
-      },
-      "comment": "Row-level security: enabled.\n\nPOLICY example_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX example_user_id_idx USING btree (user_id ASC NULLS LAST)",
-      "indexes": {
-        "example_user_id_idx": {
-          "name": "example_user_id_idx",
-          "unique": false,
-          "columns": [
-            "user_id"
-          ],
-          "type": "btree"
-        }
-      },
-      "constraints": {
-        "example_pkey": {
-          "type": "PRIMARY KEY",
-          "name": "example_pkey",
-          "columnNames": [
-            "id"
-          ]
-        },
-        "example_user_id_user_id_fk": {
-          "type": "FOREIGN KEY",
-          "name": "example_user_id_user_id_fk",
-          "columnNames": [
-            "user_id"
-          ],
-          "targetTableName": "user",
-          "targetColumnNames": [
-            "id"
-          ],
-          "updateConstraint": "NO_ACTION",
-          "deleteConstraint": "CASCADE"
-        }
-      }
-    },
-    "habit_marks": {
-      "name": "habit_marks",
+    "habit_logs": {
+      "name": "habit_logs",
       "columns": {
         "id": {
           "name": "id",
@@ -793,18 +707,18 @@
           "comment": null
         }
       },
-      "comment": "Row-level security: enabled.\n\nPOLICY habit_marks_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX habit_marks_user_id_idx USING btree (user_id ASC NULLS LAST)\n\nINDEX habit_marks_result_user_idx USING btree (result_id ASC NULLS LAST, user_id ASC NULLS LAST)\n\nINDEX habit_marks_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)\n\nUNIQUE INDEX habit_marks_result_day_uidx USING btree (result_id ASC NULLS LAST, day ASC NULLS LAST)",
+      "comment": "Row-level security: enabled.\n\nPOLICY habit_logs_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX habit_logs_user_id_idx USING btree (user_id ASC NULLS LAST)\n\nINDEX habit_logs_result_user_idx USING btree (result_id ASC NULLS LAST, user_id ASC NULLS LAST)\n\nINDEX habit_logs_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)\n\nUNIQUE INDEX habit_logs_result_day_uidx USING btree (result_id ASC NULLS LAST, day ASC NULLS LAST)",
       "indexes": {
-        "habit_marks_user_id_idx": {
-          "name": "habit_marks_user_id_idx",
+        "habit_logs_user_id_idx": {
+          "name": "habit_logs_user_id_idx",
           "unique": false,
           "columns": [
             "user_id"
           ],
           "type": "btree"
         },
-        "habit_marks_result_user_idx": {
-          "name": "habit_marks_result_user_idx",
+        "habit_logs_result_user_idx": {
+          "name": "habit_logs_result_user_idx",
           "unique": false,
           "columns": [
             "result_id",
@@ -812,8 +726,8 @@
           ],
           "type": "btree"
         },
-        "habit_marks_session_user_idx": {
-          "name": "habit_marks_session_user_idx",
+        "habit_logs_session_user_idx": {
+          "name": "habit_logs_session_user_idx",
           "unique": false,
           "columns": [
             "session_id",
@@ -821,8 +735,8 @@
           ],
           "type": "btree"
         },
-        "habit_marks_result_day_uidx": {
-          "name": "habit_marks_result_day_uidx",
+        "habit_logs_result_day_uidx": {
+          "name": "habit_logs_result_day_uidx",
           "unique": true,
           "columns": [
             "result_id",
@@ -832,16 +746,16 @@
         }
       },
       "constraints": {
-        "habit_marks_pkey": {
+        "habit_logs_pkey": {
           "type": "PRIMARY KEY",
-          "name": "habit_marks_pkey",
+          "name": "habit_logs_pkey",
           "columnNames": [
             "id"
           ]
         },
-        "habit_marks_user_id_user_id_fk": {
+        "habit_logs_user_id_user_id_fk": {
           "type": "FOREIGN KEY",
-          "name": "habit_marks_user_id_user_id_fk",
+          "name": "habit_logs_user_id_user_id_fk",
           "columnNames": [
             "user_id"
           ],
@@ -852,9 +766,9 @@
           "updateConstraint": "NO_ACTION",
           "deleteConstraint": "CASCADE"
         },
-        "habit_marks_result_tenant_fk": {
+        "habit_logs_result_tenant_fk": {
           "type": "FOREIGN KEY",
-          "name": "habit_marks_result_tenant_fk",
+          "name": "habit_logs_result_tenant_fk",
           "columnNames": [
             "result_id",
             "user_id"
@@ -867,9 +781,9 @@
           "updateConstraint": "NO_ACTION",
           "deleteConstraint": "CASCADE"
         },
-        "habit_marks_session_tenant_fk": {
+        "habit_logs_session_tenant_fk": {
           "type": "FOREIGN KEY",
-          "name": "habit_marks_session_tenant_fk",
+          "name": "habit_logs_session_tenant_fk",
           "columnNames": [
             "session_id",
             "user_id"
@@ -2121,8 +2035,8 @@
         }
       }
     },
-    "result_updates": {
-      "name": "result_updates",
+    "result_logs": {
+      "name": "result_logs",
       "columns": {
         "id": {
           "name": "id",
@@ -2189,18 +2103,18 @@
           "comment": null
         }
       },
-      "comment": "Row-level security: enabled.\n\nPOLICY result_updates_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX result_updates_user_id_idx USING btree (user_id ASC NULLS LAST)\n\nINDEX result_updates_result_user_idx USING btree (result_id ASC NULLS LAST, user_id ASC NULLS LAST)\n\nINDEX result_updates_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)\n\nINDEX result_updates_history_idx USING btree (result_id ASC NULLS LAST, recorded_at DESC NULLS LAST, id DESC NULLS LAST)",
+      "comment": "Row-level security: enabled.\n\nPOLICY result_logs_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX result_logs_user_id_idx USING btree (user_id ASC NULLS LAST)\n\nINDEX result_logs_result_user_idx USING btree (result_id ASC NULLS LAST, user_id ASC NULLS LAST)\n\nINDEX result_logs_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)\n\nINDEX result_logs_history_idx USING btree (result_id ASC NULLS LAST, recorded_at DESC NULLS LAST, id DESC NULLS LAST)",
       "indexes": {
-        "result_updates_user_id_idx": {
-          "name": "result_updates_user_id_idx",
+        "result_logs_user_id_idx": {
+          "name": "result_logs_user_id_idx",
           "unique": false,
           "columns": [
             "user_id"
           ],
           "type": "btree"
         },
-        "result_updates_result_user_idx": {
-          "name": "result_updates_result_user_idx",
+        "result_logs_result_user_idx": {
+          "name": "result_logs_result_user_idx",
           "unique": false,
           "columns": [
             "result_id",
@@ -2208,8 +2122,8 @@
           ],
           "type": "btree"
         },
-        "result_updates_session_user_idx": {
-          "name": "result_updates_session_user_idx",
+        "result_logs_session_user_idx": {
+          "name": "result_logs_session_user_idx",
           "unique": false,
           "columns": [
             "session_id",
@@ -2217,8 +2131,8 @@
           ],
           "type": "btree"
         },
-        "result_updates_history_idx": {
-          "name": "result_updates_history_idx",
+        "result_logs_history_idx": {
+          "name": "result_logs_history_idx",
           "unique": false,
           "columns": [
             "result_id",
@@ -2229,21 +2143,21 @@
         }
       },
       "constraints": {
-        "result_updates_pkey": {
+        "result_logs_pkey": {
           "type": "PRIMARY KEY",
-          "name": "result_updates_pkey",
+          "name": "result_logs_pkey",
           "columnNames": [
             "id"
           ]
         },
-        "result_updates_finite_value_check": {
+        "result_logs_finite_value_check": {
           "type": "CHECK",
-          "name": "result_updates_finite_value_check",
-          "detail": "\"result_updates\".\"value\" IS NULL OR \"result_updates\".\"value\" NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)"
+          "name": "result_logs_finite_value_check",
+          "detail": "\"result_logs\".\"value\" IS NULL OR \"result_logs\".\"value\" NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)"
         },
-        "result_updates_user_id_user_id_fk": {
+        "result_logs_user_id_user_id_fk": {
           "type": "FOREIGN KEY",
-          "name": "result_updates_user_id_user_id_fk",
+          "name": "result_logs_user_id_user_id_fk",
           "columnNames": [
             "user_id"
           ],
@@ -2254,9 +2168,9 @@
           "updateConstraint": "NO_ACTION",
           "deleteConstraint": "CASCADE"
         },
-        "result_updates_result_tenant_fk": {
+        "result_logs_result_tenant_fk": {
           "type": "FOREIGN KEY",
-          "name": "result_updates_result_tenant_fk",
+          "name": "result_logs_result_tenant_fk",
           "columnNames": [
             "result_id",
             "user_id"
@@ -2269,9 +2183,9 @@
           "updateConstraint": "NO_ACTION",
           "deleteConstraint": "CASCADE"
         },
-        "result_updates_session_tenant_fk": {
+        "result_logs_session_tenant_fk": {
           "type": "FOREIGN KEY",
-          "name": "result_updates_session_tenant_fk",
+          "name": "result_logs_session_tenant_fk",
           "columnNames": [
             "session_id",
             "user_id"

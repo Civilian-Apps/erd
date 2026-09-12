@@ -4,23 +4,23 @@
     "ref": "main",
     "schema": "packages/core/src/contracts/schema.ts",
     "revision": "f6b21bee0e7da436c96f5cbd7f984377922e5ebc",
-    "schemaSha256": "71d43e45deea0552aef8689d417ce96db97e76ea88d73f9dd96fe7d60b6e446d",
+    "schemaSha256": "1aec911e4df434f85d54043b4b9480a28517e237c217837ea42421f61200ab3c",
     "kind": "local",
     "dirty": true,
     "publication": "draft",
     "inputs": {
-      "packages/core/src/contracts/schema.ts": "71d43e45deea0552aef8689d417ce96db97e76ea88d73f9dd96fe7d60b6e446d"
+      "packages/core/src/contracts/schema.ts": "1aec911e4df434f85d54043b4b9480a28517e237c217837ea42421f61200ab3c"
     },
-    "diagramSha256": "2138a20a7003408a7efb785dd86950b3ec46cccea962cd5b797cc6f0dd538694",
+    "diagramSha256": "a8f7de368152431013c2a0fa098ea73019d2085a56c4b91d7e60fd501105d247",
     "renderer": {
       "liam": "0.7.24",
       "drizzle": "0.45.2",
       "ingestion": "evaluated-metadata"
     },
     "coverage": {
-      "tables": 21,
-      "columns": 213,
-      "foreignKeys": 28
+      "tables": 20,
+      "columns": 207,
+      "foreignKeys": 27
     },
     "migrations": [
       {
@@ -50,8 +50,28 @@
       {
         "path": "drizzle/0006_product_integrity.sql",
         "sha256": "1720ffe10c1dde462c1872c0b20c8aa8e7345c7d30f17d514c06f94f6ddfcb4a"
+      },
+      {
+        "path": "drizzle/0007_retire_scaffold_example.sql",
+        "sha256": "9a6d7d144c60e4e548e6543a110ed5e5d36cc129e8bebb7c027c8f5e4fe6b5af"
+      },
+      {
+        "path": "drizzle/0008_rename_result_logs.sql",
+        "sha256": "42f80494153b8152093f50f5dbaf8fdbbbf19220db2764faea0963ff89b15ae7"
+      },
+      {
+        "path": "drizzle/0009_result_log_integrity.sql",
+        "sha256": "4a1c729a82c4088c210a58ec032f32ee453749c6d0a0dd37104fcb074e0e0874"
+      },
+      {
+        "path": "drizzle/0010_rename_habit_logs.sql",
+        "sha256": "ee20632c6d9e216d2896d75c6fd532b9fa7bfdc00fd3820d95de035fed1cf70d"
+      },
+      {
+        "path": "drizzle/0011_habit_log_integrity.sql",
+        "sha256": "eb59d7b239045d4c7805954a7ad6b8490ef9d92a835c4cdf45d0f19b1751f39c"
       }
     ],
-    "rulesSha256": "92f4b3d7a3a09fe153b7b3d4d3a3ebdce0ed79b7a6c166790c93edfa05590f3f"
+    "rulesSha256": "7a925a00527dcf318c8906b0622c2a1757a928aeba5e5575f2108fa1891fd1b7"
   }
 }
