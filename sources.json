@@ -73,9 +73,9 @@
       },
       {
         "path": "drizzle/0012_streamline_receipts_retain_example.sql",
-        "sha256": "275b56a6bab038676e21d476bf0a05993c38463f39ca1d71da34f02f9ac36a2a"
+        "sha256": "b87b990e72c2cf7f6ccac9cb424f50e4b56578c0380e27349d07b3703068f2a4"
       }
     ],
-    "rulesSha256": "ee0084b0be09d626140939b9333b00032e6c1095f3f43783afeaac8e962b83e2"
+    "rulesSha256": "240d8c80c58839729f92d9bb3253cb50dbd23a95aba4f683f82f97b97c1d1696"
   }
 }

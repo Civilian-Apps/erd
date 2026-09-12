@@ -1029,6 +1029,8 @@ BEGIN
   RETURN NEW;
 END $$;
 </pre></details>
-<details><summary>drizzle/0012_streamline_receipts_retain_example.sql · SHA-256 275b56a6bab038676e21d476bf0a05993c38463f39ca1d71da34f02f9ac36a2a</summary><pre>ALTER TABLE &quot;idempotency_keys&quot; DROP COLUMN &quot;expires_at&quot;;--> statement-breakpoint
+<details><summary>drizzle/0012_streamline_receipts_retain_example.sql · SHA-256 b87b990e72c2cf7f6ccac9cb424f50e4b56578c0380e27349d07b3703068f2a4</summary><pre>-- Preserve deletion semantics: old tombstones must not become visible rows.
+DELETE FROM &quot;example&quot; WHERE &quot;deleted_at&quot; IS NOT NULL;--> statement-breakpoint
+ALTER TABLE &quot;idempotency_keys&quot; DROP COLUMN &quot;expires_at&quot;;--> statement-breakpoint
 ALTER TABLE &quot;idempotency_keys&quot; DROP COLUMN &quot;updated_at&quot;;--> statement-breakpoint
 ALTER TABLE &quot;example&quot; DROP COLUMN &quot;deleted_at&quot;;</pre></details></body></html>
