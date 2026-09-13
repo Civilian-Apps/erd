@@ -2,12 +2,6 @@
 // Canonical domain spec remains docs/ONTOLOGY.md. See README.md for migration decisions.
 import { sql } from 'drizzle-orm';
 import { boolean, check, date, foreignKey, integer, numeric, pgEnum, index, jsonb, pgPolicy, pgTable, text, timestamp, uniqueIndex, uuid, } from 'drizzle-orm/pg-core';
-export const subscriptionStatus = pgEnum('subscription_status', [
-    'incomplete',
-    'active',
-    'past_due',
-    'canceled',
-]);
 export const cycleStatus = pgEnum('cycle_status', ['active', 'archived']);
 export const objectiveStatus = pgEnum('objective_status', ['on_track', 'off_track', 'completed']);
 export const metricType = pgEnum('metric_type', [
@@ -41,23 +35,15 @@ export const user = pgTable("user", {
     lastName: text('last_name'),
     aboutMe: text('about_me').notNull().default(''),
     timezone: text('timezone').notNull().default('UTC'),
-    subscriptionStatus: subscriptionStatus('subscription_status').notNull().default('incomplete'),
-    subscriptionCancelAtPeriodEnd: boolean('subscription_cancel_at_period_end')
-        .notNull()
-        .default(false),
-    subscriptionCurrentPeriodEnd: timestamp('subscription_current_period_end', {
-        withTimezone: true,
-    }),
 }, (table) => [
     pgPolicy('user_self_isolation', {
         for: 'all',
         to: 'authenticated',
         using: sql `${table.id} = nullif(current_setting('app.user_id', true), '')::uuid`,
         withCheck: sql `${table.id} = nullif(current_setting('app.user_id', true), '')::uuid`,
-    }),
-    check('user_subscription_status_check', sql `${table.subscriptionStatus} in ('incomplete', 'active', 'past_due', 'canceled')`)
+    })
 ]).enableRLS();
-export const session = pgTable("session", {
+export const authSession = pgTable("auth_session", {
     id: uuid('id').primaryKey().defaultRandom(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     token: text('token').notNull().unique(),
@@ -170,7 +156,7 @@ export const oauthAccessToken = pgTable("oauth_access_token", {
     clientId: text("client_id")
         .notNull()
         .references(() => oauthClient.clientId, { onDelete: "cascade" }),
-    sessionId: uuid("session_id").references(() => session.id, {
+    sessionId: uuid("session_id").references(() => authSession.id, {
         onDelete: "set null",
     }),
     userId: uuid('user_id').references(() => user.id, { onDelete: 'cascade' }),
@@ -205,7 +191,7 @@ export const oauthRefreshToken = pgTable("oauth_refresh_token", {
     clientId: text("client_id")
         .notNull()
         .references(() => oauthClient.clientId, { onDelete: "cascade" }),
-    sessionId: uuid("session_id").references(() => session.id, {
+    sessionId: uuid("session_id").references(() => authSession.id, {
         onDelete: "set null",
     }),
     userId: uuid('user_id')
@@ -265,19 +251,11 @@ export const productEvents = pgTable('product_events', {
     eventType: text('event_type').notNull(),
     occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow(),
     properties: jsonb('properties'),
-    stripeCustomerId: text('stripe_customer_id'),
-    subscriptionId: text('subscription_id'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
     index('product_events_user_id_idx').on(table.userId),
     index('product_events_event_type_idx').on(table.eventType),
-    pgPolicy('product_events_tenant_isolation', {
-        for: 'all',
-        to: 'authenticated',
-        using: sql `${table.userId} IS NULL OR ${table.userId} = nullif(current_setting('app.user_id', true), '')::uuid`,
-        withCheck: sql `${table.userId} IS NULL OR ${table.userId} = nullif(current_setting('app.user_id', true), '')::uuid`,
-    }),
+    pgPolicy('product_events_tenant_insert', { for: 'insert', to: 'authenticated', withCheck: sql `${table.userId} = nullif(current_setting('app.user_id', true), '')::uuid` }),
 ]).enableRLS();
 export const idempotencyKeys = pgTable('idempotency_keys', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -290,7 +268,6 @@ export const idempotencyKeys = pgTable('idempotency_keys', {
     responseRef: text('response_ref'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
-    index('idempotency_keys_user_id_idx').on(table.userId),
     uniqueIndex('idempotency_keys_user_op_key_uidx').on(table.userId, table.operation, table.idempotencyKey),
     pgPolicy('idempotency_keys_tenant_isolation', {
         for: 'all',
@@ -507,7 +484,6 @@ export const notes = pgTable('notes', {
     createdAt: created(),
     updatedAt: updated(),
 }, (t) => [
-    index('notes_user_id_idx').on(t.userId),
     index('notes_history_idx').on(t.userId, t.recordedAt.desc(), t.id.desc()),
     check('notes_nonblank_text_check', sql `${t.text} ~ '[^[:space:]]'`),
     tenantPolicy('notes'),
@@ -585,7 +561,6 @@ export const oauthClientResource = pgTable("oauth_client_resource", {
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at", { withTimezone: true }),
 }, (table) => [
-    index("oauth_client_resource_client_id_idx").on(table.clientId),
     index("oauth_client_resource_resource_id_idx").on(table.resourceId),
     uniqueIndex("oauth_client_resource_client_id_resource_id_uidx").on(table.clientId, table.resourceId)
 ]);

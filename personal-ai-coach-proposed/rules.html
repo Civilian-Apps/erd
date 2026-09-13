@@ -35,6 +35,13 @@ INDEX actions_session_user_idx USING btree (session_id ASC NULLS LAST, user_id A
 INDEX actions_outstanding_order_idx USING btree (cycle_id ASC NULLS LAST, objective_id ASC NULLS LAST, sort_order ASC NULLS LAST, due_at ASC NULLS LAST)
 
 </pre></details>
+<details><summary>auth_session</summary><pre>Row-level security: enabled.
+
+POLICY session_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
+
+INDEX session_user_id_idx USING btree (user_id ASC NULLS LAST)
+
+</pre></details>
 <details><summary>cycles</summary><pre>Row-level security: enabled.
 
 POLICY cycles_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
@@ -70,8 +77,6 @@ UNIQUE INDEX habit_logs_result_day_uidx USING btree (result_id ASC NULLS LAST, d
 
 POLICY idempotency_keys_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
-INDEX idempotency_keys_user_id_idx USING btree (user_id ASC NULLS LAST)
-
 UNIQUE INDEX idempotency_keys_user_op_key_uidx USING btree (user_id ASC NULLS LAST, operation ASC NULLS LAST, idempotency_key ASC NULLS LAST)
 
 </pre></details>
@@ -81,8 +86,6 @@ UNIQUE INDEX idempotency_keys_user_op_key_uidx USING btree (user_id ASC NULLS LA
 <details><summary>notes</summary><pre>Row-level security: enabled.
 
 POLICY notes_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
-
-INDEX notes_user_id_idx USING btree (user_id ASC NULLS LAST)
 
 INDEX notes_history_idx USING btree (user_id ASC NULLS LAST, recorded_at DESC NULLS LAST, id DESC NULLS LAST)
 
@@ -113,8 +116,6 @@ INDEX oauth_client_client_id_idx USING btree (client_id ASC NULLS LAST)
 
 </pre></details>
 <details><summary>oauth_client_resource</summary><pre>Row-level security: disabled.
-
-INDEX oauth_client_resource_client_id_idx USING btree (client_id ASC NULLS LAST)
 
 INDEX oauth_client_resource_resource_id_idx USING btree (resource_id ASC NULLS LAST)
 
@@ -161,7 +162,7 @@ INDEX objectives_cycle_user_idx USING btree (cycle_id ASC NULLS LAST, user_id AS
 </pre></details>
 <details><summary>product_events</summary><pre>Row-level security: enabled.
 
-POLICY product_events_tenant_isolation: AS permissive FOR all TO authenticated USING (&quot;product_events&quot;.&quot;user_id&quot; IS NULL OR &quot;product_events&quot;.&quot;user_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (&quot;product_events&quot;.&quot;user_id&quot; IS NULL OR &quot;product_events&quot;.&quot;user_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid)
+POLICY product_events_tenant_insert: AS permissive FOR insert TO authenticated WITH CHECK (&quot;product_events&quot;.&quot;user_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid)
 
 INDEX product_events_user_id_idx USING btree (user_id ASC NULLS LAST)
 
@@ -198,13 +199,6 @@ CHECK results_habit_check: &quot;results&quot;.&quot;metric_type&quot; &lt;> 'ha
 CHECK results_performance_check: &quot;results&quot;.&quot;metric_type&quot; &lt;> 'performance' OR (&quot;results&quot;.&quot;target_value&quot; IS NOT NULL AND &quot;results&quot;.&quot;since&quot; IS NOT NULL AND &quot;results&quot;.&quot;cadence&quot; IS NULL AND &quot;results&quot;.&quot;per&quot; IS NULL)
 CHECK results_distinct_target_check: &quot;results&quot;.&quot;metric_type&quot; NOT IN ('number', 'percentage') OR &quot;results&quot;.&quot;target_value&quot; &lt;> &quot;results&quot;.&quot;start_value&quot;
 CHECK results_finite_values_check: (&quot;results&quot;.&quot;start_value&quot; IS NULL OR &quot;results&quot;.&quot;start_value&quot; NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)) AND (&quot;results&quot;.&quot;target_value&quot; IS NULL OR &quot;results&quot;.&quot;target_value&quot; NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric))</pre></details>
-<details><summary>session</summary><pre>Row-level security: enabled.
-
-POLICY session_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
-
-INDEX session_user_id_idx USING btree (user_id ASC NULLS LAST)
-
-</pre></details>
 <details><summary>sessions</summary><pre>Row-level security: enabled.
 
 POLICY sessions_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
@@ -233,7 +227,7 @@ INDEX subscription_stripe_customer_id_idx USING btree (stripe_customer_id ASC NU
 
 POLICY user_self_isolation: AS permissive FOR all TO authenticated USING (&quot;user&quot;.&quot;id&quot; = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (&quot;user&quot;.&quot;id&quot; = nullif(current_setting('app.user_id', true), '')::uuid)
 
-CHECK user_subscription_status_check: &quot;user&quot;.&quot;subscription_status&quot; in ('incomplete', 'active', 'past_due', 'canceled')</pre></details>
+</pre></details>
 <details><summary>verification</summary><pre>Row-level security: disabled.
 
 INDEX verification_identifier_idx USING btree (identifier ASC NULLS LAST)

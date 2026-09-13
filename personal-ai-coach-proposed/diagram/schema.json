@@ -531,6 +531,115 @@
         }
       }
     },
+    "auth_session": {
+      "name": "auth_session",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "check": null,
+          "notNull": true,
+          "comment": null
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "default": null,
+          "check": null,
+          "notNull": false,
+          "comment": null
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "check": null,
+          "notNull": true,
+          "comment": null
+        }
+      },
+      "comment": "Row-level security: enabled.\n\nPOLICY session_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX session_user_id_idx USING btree (user_id ASC NULLS LAST)",
+      "indexes": {
+        "session_user_id_idx": {
+          "name": "session_user_id_idx",
+          "unique": false,
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree"
+        }
+      },
+      "constraints": {
+        "auth_session_pkey": {
+          "type": "PRIMARY KEY",
+          "name": "auth_session_pkey",
+          "columnNames": [
+            "id"
+          ]
+        },
+        "auth_session_token_unique": {
+          "type": "UNIQUE",
+          "name": "auth_session_token_unique",
+          "columnNames": [
+            "token"
+          ]
+        },
+        "auth_session_user_id_user_id_fk": {
+          "type": "FOREIGN KEY",
+          "name": "auth_session_user_id_user_id_fk",
+          "columnNames": [
+            "user_id"
+          ],
+          "targetTableName": "user",
+          "targetColumnNames": [
+            "id"
+          ],
+          "updateConstraint": "NO_ACTION",
+          "deleteConstraint": "CASCADE"
+        }
+      }
+    },
     "cycles": {
       "name": "cycles",
       "columns": {
@@ -936,16 +1045,8 @@
           "comment": null
         }
       },
-      "comment": "Row-level security: enabled.\n\nPOLICY idempotency_keys_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX idempotency_keys_user_id_idx USING btree (user_id ASC NULLS LAST)\n\nUNIQUE INDEX idempotency_keys_user_op_key_uidx USING btree (user_id ASC NULLS LAST, operation ASC NULLS LAST, idempotency_key ASC NULLS LAST)",
+      "comment": "Row-level security: enabled.\n\nPOLICY idempotency_keys_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nUNIQUE INDEX idempotency_keys_user_op_key_uidx USING btree (user_id ASC NULLS LAST, operation ASC NULLS LAST, idempotency_key ASC NULLS LAST)",
       "indexes": {
-        "idempotency_keys_user_id_idx": {
-          "name": "idempotency_keys_user_id_idx",
-          "unique": false,
-          "columns": [
-            "user_id"
-          ],
-          "type": "btree"
-        },
         "idempotency_keys_user_op_key_uidx": {
           "name": "idempotency_keys_user_op_key_uidx",
           "unique": true,
@@ -1104,16 +1205,8 @@
           "comment": null
         }
       },
-      "comment": "Row-level security: enabled.\n\nPOLICY notes_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX notes_user_id_idx USING btree (user_id ASC NULLS LAST)\n\nINDEX notes_history_idx USING btree (user_id ASC NULLS LAST, recorded_at DESC NULLS LAST, id DESC NULLS LAST)",
+      "comment": "Row-level security: enabled.\n\nPOLICY notes_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX notes_history_idx USING btree (user_id ASC NULLS LAST, recorded_at DESC NULLS LAST, id DESC NULLS LAST)",
       "indexes": {
-        "notes_user_id_idx": {
-          "name": "notes_user_id_idx",
-          "unique": false,
-          "columns": [
-            "user_id"
-          ],
-          "type": "btree"
-        },
         "notes_history_idx": {
           "name": "notes_history_idx",
           "unique": false,
@@ -1348,13 +1441,13 @@
           "updateConstraint": "NO_ACTION",
           "deleteConstraint": "CASCADE"
         },
-        "oauth_access_token_session_id_session_id_fk": {
+        "oauth_access_token_session_id_auth_session_id_fk": {
           "type": "FOREIGN KEY",
-          "name": "oauth_access_token_session_id_session_id_fk",
+          "name": "oauth_access_token_session_id_auth_session_id_fk",
           "columnNames": [
             "session_id"
           ],
-          "targetTableName": "session",
+          "targetTableName": "auth_session",
           "targetColumnNames": [
             "id"
           ],
@@ -1806,16 +1899,8 @@
           "comment": null
         }
       },
-      "comment": "Row-level security: disabled.\n\nINDEX oauth_client_resource_client_id_idx USING btree (client_id ASC NULLS LAST)\n\nINDEX oauth_client_resource_resource_id_idx USING btree (resource_id ASC NULLS LAST)\n\nUNIQUE INDEX oauth_client_resource_client_id_resource_id_uidx USING btree (client_id ASC NULLS LAST, resource_id ASC NULLS LAST)",
+      "comment": "Row-level security: disabled.\n\nINDEX oauth_client_resource_resource_id_idx USING btree (resource_id ASC NULLS LAST)\n\nUNIQUE INDEX oauth_client_resource_client_id_resource_id_uidx USING btree (client_id ASC NULLS LAST, resource_id ASC NULLS LAST)",
       "indexes": {
-        "oauth_client_resource_client_id_idx": {
-          "name": "oauth_client_resource_client_id_idx",
-          "unique": false,
-          "columns": [
-            "client_id"
-          ],
-          "type": "btree"
-        },
         "oauth_client_resource_resource_id_idx": {
           "name": "oauth_client_resource_resource_id_idx",
           "unique": false,
@@ -2212,13 +2297,13 @@
           "updateConstraint": "NO_ACTION",
           "deleteConstraint": "CASCADE"
         },
-        "oauth_refresh_token_session_id_session_id_fk": {
+        "oauth_refresh_token_session_id_auth_session_id_fk": {
           "type": "FOREIGN KEY",
-          "name": "oauth_refresh_token_session_id_session_id_fk",
+          "name": "oauth_refresh_token_session_id_auth_session_id_fk",
           "columnNames": [
             "session_id"
           ],
-          "targetTableName": "session",
+          "targetTableName": "auth_session",
           "targetColumnNames": [
             "id"
           ],
@@ -2579,22 +2664,6 @@
           "notNull": false,
           "comment": null
         },
-        "stripe_customer_id": {
-          "name": "stripe_customer_id",
-          "type": "text",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
-        },
-        "subscription_id": {
-          "name": "subscription_id",
-          "type": "text",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -2602,17 +2671,9 @@
           "check": null,
           "notNull": true,
           "comment": null
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "default": "now()",
-          "check": null,
-          "notNull": true,
-          "comment": null
         }
       },
-      "comment": "Row-level security: enabled.\n\nPOLICY product_events_tenant_isolation: AS permissive FOR all TO authenticated USING (\"product_events\".\"user_id\" IS NULL OR \"product_events\".\"user_id\" = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (\"product_events\".\"user_id\" IS NULL OR \"product_events\".\"user_id\" = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX product_events_user_id_idx USING btree (user_id ASC NULLS LAST)\n\nINDEX product_events_event_type_idx USING btree (event_type ASC NULLS LAST)",
+      "comment": "Row-level security: enabled.\n\nPOLICY product_events_tenant_insert: AS permissive FOR insert TO authenticated WITH CHECK (\"product_events\".\"user_id\" = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX product_events_user_id_idx USING btree (user_id ASC NULLS LAST)\n\nINDEX product_events_event_type_idx USING btree (event_type ASC NULLS LAST)",
       "indexes": {
         "product_events_user_id_idx": {
           "name": "product_events_user_id_idx",
@@ -3039,115 +3100,6 @@
           "targetColumnNames": [
             "id",
             "user_id"
-          ],
-          "updateConstraint": "NO_ACTION",
-          "deleteConstraint": "CASCADE"
-        }
-      }
-    },
-    "session": {
-      "name": "session",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "default": "gen_random_uuid()",
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "default": null,
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "default": null,
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "default": "now()",
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "default": "now()",
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "ip_address": {
-          "name": "ip_address",
-          "type": "text",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
-        },
-        "user_agent": {
-          "name": "user_agent",
-          "type": "text",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "default": null,
-          "check": null,
-          "notNull": true,
-          "comment": null
-        }
-      },
-      "comment": "Row-level security: enabled.\n\nPOLICY session_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)\n\nINDEX session_user_id_idx USING btree (user_id ASC NULLS LAST)",
-      "indexes": {
-        "session_user_id_idx": {
-          "name": "session_user_id_idx",
-          "unique": false,
-          "columns": [
-            "user_id"
-          ],
-          "type": "btree"
-        }
-      },
-      "constraints": {
-        "session_pkey": {
-          "type": "PRIMARY KEY",
-          "name": "session_pkey",
-          "columnNames": [
-            "id"
-          ]
-        },
-        "session_token_unique": {
-          "type": "UNIQUE",
-          "name": "session_token_unique",
-          "columnNames": [
-            "token"
-          ]
-        },
-        "session_user_id_user_id_fk": {
-          "type": "FOREIGN KEY",
-          "name": "session_user_id_user_id_fk",
-          "columnNames": [
-            "user_id"
-          ],
-          "targetTableName": "user",
-          "targetColumnNames": [
-            "id"
           ],
           "updateConstraint": "NO_ACTION",
           "deleteConstraint": "CASCADE"
@@ -3602,30 +3554,6 @@
           "check": null,
           "notNull": true,
           "comment": null
-        },
-        "subscription_status": {
-          "name": "subscription_status",
-          "type": "subscription_status",
-          "default": "incomplete",
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "subscription_cancel_at_period_end": {
-          "name": "subscription_cancel_at_period_end",
-          "type": "boolean",
-          "default": false,
-          "check": null,
-          "notNull": true,
-          "comment": null
-        },
-        "subscription_current_period_end": {
-          "name": "subscription_current_period_end",
-          "type": "timestamp with time zone",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
         }
       },
       "comment": "Row-level security: enabled.\n\nPOLICY user_self_isolation: AS permissive FOR all TO authenticated USING (\"user\".\"id\" = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (\"user\".\"id\" = nullif(current_setting('app.user_id', true), '')::uuid)",
@@ -3651,11 +3579,6 @@
           "columnNames": [
             "stripe_customer_id"
           ]
-        },
-        "user_subscription_status_check": {
-          "type": "CHECK",
-          "name": "user_subscription_status_check",
-          "detail": "\"user\".\"subscription_status\" in ('incomplete', 'active', 'past_due', 'canceled')"
         }
       }
     },
@@ -3802,16 +3725,6 @@
       "values": [
         "claude",
         "openai"
-      ],
-      "comment": null
-    },
-    "subscription_status": {
-      "name": "subscription_status",
-      "values": [
-        "incomplete",
-        "active",
-        "past_due",
-        "canceled"
       ],
       "comment": null
     }
