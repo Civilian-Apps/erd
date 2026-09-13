@@ -1,0 +1,775 @@
+// Drizzle schema — the single source of truth for the data model. SERVER-ONLY.
+//
+// Product model materialized for step 5.4 Contract definition from docs/ONTOLOGY.md.
+// Better Auth's `user` is also the canonical product User. `session` is auth;
+// `sessions` is the durable coaching Session. The example table is a temporary implementation reference.
+// Custom database triggers and evidence grants: drizzle/0006_product_integrity.sql.
+// NO FORCE RLS: architecture Deletion and Cascade requires owner-run cascades.
+
+// Tenant scoping is two-layer per `data-layer.md`:
+//   - Layer 1: every handler enters via `withTenantDb`, which binds
+//     `set_config('app.user_id', …, true)` transaction-local.
+//   - Layer 2: every tenant-owned table declares a `pgPolicy` reading
+//     `nullif(current_setting('app.user_id', true), '')::uuid` and `.enableRLS()`.
+//
+// The runtime role is `coach_app_rt` (`NOBYPASSRLS`), a member of the
+// `authenticated` role; `DATABASE_URL_OWNER` is migrations-only. See
+// `drizzle/0001_coach_app_rt_grants.sql` for the runtime-role contract.
+
+import { sql } from 'drizzle-orm'
+import {
+  boolean,
+  check,
+  date,
+  foreignKey,
+  integer,
+  numeric,
+  pgEnum,
+  index,
+  jsonb,
+  pgPolicy,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core'
+
+export const subscriptionStatus = pgEnum('subscription_status', [
+  'incomplete',
+  'active',
+  'past_due',
+  'canceled',
+])
+export const cycleStatus = pgEnum('cycle_status', ['active', 'archived'])
+export const objectiveStatus = pgEnum('objective_status', ['on_track', 'off_track', 'completed'])
+export const metricType = pgEnum('metric_type', [
+  'number',
+  'percentage',
+  'milestone',
+  'habit',
+  'performance',
+])
+export const resultStatus = pgEnum('result_status', ['in_progress', 'completed'])
+export const habitCadence = pgEnum('habit_cadence', ['weekly', 'monthly'])
+export const actionStatus = pgEnum('action_status', ['open', 'in_progress', 'done'])
+export const sessionVendor = pgEnum('session_vendor', ['claude', 'openai'])
+export const sessionType = pgEnum('session_type', [
+  'goal_setup',
+  'check_in',
+  'review',
+  'open_coaching',
+])
+
+const TENANT_USING = sql`user_id = nullif(current_setting('app.user_id', true), '')::uuid`
+
+// ---------------------------------------------------------------------------
+// Better Auth: `user` — also the canonical ontology User profile and billing row
+// ---------------------------------------------------------------------------
+
+export const user = pgTable(
+  'user',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name'),
+    email: text('email').notNull().unique(),
+    emailVerified: boolean('email_verified').notNull().default(false),
+    image: text('image'),
+
+    firstName: text('first_name'),
+    lastName: text('last_name'),
+    aboutMe: text('about_me').notNull().default(''),
+    timezone: text('timezone').notNull().default('UTC'),
+    subscriptionStatus: subscriptionStatus('subscription_status').notNull().default('incomplete'),
+    subscriptionCancelAtPeriodEnd: boolean('subscription_cancel_at_period_end')
+      .notNull()
+      .default(false),
+    subscriptionCurrentPeriodEnd: timestamp('subscription_current_period_end', {
+      withTimezone: true,
+    }),
+    stripeCustomerId: text('stripe_customer_id').unique(),
+
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check(
+      'user_subscription_status_check',
+      sql`${table.subscriptionStatus} in ('incomplete', 'active', 'past_due', 'canceled')`,
+    ),
+    pgPolicy('user_self_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: sql`${table.id} = nullif(current_setting('app.user_id', true), '')::uuid`,
+      withCheck: sql`${table.id} = nullif(current_setting('app.user_id', true), '')::uuid`,
+    }),
+  ],
+).enableRLS()
+
+// ---------------------------------------------------------------------------
+// Better Auth: `session`
+// ---------------------------------------------------------------------------
+
+export const session = pgTable(
+  'session',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    token: text('token').notNull().unique(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('session_user_id_idx').on(table.userId),
+    pgPolicy('session_tenant_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: TENANT_USING,
+      withCheck: TENANT_USING,
+    }),
+  ],
+).enableRLS()
+
+// ---------------------------------------------------------------------------
+// Better Auth: `account`
+// ---------------------------------------------------------------------------
+
+export const account = pgTable(
+  'account',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    accountId: text('account_id').notNull(),
+    providerId: text('provider_id').notNull(),
+    accessToken: text('access_token'),
+    refreshToken: text('refresh_token'),
+    accessTokenExpiresAt: timestamp('access_token_expires_at', { withTimezone: true }),
+    refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
+    scope: text('scope'),
+    idToken: text('id_token'),
+    password: text('password'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('account_user_id_idx').on(table.userId),
+    pgPolicy('account_tenant_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: TENANT_USING,
+      withCheck: TENANT_USING,
+    }),
+  ],
+).enableRLS()
+
+// ---------------------------------------------------------------------------
+// Better Auth: `verification` (pre-auth — no RLS)
+// ---------------------------------------------------------------------------
+
+export const verification = pgTable('verification', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  identifier: text('identifier').notNull(),
+  value: text('value').notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// ---------------------------------------------------------------------------
+// Better Auth `jwt()` plugin: `jwks` (global key material — no RLS)
+// ---------------------------------------------------------------------------
+
+export const jwks = pgTable('jwks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  publicKey: text('public_key').notNull(),
+  privateKey: text('private_key').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// ---------------------------------------------------------------------------
+// Better Auth `oauthProvider` plugin: `oauth_client` (global — no RLS)
+// ---------------------------------------------------------------------------
+//
+// Columns mirror the `@better-auth/oauth-provider@1.6.22` `oauthClient` model
+// (its DCR insert writes every one of these — an absent column 500s
+// registration). Verified against the plugin's exported `schema` object AND
+// the canonical OAuth-provider docs. This is a GLOBAL registry, not
+// tenant-owned: clients are looked up by `client_id` across users during
+// authorize/token, and unauthenticated DCR clients (the MCP case) have a NULL
+// `user_id`. So no RLS here — `user_id` is optional ownership metadata, not a
+// tenant-scoping key. Array-typed plugin fields (`scopes`, `redirect_uris`,
+// `grant_types`, …) are native Postgres `text[]` columns (`.array()`): the
+// Drizzle adapter runs with `supportsArrays: true` for `pg`, so it passes real
+// JS arrays straight through — a scalar `text` column would round-trip a
+// stringified array and break the plugin's `scopes.join(' ')`.
+
+export const oauthClient = pgTable(
+  'oauth_client',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    clientId: text('client_id').notNull().unique(),
+    clientSecret: text('client_secret'),
+    // Optional in the plugin model — a DCR client may omit them, so nullable
+    // (a NOT NULL here would 500 registration).
+    name: text('name'),
+    type: text('type'),
+    disabled: boolean('disabled').notNull().default(false),
+    // Ownership: NULL for unauthenticated DCR clients (the MCP case).
+    userId: uuid('user_id'),
+    referenceId: text('reference_id'),
+    // Consent / session behaviour.
+    skipConsent: boolean('skip_consent'),
+    enableEndSession: boolean('enable_end_session'),
+    subjectType: text('subject_type'),
+    // OAuth registration metadata. `string[]` fields → native `text[]` (see header).
+    scopes: text('scopes').array(),
+    redirectUris: text('redirect_uris').array().notNull(),
+    postLogoutRedirectUris: text('post_logout_redirect_uris').array(),
+    grantTypes: text('grant_types').array(),
+    responseTypes: text('response_types').array(),
+    tokenEndpointAuthMethod: text('token_endpoint_auth_method'),
+    public: boolean('public'),
+    requirePKCE: boolean('require_pkce'),
+    // RFC 7591 client display / legal metadata.
+    uri: text('uri'),
+    icon: text('icon'),
+    contacts: text('contacts').array(),
+    tos: text('tos'),
+    policy: text('policy'),
+    softwareId: text('software_id'),
+    softwareVersion: text('software_version'),
+    softwareStatement: text('software_statement'),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('oauth_client_client_id_idx').on(table.clientId),
+    index('oauth_client_user_id_idx').on(table.userId),
+  ],
+)
+
+// ---------------------------------------------------------------------------
+// Better Auth `oauthProvider`: `oauth_access_token` (tenant-scoped — RLS on)
+// ---------------------------------------------------------------------------
+
+// Columns mirror the plugin's `oauthAccessToken` model. `token` is nullable
+// (the model marks it unique but not required — with the `jwt()` plugin the
+// access token is a stateless JWT, not stored). `user_id` is nullable to allow
+// client-credentials (M2M) tokens with no user. Tenant-owned → RLS on.
+export const oauthAccessToken = pgTable(
+  'oauth_access_token',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    token: text('token').unique(),
+    clientId: text('client_id').notNull(),
+    sessionId: uuid('session_id'),
+    refreshId: uuid('refresh_id'),
+    userId: uuid('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    referenceId: text('reference_id'),
+    scopes: text('scopes').array().notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('oauth_access_token_user_id_idx').on(table.userId),
+    index('oauth_access_token_client_id_idx').on(table.clientId),
+    index('oauth_access_token_session_id_idx').on(table.sessionId),
+    index('oauth_access_token_refresh_id_idx').on(table.refreshId),
+    pgPolicy('oauth_access_token_tenant_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: TENANT_USING,
+      withCheck: TENANT_USING,
+    }),
+  ],
+).enableRLS()
+
+// ---------------------------------------------------------------------------
+// Better Auth `oauthProvider`: `oauth_refresh_token` (tenant-scoped — RLS on)
+// ---------------------------------------------------------------------------
+//
+// Written by the token endpoint when a client is granted `offline_access` /
+// the `refresh_token` grant (both requested by MCP clients incl. ChatGPT /
+// Claude), so the table must exist or token exchange 500s. Columns mirror the
+// plugin's `oauthRefreshToken` model. `session_id`/`client_id` are plain
+// columns (no DB FK — matches the existing no-FK-on-`client_id` choice and
+// avoids the trustedClients FK-constraint class of bug). Opaque `token` is
+// stored → NOT NULL + unique.
+export const oauthRefreshToken = pgTable(
+  'oauth_refresh_token',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    token: text('token').notNull().unique(),
+    clientId: text('client_id').notNull(),
+    sessionId: uuid('session_id'),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    referenceId: text('reference_id'),
+    scopes: text('scopes').array().notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    revoked: timestamp('revoked', { withTimezone: true }),
+    authTime: timestamp('auth_time', { withTimezone: true }),
+  },
+  (table) => [
+    index('oauth_refresh_token_user_id_idx').on(table.userId),
+    index('oauth_refresh_token_client_id_idx').on(table.clientId),
+    index('oauth_refresh_token_session_id_idx').on(table.sessionId),
+    pgPolicy('oauth_refresh_token_tenant_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: TENANT_USING,
+      withCheck: TENANT_USING,
+    }),
+  ],
+).enableRLS()
+
+// ---------------------------------------------------------------------------
+// Better Auth `oauthProvider`: `oauth_consent` (tenant-scoped — RLS on)
+// ---------------------------------------------------------------------------
+
+export const oauthConsent = pgTable(
+  'oauth_consent',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    clientId: text('client_id').notNull(),
+    referenceId: text('reference_id'),
+    scopes: text('scopes').array().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('oauth_consent_user_id_idx').on(table.userId),
+    index('oauth_consent_client_id_idx').on(table.clientId),
+    uniqueIndex('oauth_consent_user_client_uidx').on(table.userId, table.clientId),
+    pgPolicy('oauth_consent_tenant_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: TENANT_USING,
+      withCheck: TENANT_USING,
+    }),
+  ],
+).enableRLS()
+
+// ---------------------------------------------------------------------------
+// Cross-cutting: `product_events` (internal — excluded from MCP)
+// ---------------------------------------------------------------------------
+//
+// Anonymous funnel events allowed (`user_id IS NULL`); tenant-bound events
+// isolate per user. Excluded from MCP exposure — internal instrumentation
+// only.
+
+export const productEvents = pgTable(
+  'product_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').references(() => user.id, { onDelete: 'set null' }),
+    eventType: text('event_type').notNull(),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow(),
+    properties: jsonb('properties'),
+    stripeCustomerId: text('stripe_customer_id'),
+    subscriptionId: text('subscription_id'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('product_events_user_id_idx').on(table.userId),
+    index('product_events_event_type_idx').on(table.eventType),
+    pgPolicy('product_events_tenant_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: sql`${table.userId} IS NULL OR ${table.userId} = nullif(current_setting('app.user_id', true), '')::uuid`,
+      withCheck: sql`${table.userId} IS NULL OR ${table.userId} = nullif(current_setting('app.user_id', true), '')::uuid`,
+    }),
+  ],
+).enableRLS()
+
+// ---------------------------------------------------------------------------
+// Cross-cutting: `idempotency_keys` (internal — excluded from MCP)
+// ---------------------------------------------------------------------------
+
+export const idempotencyKeys = pgTable(
+  'idempotency_keys',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    operation: text('operation').notNull(),
+    idempotencyKey: text('idempotency_key').notNull(),
+    requestHash: text('request_hash').notNull(),
+    responseRef: text('response_ref'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('idempotency_keys_user_id_idx').on(table.userId),
+    uniqueIndex('idempotency_keys_user_op_key_uidx').on(
+      table.userId,
+      table.operation,
+      table.idempotencyKey,
+    ),
+    pgPolicy('idempotency_keys_tenant_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: TENANT_USING,
+      withCheck: TENANT_USING,
+    }),
+  ],
+).enableRLS()
+
+// ---------------------------------------------------------------------------
+// Product tenant keys are server-supplied. Composite foreign keys prevent a
+// child from claiming a different tenant from its parent even under owner SQL.
+// Evidence session links use NO ACTION; whole-account deletion removes both
+// sides together. Action links instead clear session_id (F5 Actions).
+const tenantPolicy = (name: string) =>
+  pgPolicy(`${name}_tenant_isolation`, {
+    for: 'all',
+    to: 'authenticated',
+    using: TENANT_USING,
+    withCheck: TENANT_USING,
+  })
+const productId = () => uuid('id').primaryKey().defaultRandom()
+const tenantId = () =>
+  uuid('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' })
+const created = () => timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+const updated = () => timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+
+export const cycles = pgTable(
+  'cycles',
+  {
+    id: productId(),
+    userId: tenantId(),
+    intention: text('intention'),
+    startAt: date('start_at').notNull(),
+    endAt: date('end_at').notNull(),
+    status: cycleStatus('status').notNull().default('active'),
+    createdAt: created(),
+    updatedAt: updated(),
+  },
+  (t) => [
+    uniqueIndex('cycles_id_user_uidx').on(t.id, t.userId),
+    index('cycles_user_id_idx').on(t.userId),
+    uniqueIndex('cycles_one_active_uidx')
+      .on(t.userId)
+      .where(sql`${t.status} = 'active'`),
+    check('cycles_date_range_check', sql`${t.endAt} > ${t.startAt}`),
+    tenantPolicy('cycles'),
+  ],
+).enableRLS()
+
+export const objectives = pgTable(
+  'objectives',
+  {
+    id: productId(),
+    userId: tenantId(),
+    cycleId: uuid('cycle_id').notNull(),
+    title: text('title').notNull(),
+    description: text('description').notNull().default(''),
+    deadlineAt: date('deadline_at'),
+    status: objectiveStatus('status').notNull().default('on_track'),
+    createdAt: created(),
+    updatedAt: updated(),
+  },
+  (t) => [
+    uniqueIndex('objectives_id_user_uidx').on(t.id, t.userId),
+    uniqueIndex('objectives_id_cycle_user_uidx').on(t.id, t.cycleId, t.userId),
+    index('objectives_user_id_idx').on(t.userId),
+    index('objectives_cycle_user_idx').on(t.cycleId, t.userId),
+    foreignKey({
+      name: 'objectives_cycle_tenant_fk',
+      columns: [t.cycleId, t.userId],
+      foreignColumns: [cycles.id, cycles.userId],
+    }).onDelete('cascade'),
+    tenantPolicy('objectives'),
+  ],
+).enableRLS()
+
+export const sessions = pgTable(
+  'sessions',
+  {
+    id: productId(),
+    userId: tenantId(),
+    vendor: sessionVendor('vendor').notNull(),
+    sourceUrl: text('source_url'),
+    type: sessionType('type'),
+    briefingNotes: text('briefing_notes').notNull(),
+    headline: text('headline'),
+    summaryNotes: text('summary_notes'),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+    endedAt: timestamp('ended_at', { withTimezone: true }),
+    createdAt: created(),
+    updatedAt: updated(),
+  },
+  (t) => [
+    uniqueIndex('sessions_id_user_uidx').on(t.id, t.userId),
+    index('sessions_user_id_idx').on(t.userId),
+    uniqueIndex('sessions_one_open_uidx')
+      .on(t.userId)
+      .where(sql`${t.endedAt} IS NULL`),
+    index('sessions_boundary_idx')
+      .on(t.userId, t.endedAt.desc())
+      .where(sql`${t.endedAt} IS NOT NULL`),
+    tenantPolicy('sessions'),
+  ],
+).enableRLS()
+
+export const results = pgTable(
+  'results',
+  {
+    id: productId(),
+    userId: tenantId(),
+    objectiveId: uuid('objective_id').notNull(),
+    title: text('title').notNull(),
+    description: text('description'),
+    metricType: metricType('metric_type').notNull(),
+    startValue: numeric('start_value', { mode: 'number' }),
+    targetValue: numeric('target_value', { mode: 'number' }),
+    unit: text('unit'),
+    cadence: habitCadence('cadence'),
+    per: integer('per'),
+    since: date('since'),
+    status: resultStatus('status').notNull().default('in_progress'),
+    createdAt: created(),
+    updatedAt: updated(),
+  },
+  (t) => [
+    uniqueIndex('results_id_user_uidx').on(t.id, t.userId),
+    index('results_user_id_idx').on(t.userId),
+    index('results_objective_user_idx').on(t.objectiveId, t.userId),
+    foreignKey({
+      name: 'results_objective_tenant_fk',
+      columns: [t.objectiveId, t.userId],
+      foreignColumns: [objectives.id, objectives.userId],
+    }).onDelete('cascade'),
+    check(
+      'results_number_check',
+      sql`${t.metricType} <> 'number' OR (${t.startValue} IS NOT NULL AND ${t.targetValue} IS NOT NULL AND ${t.cadence} IS NULL AND ${t.per} IS NULL AND ${t.since} IS NULL)`,
+    ),
+    check(
+      'results_percentage_check',
+      sql`${t.metricType} <> 'percentage' OR (${t.startValue} IS NOT NULL AND ${t.targetValue} IS NOT NULL AND ${t.startValue} BETWEEN 0 AND 100 AND ${t.targetValue} BETWEEN 0 AND 100 AND ${t.cadence} IS NULL AND ${t.per} IS NULL AND ${t.since} IS NULL AND ${t.unit} IS NULL)`,
+    ),
+    check(
+      'results_milestone_check',
+      sql`${t.metricType} <> 'milestone' OR (${t.startValue} IS NOT NULL AND ${t.startValue} = 0 AND ${t.targetValue} IS NOT NULL AND ${t.targetValue} = 1 AND ${t.cadence} IS NULL AND ${t.per} IS NULL AND ${t.since} IS NULL AND ${t.unit} IS NULL)`,
+    ),
+    check(
+      'results_habit_check',
+      sql`${t.metricType} <> 'habit' OR (${t.cadence} IS NOT NULL AND ${t.per} IS NOT NULL AND ${t.per} >= 1 AND ${t.since} IS NOT NULL AND ${t.startValue} IS NULL AND ${t.targetValue} IS NULL AND ${t.unit} IS NULL)`,
+    ),
+    check(
+      'results_performance_check',
+      sql`${t.metricType} <> 'performance' OR (${t.targetValue} IS NOT NULL AND ${t.since} IS NOT NULL AND ${t.cadence} IS NULL AND ${t.per} IS NULL)`,
+    ),
+    check(
+      'results_distinct_target_check',
+      sql`${t.metricType} NOT IN ('number', 'percentage') OR ${t.targetValue} <> ${t.startValue}`,
+    ),
+    check(
+      'results_finite_values_check',
+      sql`(${t.startValue} IS NULL OR ${t.startValue} NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)) AND (${t.targetValue} IS NULL OR ${t.targetValue} NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric))`,
+    ),
+    tenantPolicy('results'),
+  ],
+).enableRLS()
+
+export const actions = pgTable(
+  'actions',
+  {
+    id: productId(),
+    userId: tenantId(),
+    cycleId: uuid('cycle_id').notNull(),
+    objectiveId: uuid('objective_id'),
+    title: text('title').notNull(),
+    description: text('description'),
+    dueAt: date('due_at'),
+    status: actionStatus('status').notNull().default('open'),
+    sortOrder: numeric('sort_order', { mode: 'number' }),
+    sessionId: uuid('session_id'),
+    createdAt: created(),
+    updatedAt: updated(),
+  },
+  (t) => [
+    uniqueIndex('actions_id_user_uidx').on(t.id, t.userId),
+    index('actions_user_id_idx').on(t.userId),
+    index('actions_cycle_user_idx').on(t.cycleId, t.userId),
+    index('actions_objective_cycle_user_idx').on(t.objectiveId, t.cycleId, t.userId),
+    index('actions_session_user_idx').on(t.sessionId, t.userId),
+    index('actions_outstanding_order_idx').on(
+      t.cycleId,
+      t.objectiveId,
+      t.sortOrder.asc().nullsLast(),
+      t.dueAt,
+    ),
+    foreignKey({
+      name: 'actions_cycle_tenant_fk',
+      columns: [t.cycleId, t.userId],
+      foreignColumns: [cycles.id, cycles.userId],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'actions_objective_cycle_tenant_fk',
+      columns: [t.objectiveId, t.cycleId, t.userId],
+      foreignColumns: [objectives.id, objectives.cycleId, objectives.userId],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'actions_session_tenant_fk',
+      columns: [t.sessionId, t.userId],
+      foreignColumns: [sessions.id, sessions.userId],
+      // Custom migration limits SET NULL to session_id, preserving user_id.
+      // Drizzle cannot represent the column list; see 0006_product_integrity.sql.
+    }).onDelete('set null'),
+    tenantPolicy('actions'),
+  ],
+).enableRLS()
+
+export const resultLogs = pgTable(
+  'result_logs',
+  {
+    id: productId(),
+    userId: tenantId(),
+    resultId: uuid('result_id').notNull(),
+    value: numeric('value', { mode: 'number' }),
+    comment: text('comment'),
+    sessionId: uuid('session_id'),
+    recordedAt: timestamp('recorded_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: created(),
+  },
+  (t) => [
+    index('result_logs_user_id_idx').on(t.userId),
+    index('result_logs_result_user_idx').on(t.resultId, t.userId),
+    index('result_logs_session_user_idx').on(t.sessionId, t.userId),
+    index('result_logs_history_idx').on(t.resultId, t.recordedAt.desc(), t.id.desc()),
+    foreignKey({
+      name: 'result_logs_result_tenant_fk',
+      columns: [t.resultId, t.userId],
+      foreignColumns: [results.id, results.userId],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'result_logs_session_tenant_fk',
+      columns: [t.sessionId, t.userId],
+      foreignColumns: [sessions.id, sessions.userId],
+    }),
+    check(
+      'result_logs_finite_value_check',
+      sql`${t.value} IS NULL OR ${t.value} NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)`,
+    ),
+    tenantPolicy('result_logs'),
+  ],
+).enableRLS()
+
+export const actionLogs = pgTable(
+  'action_logs',
+  {
+    id: productId(),
+    userId: tenantId(),
+    actionId: uuid('action_id').notNull(),
+    status: actionStatus('status').notNull(),
+    comment: text('comment'),
+    sessionId: uuid('session_id'),
+    recordedAt: timestamp('recorded_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: created(),
+  },
+  (t) => [
+    index('action_logs_user_id_idx').on(t.userId),
+    index('action_logs_action_user_idx').on(t.actionId, t.userId),
+    index('action_logs_session_user_idx').on(t.sessionId, t.userId),
+    index('action_logs_history_idx').on(t.actionId, t.recordedAt.desc(), t.id.desc()),
+    foreignKey({
+      name: 'action_logs_action_tenant_fk',
+      columns: [t.actionId, t.userId],
+      foreignColumns: [actions.id, actions.userId],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'action_logs_session_tenant_fk',
+      columns: [t.sessionId, t.userId],
+      foreignColumns: [sessions.id, sessions.userId],
+    }),
+    tenantPolicy('action_logs'),
+  ],
+).enableRLS()
+
+export const notes = pgTable(
+  'notes',
+  {
+    id: productId(),
+    userId: tenantId(),
+    text: text('text').notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: created(),
+    updatedAt: updated(),
+  },
+  (t) => [
+    index('notes_user_id_idx').on(t.userId),
+    index('notes_history_idx').on(t.userId, t.recordedAt.desc(), t.id.desc()),
+    check('notes_nonblank_text_check', sql`${t.text} ~ '[^[:space:]]'`),
+    tenantPolicy('notes'),
+  ],
+).enableRLS()
+
+export const habitLogs = pgTable(
+  'habit_logs',
+  {
+    id: productId(),
+    userId: tenantId(),
+    resultId: uuid('result_id').notNull(),
+    day: date('day').notNull(),
+    sessionId: uuid('session_id'),
+    createdAt: created(),
+  },
+  (t) => [
+    index('habit_logs_user_id_idx').on(t.userId),
+    index('habit_logs_result_user_idx').on(t.resultId, t.userId),
+    index('habit_logs_session_user_idx').on(t.sessionId, t.userId),
+    uniqueIndex('habit_logs_result_day_uidx').on(t.resultId, t.day),
+    foreignKey({
+      name: 'habit_logs_result_tenant_fk',
+      columns: [t.resultId, t.userId],
+      foreignColumns: [results.id, results.userId],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'habit_logs_session_tenant_fk',
+      columns: [t.sessionId, t.userId],
+      foreignColumns: [sessions.id, sessions.userId],
+    }),
+    tenantPolicy('habit_logs'),
+  ],
+).enableRLS()
+
+// SCAFFOLD-DISPOSABLE — retain until a working product slice replaces this reference.
+export const example = pgTable(
+  'example',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('example_user_id_idx').on(table.userId),
+    pgPolicy('example_tenant_isolation', {
+      for: 'all',
+      to: 'authenticated',
+      using: TENANT_USING,
+      withCheck: TENANT_USING,
+    }),
+  ],
+).enableRLS()

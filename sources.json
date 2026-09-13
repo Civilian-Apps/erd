@@ -76,6 +76,32 @@
         "sha256": "b87b990e72c2cf7f6ccac9cb424f50e4b56578c0380e27349d07b3703068f2a4"
       }
     ],
-    "rulesSha256": "240d8c80c58839729f92d9bb3253cb50dbd23a95aba4f683f82f97b97c1d1696"
+    "rulesSha256": "df6beeb90079cdda55053c88941a11e3a6b86f7a26ebe4b27002383edb81eb3d"
+  },
+  "personal-ai-coach-proposed": {
+    "repository": "Civilian-Apps/personal-ai-coach",
+    "ref": "main",
+    "schema": "project/workspace/architect/auth-schema-proposal/proposed-schema.ts",
+    "revision": "f6b21bee0e7da436c96f5cbd7f984377922e5ebc",
+    "schemaSha256": "e3b996b1b3e18101c3cdd3ac5f4dfc39e82b72055ac33fc9cd3e7b8a70614200",
+    "kind": "local",
+    "dirty": true,
+    "publication": "draft",
+    "inputs": {
+      "project/workspace/architect/auth-schema-proposal/proposed-schema.ts": "e3b996b1b3e18101c3cdd3ac5f4dfc39e82b72055ac33fc9cd3e7b8a70614200"
+    },
+    "diagramSha256": "618d86f22e7899bb75d14979e96c862ef979c0f1c3f3af28833957cadf328243",
+    "renderer": {
+      "liam": "0.7.24",
+      "drizzle": "0.45.2",
+      "ingestion": "evaluated-metadata"
+    },
+    "coverage": {
+      "tables": 25,
+      "columns": 271,
+      "foreignKeys": 38
+    },
+    "migrations": [],
+    "rulesSha256": "efb0e3b6562735f70e064254e7210a5b714b49f5ed1c6379ce7205732838be20"
   }
 }
