@@ -81,9 +81,9 @@
       },
       {
         "path": "drizzle/0014_auth_cutover.sql",
-        "sha256": "3459f18fda227c564f586f82ff120b13ce0cdf89b80444f27cff5202e4ec92e8"
+        "sha256": "126ce09780533f614f2013c4b8a60ddd209245b7cc01f90cc2850eb25983e22d"
       }
     ],
-    "rulesSha256": "41b52e8d2b7289c059aab40f0c60c66c4126236a3dccddb21b09117f699758e7"
+    "rulesSha256": "3b82d88073e792f8453c5dc20244a64e6db82370f6e56ef00e33882cf1e3501a"
   }
 }

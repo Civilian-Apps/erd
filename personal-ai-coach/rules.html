@@ -1206,17 +1206,23 @@ REVOKE ALL ON product_events FROM coach_app_rt, authenticated, PUBLIC;
 --> statement-breakpoint
 GRANT INSERT ON product_events TO coach_app_rt;
 </pre></details>
-<details><summary>drizzle/0014_auth_cutover.sql · SHA-256 3459f18fda227c564f586f82ff120b13ce0cdf89b80444f27cff5202e4ec92e8</summary><pre>-- Billing reconciliation must complete before retiring the old cache. This guard
+<details><summary>drizzle/0014_auth_cutover.sql · SHA-256 126ce09780533f614f2013c4b8a60ddd209245b7cc01f90cc2850eb25983e22d</summary><pre>-- Billing reconciliation must complete before retiring the old cache. This guard
 -- intentionally blocks populated upgrades; fresh installations need no backfill.
 DO $$ BEGIN
  IF EXISTS (
   SELECT 1 FROM &quot;user&quot; u WHERE
    (u.subscription_status &lt;> 'incomplete' OR u.subscription_cancel_at_period_end
     OR u.subscription_current_period_end IS NOT NULL)
-   AND NOT EXISTS (SELECT 1 FROM subscription s WHERE s.reference_id=u.id
-    AND s.stripe_customer_id IS NOT DISTINCT FROM u.stripe_customer_id
+   AND NOT EXISTS (SELECT 1 FROM (
+    SELECT * FROM subscription WHERE reference_id=u.id
+    ORDER BY CASE status WHEN 'active' THEN 0 WHEN 'past_due' THEN 1
+     WHEN 'unpaid' THEN 1 WHEN 'paused' THEN 1 WHEN 'canceled' THEN 2 ELSE 3 END,
+     period_end DESC NULLS LAST, id DESC LIMIT 1
+   ) s WHERE s.stripe_customer_id IS NOT DISTINCT FROM u.stripe_customer_id
     AND s.stripe_subscription_id IS NOT NULL
-    AND s.status = u.subscription_status::text
+    AND CASE s.status WHEN 'active' THEN 'active'
+     WHEN 'past_due' THEN 'past_due' WHEN 'unpaid' THEN 'past_due' WHEN 'paused' THEN 'past_due'
+     WHEN 'canceled' THEN 'canceled' ELSE 'incomplete' END = u.subscription_status::text
     AND COALESCE(s.cancel_at_period_end,false) = u.subscription_cancel_at_period_end
     AND s.period_end IS NOT DISTINCT FROM u.subscription_current_period_end)
  ) THEN RAISE EXCEPTION 'Reconcile legacy User billing to Stripe subscription rows before auth cutover'; END IF;
