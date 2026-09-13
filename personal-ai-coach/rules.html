@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Personal AI Coach — current schema database rules</title><style>body{background:#101114;color:#eee;font:15px system-ui;max-width:1100px;margin:30px auto;padding:0 20px}a{color:#a5ccff}details{margin:15px 0;border:1px solid #444;padding:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer}</style></head><body><a href="./">Back to diagram</a><h1>Personal AI Coach — current schema database rules</h1><p>Evaluated Drizzle metadata includes partial-index predicates, ordering and RLS policy clauses below. Liam draws one line per column in a composite foreign key; those lines represent one tuple constraint, not independent foreign keys. Migration SQL is shown verbatim from the same source snapshot. Triggers, grants and custom SQL overrides require reading the migration SQL; the diagram does not evaluate migration effects or prove database behavior.</p><h2>Table metadata</h2><details><summary>account</summary><pre>Row-level security: enabled.
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Personal AI Coach database rules</title><style>body{background:#101114;color:#eee;font:15px system-ui;max-width:1100px;margin:30px auto;padding:0 20px}a{color:#a5ccff}details{margin:15px 0;border:1px solid #444;padding:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer}</style></head><body><a href="./">Back to diagram</a><h1>Personal AI Coach database rules</h1><p>Evaluated Drizzle metadata includes partial-index predicates, ordering and RLS policy clauses below. Liam draws one line per column in a composite foreign key; those lines represent one tuple constraint, not independent foreign keys. Migration SQL is shown verbatim from the same source snapshot. Triggers, grants and custom SQL overrides require reading the migration SQL; the diagram does not evaluate migration effects or prove database behavior.</p><h2>Table metadata</h2><details><summary>account</summary><pre>Row-level security: enabled.
 
 POLICY account_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
@@ -33,6 +33,13 @@ INDEX actions_objective_cycle_user_idx USING btree (objective_id ASC NULLS LAST,
 INDEX actions_session_user_idx USING btree (session_id ASC NULLS LAST, user_id ASC NULLS LAST)
 
 INDEX actions_outstanding_order_idx USING btree (cycle_id ASC NULLS LAST, objective_id ASC NULLS LAST, sort_order ASC NULLS LAST, due_at ASC NULLS LAST)
+
+</pre></details>
+<details><summary>auth_session</summary><pre>Row-level security: enabled.
+
+POLICY session_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
+
+INDEX session_user_id_idx USING btree (user_id ASC NULLS LAST)
 
 </pre></details>
 <details><summary>cycles</summary><pre>Row-level security: enabled.
@@ -70,8 +77,6 @@ UNIQUE INDEX habit_logs_result_day_uidx USING btree (result_id ASC NULLS LAST, d
 
 POLICY idempotency_keys_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
-INDEX idempotency_keys_user_id_idx USING btree (user_id ASC NULLS LAST)
-
 UNIQUE INDEX idempotency_keys_user_op_key_uidx USING btree (user_id ASC NULLS LAST, operation ASC NULLS LAST, idempotency_key ASC NULLS LAST)
 
 </pre></details>
@@ -82,8 +87,6 @@ UNIQUE INDEX idempotency_keys_user_op_key_uidx USING btree (user_id ASC NULLS LA
 
 POLICY notes_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
-INDEX notes_user_id_idx USING btree (user_id ASC NULLS LAST)
-
 INDEX notes_history_idx USING btree (user_id ASC NULLS LAST, recorded_at DESC NULLS LAST, id DESC NULLS LAST)
 
 CHECK notes_nonblank_text_check: &quot;notes&quot;.&quot;text&quot; ~ '[^[:space:]]'</pre></details>
@@ -91,42 +94,57 @@ CHECK notes_nonblank_text_check: &quot;notes&quot;.&quot;text&quot; ~ '[^[:space
 
 POLICY oauth_access_token_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
-INDEX oauth_access_token_user_id_idx USING btree (user_id ASC NULLS LAST)
-
 INDEX oauth_access_token_client_id_idx USING btree (client_id ASC NULLS LAST)
 
 INDEX oauth_access_token_session_id_idx USING btree (session_id ASC NULLS LAST)
+
+INDEX oauth_access_token_user_id_idx USING btree (user_id ASC NULLS LAST)
+
+INDEX oauth_access_token_authorization_code_id_idx USING btree (authorization_code_id ASC NULLS LAST)
 
 INDEX oauth_access_token_refresh_id_idx USING btree (refresh_id ASC NULLS LAST)
 
 </pre></details>
 <details><summary>oauth_client</summary><pre>Row-level security: disabled.
 
+INDEX oauth_client_user_id_idx USING btree (user_id ASC NULLS LAST)
+
 INDEX oauth_client_client_id_idx USING btree (client_id ASC NULLS LAST)
 
-INDEX oauth_client_user_id_idx USING btree (user_id ASC NULLS LAST)
+</pre></details>
+<details><summary>oauth_client_assertion</summary><pre>Row-level security: disabled.
+
+</pre></details>
+<details><summary>oauth_client_resource</summary><pre>Row-level security: disabled.
+
+INDEX oauth_client_resource_resource_id_idx USING btree (resource_id ASC NULLS LAST)
+
+UNIQUE INDEX oauth_client_resource_client_id_resource_id_uidx USING btree (client_id ASC NULLS LAST, resource_id ASC NULLS LAST)
 
 </pre></details>
 <details><summary>oauth_consent</summary><pre>Row-level security: enabled.
 
 POLICY oauth_consent_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
-INDEX oauth_consent_user_id_idx USING btree (user_id ASC NULLS LAST)
-
 INDEX oauth_consent_client_id_idx USING btree (client_id ASC NULLS LAST)
 
-UNIQUE INDEX oauth_consent_user_client_uidx USING btree (user_id ASC NULLS LAST, client_id ASC NULLS LAST)
+INDEX oauth_consent_user_id_idx USING btree (user_id ASC NULLS LAST)
 
 </pre></details>
 <details><summary>oauth_refresh_token</summary><pre>Row-level security: enabled.
 
 POLICY oauth_refresh_token_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
 
-INDEX oauth_refresh_token_user_id_idx USING btree (user_id ASC NULLS LAST)
-
 INDEX oauth_refresh_token_client_id_idx USING btree (client_id ASC NULLS LAST)
 
 INDEX oauth_refresh_token_session_id_idx USING btree (session_id ASC NULLS LAST)
+
+INDEX oauth_refresh_token_user_id_idx USING btree (user_id ASC NULLS LAST)
+
+INDEX oauth_refresh_token_authorization_code_id_idx USING btree (authorization_code_id ASC NULLS LAST)
+
+</pre></details>
+<details><summary>oauth_resource</summary><pre>Row-level security: disabled.
 
 </pre></details>
 <details><summary>objectives</summary><pre>Row-level security: enabled.
@@ -144,7 +162,7 @@ INDEX objectives_cycle_user_idx USING btree (cycle_id ASC NULLS LAST, user_id AS
 </pre></details>
 <details><summary>product_events</summary><pre>Row-level security: enabled.
 
-POLICY product_events_tenant_isolation: AS permissive FOR all TO authenticated USING (&quot;product_events&quot;.&quot;user_id&quot; IS NULL OR &quot;product_events&quot;.&quot;user_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (&quot;product_events&quot;.&quot;user_id&quot; IS NULL OR &quot;product_events&quot;.&quot;user_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid)
+POLICY product_events_tenant_insert: AS permissive FOR insert TO authenticated WITH CHECK (&quot;product_events&quot;.&quot;user_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid)
 
 INDEX product_events_user_id_idx USING btree (user_id ASC NULLS LAST)
 
@@ -181,13 +199,6 @@ CHECK results_habit_check: &quot;results&quot;.&quot;metric_type&quot; &lt;> 'ha
 CHECK results_performance_check: &quot;results&quot;.&quot;metric_type&quot; &lt;> 'performance' OR (&quot;results&quot;.&quot;target_value&quot; IS NOT NULL AND &quot;results&quot;.&quot;since&quot; IS NOT NULL AND &quot;results&quot;.&quot;cadence&quot; IS NULL AND &quot;results&quot;.&quot;per&quot; IS NULL)
 CHECK results_distinct_target_check: &quot;results&quot;.&quot;metric_type&quot; NOT IN ('number', 'percentage') OR &quot;results&quot;.&quot;target_value&quot; &lt;> &quot;results&quot;.&quot;start_value&quot;
 CHECK results_finite_values_check: (&quot;results&quot;.&quot;start_value&quot; IS NULL OR &quot;results&quot;.&quot;start_value&quot; NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)) AND (&quot;results&quot;.&quot;target_value&quot; IS NULL OR &quot;results&quot;.&quot;target_value&quot; NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric))</pre></details>
-<details><summary>session</summary><pre>Row-level security: enabled.
-
-POLICY session_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
-
-INDEX session_user_id_idx USING btree (user_id ASC NULLS LAST)
-
-</pre></details>
 <details><summary>sessions</summary><pre>Row-level security: enabled.
 
 POLICY sessions_tenant_isolation: AS permissive FOR all TO authenticated USING (user_id = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (user_id = nullif(current_setting('app.user_id', true), '')::uuid)
@@ -201,12 +212,25 @@ UNIQUE INDEX sessions_one_open_uidx USING btree (user_id ASC NULLS LAST) WHERE &
 INDEX sessions_boundary_idx USING btree (user_id ASC NULLS LAST, ended_at DESC NULLS LAST) WHERE &quot;sessions&quot;.&quot;ended_at&quot; IS NOT NULL
 
 </pre></details>
+<details><summary>subscription</summary><pre>Row-level security: enabled.
+
+POLICY subscription_tenant_isolation: AS permissive FOR all TO authenticated USING (&quot;subscription&quot;.&quot;reference_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (&quot;subscription&quot;.&quot;reference_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid)
+
+INDEX subscription_reference_id_idx USING btree (reference_id ASC NULLS LAST)
+
+UNIQUE INDEX subscription_stripe_subscription_id_uidx USING btree (stripe_subscription_id ASC NULLS LAST)
+
+INDEX subscription_stripe_customer_id_idx USING btree (stripe_customer_id ASC NULLS LAST)
+
+</pre></details>
 <details><summary>user</summary><pre>Row-level security: enabled.
 
 POLICY user_self_isolation: AS permissive FOR all TO authenticated USING (&quot;user&quot;.&quot;id&quot; = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (&quot;user&quot;.&quot;id&quot; = nullif(current_setting('app.user_id', true), '')::uuid)
 
-CHECK user_subscription_status_check: &quot;user&quot;.&quot;subscription_status&quot; in ('incomplete', 'active', 'past_due', 'canceled')</pre></details>
+</pre></details>
 <details><summary>verification</summary><pre>Row-level security: disabled.
+
+INDEX verification_identifier_idx USING btree (identifier ASC NULLS LAST)
 
 </pre></details><h2>Migration SQL</h2><details><summary>drizzle/0000_panoramic_cammi.sql · SHA-256 43323aaaae1258cdd757a413840461ff1b0b70b5def4af9b9dc20b18d730828e</summary><pre>-- Ensure the `authenticated` role exists before policies reference it.
 -- Drizzle Kit generates `CREATE POLICY … TO authenticated`; without this
@@ -1033,4 +1057,180 @@ END $$;
 DELETE FROM &quot;example&quot; WHERE &quot;deleted_at&quot; IS NOT NULL;--> statement-breakpoint
 ALTER TABLE &quot;idempotency_keys&quot; DROP COLUMN &quot;expires_at&quot;;--> statement-breakpoint
 ALTER TABLE &quot;idempotency_keys&quot; DROP COLUMN &quot;updated_at&quot;;--> statement-breakpoint
-ALTER TABLE &quot;example&quot; DROP COLUMN &quot;deleted_at&quot;;</pre></details></body></html>
+ALTER TABLE &quot;example&quot; DROP COLUMN &quot;deleted_at&quot;;</pre></details>
+<details><summary>drizzle/0013_auth_expand.sql · SHA-256 df14b86fd4f2013be1dfb2585578412680aec2998b192d930caa724b962246ff</summary><pre>-- Controlled auth upgrade: stop old API writers before applying. This rename is not
+-- compatible with the old binary. Existing MCP grants require an explicit reconnect
+-- cutover; do not silently reinterpret pre-1.7 grants as resource-bound grants.
+DO $$ BEGIN
+ IF EXISTS (SELECT 1 FROM oauth_access_token) OR EXISTS (SELECT 1 FROM oauth_refresh_token)
+ OR EXISTS (SELECT 1 FROM oauth_consent) THEN
+  RAISE EXCEPTION 'Auth upgrade requires reviewed MCP grant revocation before migration; see OPERATOR-RUNBOOK auth cutover';
+ END IF;
+END $$;
+--> statement-breakpoint
+UPDATE &quot;user&quot; SET name = COALESCE(NULLIF(trim(concat_ws(' ', first_name, last_name)), ''), email)
+WHERE name IS NULL;
+--> statement-breakpoint
+CREATE TABLE &quot;oauth_client_assertion&quot; (
+	&quot;id&quot; text PRIMARY KEY NOT NULL,
+	&quot;expires_at&quot; timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE &quot;oauth_client_resource&quot; (
+	&quot;id&quot; uuid PRIMARY KEY DEFAULT pg_catalog.gen_random_uuid() NOT NULL,
+	&quot;client_id&quot; text NOT NULL,
+	&quot;resource_id&quot; text NOT NULL,
+	&quot;metadata&quot; jsonb,
+	&quot;created_at&quot; timestamp with time zone
+);
+--> statement-breakpoint
+CREATE TABLE &quot;oauth_resource&quot; (
+	&quot;id&quot; uuid PRIMARY KEY DEFAULT pg_catalog.gen_random_uuid() NOT NULL,
+	&quot;identifier&quot; text NOT NULL,
+	&quot;name&quot; text NOT NULL,
+	&quot;access_token_ttl&quot; integer,
+	&quot;refresh_token_ttl&quot; integer,
+	&quot;signing_algorithm&quot; text,
+	&quot;signing_key_id&quot; text,
+	&quot;allowed_scopes&quot; text[],
+	&quot;custom_claims&quot; jsonb,
+	&quot;dpop_bound_access_tokens_required&quot; boolean DEFAULT false,
+	&quot;disabled&quot; boolean DEFAULT false,
+	&quot;created_at&quot; timestamp with time zone,
+	&quot;updated_at&quot; timestamp with time zone,
+	&quot;policy_version&quot; integer DEFAULT 1,
+	&quot;metadata&quot; jsonb,
+	CONSTRAINT &quot;oauth_resource_identifier_unique&quot; UNIQUE(&quot;identifier&quot;)
+);
+--> statement-breakpoint
+CREATE TABLE &quot;subscription&quot; (
+	&quot;id&quot; uuid PRIMARY KEY DEFAULT pg_catalog.gen_random_uuid() NOT NULL,
+	&quot;plan&quot; text NOT NULL,
+	&quot;reference_id&quot; uuid NOT NULL,
+	&quot;stripe_customer_id&quot; text,
+	&quot;stripe_subscription_id&quot; text,
+	&quot;status&quot; text DEFAULT 'incomplete' NOT NULL,
+	&quot;period_start&quot; timestamp with time zone,
+	&quot;period_end&quot; timestamp with time zone,
+	&quot;trial_start&quot; timestamp with time zone,
+	&quot;trial_end&quot; timestamp with time zone,
+	&quot;cancel_at_period_end&quot; boolean DEFAULT false,
+	&quot;cancel_at&quot; timestamp with time zone,
+	&quot;canceled_at&quot; timestamp with time zone,
+	&quot;ended_at&quot; timestamp with time zone,
+	&quot;seats&quot; integer,
+	&quot;billing_interval&quot; text,
+	&quot;stripe_schedule_id&quot; text
+);
+--> statement-breakpoint
+ALTER TABLE &quot;subscription&quot; ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE &quot;session&quot; RENAME TO &quot;auth_session&quot;;--> statement-breakpoint
+ALTER TABLE &quot;auth_session&quot; DROP CONSTRAINT &quot;session_token_unique&quot;;--> statement-breakpoint
+ALTER TABLE &quot;user&quot; DROP CONSTRAINT &quot;user_subscription_status_check&quot;;--> statement-breakpoint
+ALTER TABLE &quot;auth_session&quot; DROP CONSTRAINT &quot;session_user_id_user_id_fk&quot;;
+--> statement-breakpoint
+DROP INDEX &quot;idempotency_keys_user_id_idx&quot;;--> statement-breakpoint
+DROP INDEX &quot;notes_user_id_idx&quot;;--> statement-breakpoint
+DROP INDEX &quot;oauth_consent_user_client_uidx&quot;;--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ALTER COLUMN &quot;token&quot; SET NOT NULL;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ALTER COLUMN &quot;disabled&quot; DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ALTER COLUMN &quot;created_at&quot; DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ALTER COLUMN &quot;updated_at&quot; DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE &quot;oauth_consent&quot; ALTER COLUMN &quot;user_id&quot; DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE &quot;user&quot; ALTER COLUMN &quot;name&quot; SET NOT NULL;--> statement-breakpoint
+ALTER TABLE &quot;jwks&quot; ADD COLUMN &quot;expires_at&quot; timestamp with time zone;--> statement-breakpoint
+ALTER TABLE &quot;jwks&quot; ADD COLUMN &quot;alg&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;jwks&quot; ADD COLUMN &quot;crv&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ADD COLUMN &quot;authorization_code_id&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ADD COLUMN &quot;resources&quot; text[];--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ADD COLUMN &quot;requested_user_info_claims&quot; text[];--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ADD COLUMN &quot;revoked&quot; timestamp with time zone;--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ADD COLUMN &quot;confirmation&quot; jsonb;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD COLUMN &quot;client_discovery_id&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD COLUMN &quot;client_credentials_scopes&quot; text[] DEFAULT '{}';--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD COLUMN &quot;backchannel_logout_uri&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD COLUMN &quot;backchannel_logout_session_required&quot; boolean;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD COLUMN &quot;application_type&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD COLUMN &quot;jwks&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD COLUMN &quot;jwks_uri&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD COLUMN &quot;dpop_bound_access_tokens&quot; boolean DEFAULT false;--> statement-breakpoint
+ALTER TABLE &quot;oauth_consent&quot; ADD COLUMN &quot;resources&quot; text[];--> statement-breakpoint
+ALTER TABLE &quot;oauth_consent&quot; ADD COLUMN &quot;requested_user_info_claims&quot; text[];--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD COLUMN &quot;authorization_code_id&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD COLUMN &quot;resources&quot; text[];--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD COLUMN &quot;requested_user_info_claims&quot; text[];--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD COLUMN &quot;rotated_at&quot; timestamp with time zone;--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD COLUMN &quot;rotation_replay_response&quot; text;--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD COLUMN &quot;rotation_replay_expires_at&quot; timestamp with time zone;--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD COLUMN &quot;confirmation&quot; jsonb;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client_resource&quot; ADD CONSTRAINT &quot;oauth_client_resource_client_id_oauth_client_client_id_fk&quot; FOREIGN KEY (&quot;client_id&quot;) REFERENCES &quot;public&quot;.&quot;oauth_client&quot;(&quot;client_id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client_resource&quot; ADD CONSTRAINT &quot;oauth_client_resource_resource_id_oauth_resource_identifier_fk&quot; FOREIGN KEY (&quot;resource_id&quot;) REFERENCES &quot;public&quot;.&quot;oauth_resource&quot;(&quot;identifier&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;subscription&quot; ADD CONSTRAINT &quot;subscription_reference_id_user_id_fk&quot; FOREIGN KEY (&quot;reference_id&quot;) REFERENCES &quot;public&quot;.&quot;user&quot;(&quot;id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX &quot;oauth_client_resource_resource_id_idx&quot; ON &quot;oauth_client_resource&quot; USING btree (&quot;resource_id&quot;);--> statement-breakpoint
+CREATE UNIQUE INDEX &quot;oauth_client_resource_client_id_resource_id_uidx&quot; ON &quot;oauth_client_resource&quot; USING btree (&quot;client_id&quot;,&quot;resource_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;subscription_reference_id_idx&quot; ON &quot;subscription&quot; USING btree (&quot;reference_id&quot;);--> statement-breakpoint
+CREATE UNIQUE INDEX &quot;subscription_stripe_subscription_id_uidx&quot; ON &quot;subscription&quot; USING btree (&quot;stripe_subscription_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;subscription_stripe_customer_id_idx&quot; ON &quot;subscription&quot; USING btree (&quot;stripe_customer_id&quot;);--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ADD CONSTRAINT &quot;oauth_access_token_client_id_oauth_client_client_id_fk&quot; FOREIGN KEY (&quot;client_id&quot;) REFERENCES &quot;public&quot;.&quot;oauth_client&quot;(&quot;client_id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ADD CONSTRAINT &quot;oauth_access_token_session_id_auth_session_id_fk&quot; FOREIGN KEY (&quot;session_id&quot;) REFERENCES &quot;public&quot;.&quot;auth_session&quot;(&quot;id&quot;) ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;oauth_access_token&quot; ADD CONSTRAINT &quot;oauth_access_token_refresh_id_oauth_refresh_token_id_fk&quot; FOREIGN KEY (&quot;refresh_id&quot;) REFERENCES &quot;public&quot;.&quot;oauth_refresh_token&quot;(&quot;id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; ADD CONSTRAINT &quot;oauth_client_user_id_user_id_fk&quot; FOREIGN KEY (&quot;user_id&quot;) REFERENCES &quot;public&quot;.&quot;user&quot;(&quot;id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;oauth_consent&quot; ADD CONSTRAINT &quot;oauth_consent_client_id_oauth_client_client_id_fk&quot; FOREIGN KEY (&quot;client_id&quot;) REFERENCES &quot;public&quot;.&quot;oauth_client&quot;(&quot;client_id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD CONSTRAINT &quot;oauth_refresh_token_client_id_oauth_client_client_id_fk&quot; FOREIGN KEY (&quot;client_id&quot;) REFERENCES &quot;public&quot;.&quot;oauth_client&quot;(&quot;client_id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;oauth_refresh_token&quot; ADD CONSTRAINT &quot;oauth_refresh_token_session_id_auth_session_id_fk&quot; FOREIGN KEY (&quot;session_id&quot;) REFERENCES &quot;public&quot;.&quot;auth_session&quot;(&quot;id&quot;) ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE &quot;auth_session&quot; ADD CONSTRAINT &quot;auth_session_user_id_user_id_fk&quot; FOREIGN KEY (&quot;user_id&quot;) REFERENCES &quot;public&quot;.&quot;user&quot;(&quot;id&quot;) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX &quot;oauth_access_token_authorization_code_id_idx&quot; ON &quot;oauth_access_token&quot; USING btree (&quot;authorization_code_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;oauth_refresh_token_authorization_code_id_idx&quot; ON &quot;oauth_refresh_token&quot; USING btree (&quot;authorization_code_id&quot;);--> statement-breakpoint
+CREATE INDEX &quot;verification_identifier_idx&quot; ON &quot;verification&quot; USING btree (&quot;identifier&quot;);--> statement-breakpoint
+ALTER TABLE &quot;auth_session&quot; ADD CONSTRAINT &quot;auth_session_token_unique&quot; UNIQUE(&quot;token&quot;);--> statement-breakpoint
+DROP POLICY &quot;product_events_tenant_isolation&quot; ON &quot;product_events&quot; CASCADE;--> statement-breakpoint
+CREATE POLICY &quot;product_events_tenant_insert&quot; ON &quot;product_events&quot; AS PERMISSIVE FOR INSERT TO &quot;authenticated&quot; WITH CHECK (&quot;product_events&quot;.&quot;user_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid);--> statement-breakpoint
+CREATE POLICY &quot;subscription_tenant_isolation&quot; ON &quot;subscription&quot; AS PERMISSIVE FOR ALL TO &quot;authenticated&quot; USING (&quot;subscription&quot;.&quot;reference_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid) WITH CHECK (&quot;subscription&quot;.&quot;reference_id&quot; = nullif(current_setting('app.user_id', true), '')::uuid);
+--> statement-breakpoint
+-- Preserve legacy client classification in the new standard fields.
+UPDATE oauth_client SET application_type = CASE WHEN type = 'native' THEN 'native' ELSE 'web' END,
+ token_endpoint_auth_method = COALESCE(token_endpoint_auth_method, CASE WHEN public THEN 'none' ELSE 'client_secret_basic' END);
+--> statement-breakpoint
+ALTER TABLE subscription NO FORCE ROW LEVEL SECURITY;
+--> statement-breakpoint
+-- Auth adapter owns these tables; application tenants cannot mint credentials.
+REVOKE ALL ON auth_session, account, verification, jwks, oauth_client, oauth_client_assertion,
+ oauth_client_resource, oauth_resource, oauth_access_token, oauth_refresh_token, oauth_consent
+ FROM coach_app_rt, authenticated, PUBLIC;
+--> statement-breakpoint
+REVOKE ALL ON subscription FROM coach_app_rt, authenticated, PUBLIC;
+--> statement-breakpoint
+GRANT SELECT ON subscription TO coach_app_rt;
+--> statement-breakpoint
+REVOKE ALL ON product_events FROM coach_app_rt, authenticated, PUBLIC;
+--> statement-breakpoint
+GRANT INSERT ON product_events TO coach_app_rt;
+</pre></details>
+<details><summary>drizzle/0014_auth_cutover.sql · SHA-256 3459f18fda227c564f586f82ff120b13ce0cdf89b80444f27cff5202e4ec92e8</summary><pre>-- Billing reconciliation must complete before retiring the old cache. This guard
+-- intentionally blocks populated upgrades; fresh installations need no backfill.
+DO $$ BEGIN
+ IF EXISTS (
+  SELECT 1 FROM &quot;user&quot; u WHERE
+   (u.subscription_status &lt;> 'incomplete' OR u.subscription_cancel_at_period_end
+    OR u.subscription_current_period_end IS NOT NULL)
+   AND NOT EXISTS (SELECT 1 FROM subscription s WHERE s.reference_id=u.id
+    AND s.stripe_customer_id IS NOT DISTINCT FROM u.stripe_customer_id
+    AND s.stripe_subscription_id IS NOT NULL
+    AND s.status = u.subscription_status::text
+    AND COALESCE(s.cancel_at_period_end,false) = u.subscription_cancel_at_period_end
+    AND s.period_end IS NOT DISTINCT FROM u.subscription_current_period_end)
+ ) THEN RAISE EXCEPTION 'Reconcile legacy User billing to Stripe subscription rows before auth cutover'; END IF;
+ IF EXISTS (SELECT 1 FROM product_events WHERE stripe_customer_id IS NOT NULL OR subscription_id IS NOT NULL)
+ THEN RAISE EXCEPTION 'Archive and clear retired product event billing identifiers before auth cutover'; END IF;
+END $$;
+--> statement-breakpoint
+ALTER TABLE &quot;jwks&quot; DROP COLUMN &quot;updated_at&quot;;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; DROP COLUMN &quot;type&quot;;--> statement-breakpoint
+ALTER TABLE &quot;oauth_client&quot; DROP COLUMN &quot;public&quot;;--> statement-breakpoint
+ALTER TABLE &quot;product_events&quot; DROP COLUMN &quot;stripe_customer_id&quot;;--> statement-breakpoint
+ALTER TABLE &quot;product_events&quot; DROP COLUMN &quot;subscription_id&quot;;--> statement-breakpoint
+ALTER TABLE &quot;product_events&quot; DROP COLUMN &quot;updated_at&quot;;--> statement-breakpoint
+ALTER TABLE &quot;user&quot; DROP COLUMN &quot;subscription_status&quot;;--> statement-breakpoint
+ALTER TABLE &quot;user&quot; DROP COLUMN &quot;subscription_cancel_at_period_end&quot;;--> statement-breakpoint
+ALTER TABLE &quot;user&quot; DROP COLUMN &quot;subscription_current_period_end&quot;;--> statement-breakpoint
+DROP TYPE &quot;public&quot;.&quot;subscription_status&quot;;</pre></details></body></html>

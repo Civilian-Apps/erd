@@ -3,23 +3,23 @@
   "ref": "main",
   "schema": "packages/core/src/contracts/schema.ts",
   "revision": "f6b21bee0e7da436c96f5cbd7f984377922e5ebc",
-  "schemaSha256": "1a41cc4d6729ce51b41a6565eab9b367f1df6c9911ffe8c2237405664975f007",
+  "schemaSha256": "5e62885a0557b58d458ed06dca0215bcae434d09f49bc993faf00f80d1ae3547",
   "kind": "local",
   "dirty": true,
   "publication": "draft",
   "inputs": {
-    "packages/core/src/contracts/schema.ts": "1a41cc4d6729ce51b41a6565eab9b367f1df6c9911ffe8c2237405664975f007"
+    "packages/core/src/contracts/schema.ts": "5e62885a0557b58d458ed06dca0215bcae434d09f49bc993faf00f80d1ae3547"
   },
-  "diagramSha256": "5cb670e76e82e0e2d6968574b6e1958ed6089f709b1c7d67427dbb8239c6c3fb",
+  "diagramSha256": "7e98d6f9e2b4fe03f0b0a4f006ce9d16b8d5034e5d469783631e141bf3e6f517",
   "renderer": {
     "liam": "0.7.24",
     "drizzle": "0.45.2",
     "ingestion": "evaluated-metadata"
   },
   "coverage": {
-    "tables": 21,
-    "columns": 210,
-    "foreignKeys": 28
+    "tables": 25,
+    "columns": 265,
+    "foreignKeys": 38
   },
   "migrations": [
     {
@@ -73,7 +73,15 @@
     {
       "path": "drizzle/0012_streamline_receipts_retain_example.sql",
       "sha256": "b87b990e72c2cf7f6ccac9cb424f50e4b56578c0380e27349d07b3703068f2a4"
+    },
+    {
+      "path": "drizzle/0013_auth_expand.sql",
+      "sha256": "df14b86fd4f2013be1dfb2585578412680aec2998b192d930caa724b962246ff"
+    },
+    {
+      "path": "drizzle/0014_auth_cutover.sql",
+      "sha256": "3459f18fda227c564f586f82ff120b13ce0cdf89b80444f27cff5202e4ec92e8"
     }
   ],
-  "rulesSha256": "df6beeb90079cdda55053c88941a11e3a6b86f7a26ebe4b27002383edb81eb3d"
+  "rulesSha256": "41b52e8d2b7289c059aab40f0c60c66c4126236a3dccddb21b09117f699758e7"
 }
