@@ -3470,7 +3470,7 @@
         "name": {
           "name": "name",
           "type": "text",
-          "default": null,
+          "default": "",
           "check": null,
           "notNull": true,
           "comment": null
@@ -3517,22 +3517,6 @@
         },
         "stripe_customer_id": {
           "name": "stripe_customer_id",
-          "type": "text",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
-        },
-        "first_name": {
-          "name": "first_name",
-          "type": "text",
-          "default": null,
-          "check": null,
-          "notNull": false,
-          "comment": null
-        },
-        "last_name": {
-          "name": "last_name",
           "type": "text",
           "default": null,
           "check": null,

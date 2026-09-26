@@ -2,15 +2,15 @@
   "repository": "Civilian-Apps/personal-ai-coach",
   "ref": "main",
   "schema": "packages/core/src/contracts/schema.ts",
-  "revision": "f6b21bee0e7da436c96f5cbd7f984377922e5ebc",
-  "schemaSha256": "5e62885a0557b58d458ed06dca0215bcae434d09f49bc993faf00f80d1ae3547",
+  "revision": "5ef0e866c17c65714bf9e739fdb0272a2b637e98",
+  "schemaSha256": "fc5cb8cb0ca65e53a36573888ffbf7242dae1c3e18094cc513a1f647751200ea",
   "kind": "local",
   "dirty": true,
   "publication": "draft",
   "inputs": {
-    "packages/core/src/contracts/schema.ts": "5e62885a0557b58d458ed06dca0215bcae434d09f49bc993faf00f80d1ae3547"
+    "packages/core/src/contracts/schema.ts": "fc5cb8cb0ca65e53a36573888ffbf7242dae1c3e18094cc513a1f647751200ea"
   },
-  "diagramSha256": "7e98d6f9e2b4fe03f0b0a4f006ce9d16b8d5034e5d469783631e141bf3e6f517",
+  "diagramSha256": "4f82107c30180e4bdec2fc86345c90bc8125bea10c2abc33be9504ccbf6b9d6b",
   "renderer": {
     "liam": "0.7.24",
     "drizzle": "0.45.2",
@@ -18,7 +18,7 @@
   },
   "coverage": {
     "tables": 25,
-    "columns": 265,
+    "columns": 263,
     "foreignKeys": 38
   },
   "migrations": [
@@ -81,7 +81,11 @@
     {
       "path": "drizzle/0014_auth_cutover.sql",
       "sha256": "126ce09780533f614f2013c4b8a60ddd209245b7cc01f90cc2850eb25983e22d"
+    },
+    {
+      "path": "drizzle/0015_single_profile_name.sql",
+      "sha256": "0b525ea3c5faec5573da4e3d9de9d0974775ad4a298b0ca8ab88c0d9dd52ae09"
     }
   ],
-  "rulesSha256": "3b82d88073e792f8453c5dc20244a64e6db82370f6e56ef00e33882cf1e3501a"
+  "rulesSha256": "13c52b3c95bb0534390adb9e1ed0c9ed7d9eaa97252ce75481570ba5a0fe6126"
 }
