@@ -84,8 +84,8 @@
     },
     {
       "path": "drizzle/0015_single_profile_name.sql",
-      "sha256": "0b525ea3c5faec5573da4e3d9de9d0974775ad4a298b0ca8ab88c0d9dd52ae09"
+      "sha256": "dbea9323e734e85ee317e3197c9c9d42e094828f3868973075631f7d927fa17b"
     }
   ],
-  "rulesSha256": "13c52b3c95bb0534390adb9e1ed0c9ed7d9eaa97252ce75481570ba5a0fe6126"
+  "rulesSha256": "a3f632ff6961a367c7f5c3ef210647e7cf3172430b376a361b0ac036e64f314a"
 }

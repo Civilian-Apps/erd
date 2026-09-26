@@ -1240,13 +1240,13 @@ ALTER TABLE &quot;user&quot; DROP COLUMN &quot;subscription_status&quot;;--> sta
 ALTER TABLE &quot;user&quot; DROP COLUMN &quot;subscription_cancel_at_period_end&quot;;--> statement-breakpoint
 ALTER TABLE &quot;user&quot; DROP COLUMN &quot;subscription_current_period_end&quot;;--> statement-breakpoint
 DROP TYPE &quot;public&quot;.&quot;subscription_status&quot;;</pre></details>
-<details><summary>drizzle/0015_single_profile_name.sql · SHA-256 0b525ea3c5faec5573da4e3d9de9d0974775ad4a298b0ca8ab88c0d9dd52ae09</summary><pre>-- Preserve the name previously used for coaching. Fall back to an existing display name,
--- excluding the old email-derived placeholders. Do not invent a name from a surname.
+<details><summary>drizzle/0015_single_profile_name.sql · SHA-256 dbea9323e734e85ee317e3197c9c9d42e094828f3868973075631f7d927fa17b</summary><pre>-- Preserve the name previously used for coaching, then the existing display name.
+-- A display name matching an email/local part is not evidence that it was generated:
+-- never erase it based on that heuristic. Do not derive a new name from email or surname.
 WITH chosen_names AS (
   SELECT id, COALESCE(
     NULLIF(btrim(first_name), ''),
-    CASE WHEN btrim(name) NOT IN (email, split_part(email, '@', 1))
-      THEN NULLIF(btrim(name), '') END,
+    NULLIF(btrim(name), ''),
     ''
   ) AS chosen_name
   FROM &quot;user&quot;
