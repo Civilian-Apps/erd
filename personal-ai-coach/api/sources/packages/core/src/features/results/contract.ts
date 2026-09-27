@@ -1,0 +1,246 @@
+/** Normative inputs: docs/ONTOLOGY.md and this feature's spec Interfaces. Client-safe. */
+import { z } from 'zod'
+import {
+  dateSchema,
+  idInputSchema,
+  idSchema,
+  idempotencyKeySchema,
+  pageInputSchema,
+  metricTypeSchema,
+  resultStatusSchema,
+  cadenceSchema,
+} from '../../contracts/input.js'
+const base = {
+  objective_id: idSchema,
+  title: z.string(),
+  description: z.string().nullable().optional(),
+}
+const numeric = {
+  start_value: z.number().finite().optional(),
+  target_value: z.number().finite(),
+  unit: z.string().nullable().optional(),
+}
+export const createResultArms = [
+  z.object({ ...base, metric_type: z.literal('number'), ...numeric }).strict(),
+  z
+    .object({
+      ...base,
+      metric_type: z.literal('percentage'),
+      start_value: z.number().min(0).max(100).optional(),
+      target_value: z.number().min(0).max(100),
+    })
+    .strict(),
+  z.object({ ...base, metric_type: z.literal('milestone') }).strict(),
+  z
+    .object({
+      ...base,
+      metric_type: z.literal('habit'),
+      cadence: cadenceSchema,
+      per: z.number().int().min(1),
+      since: dateSchema.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      ...base,
+      metric_type: z.literal('performance'),
+      ...numeric,
+      since: dateSchema.optional(),
+    })
+    .strict(),
+] as const
+export const createResultInput = z.discriminatedUnion('metric_type', createResultArms)
+export const orpcCreateResultInput = z.discriminatedUnion('metric_type', [
+  createResultArms[0].extend({ idempotency_key: idempotencyKeySchema }),
+  createResultArms[1].extend({ idempotency_key: idempotencyKeySchema }),
+  createResultArms[2].extend({ idempotency_key: idempotencyKeySchema }),
+  createResultArms[3].extend({ idempotency_key: idempotencyKeySchema }),
+  createResultArms[4].extend({ idempotency_key: idempotencyKeySchema }),
+])
+// The service merges a patch with the owned stored row and validates the final type matrix;
+// callers need not repeat metric_type merely to edit a title or move an objective.
+export const updateResultInput = idInputSchema.extend({
+  title: z.string().optional(),
+  description: z.string().nullable().optional(),
+  objective_id: idSchema.optional(),
+  metric_type: metricTypeSchema.optional(),
+  target_value: z.number().finite().optional(),
+  start_value: z.number().finite().nullable().optional(),
+  unit: z.string().nullable().optional(),
+  cadence: cadenceSchema.optional(),
+  per: z.number().int().min(1).optional(),
+  since: dateSchema.optional(),
+  status: resultStatusSchema.optional(),
+})
+export const getResultInput = idInputSchema
+export const deleteResultInput = idInputSchema
+export const listResultsInput = pageInputSchema.extend({ objective_id: idSchema })
+export const recordResultUpdateInput = z
+  .object({
+    result_id: idSchema,
+    value: z.number().finite().optional(),
+    comment: z.string().trim().min(1).optional(),
+  })
+  .strict()
+  .refine((value) => value.value !== undefined || value.comment !== undefined, {
+    message: 'A value or comment is required.',
+  })
+export const orpcRecordResultUpdateInput = recordResultUpdateInput.safeExtend({
+  idempotency_key: idempotencyKeySchema,
+})
+export const listResultUpdatesInput = pageInputSchema.extend({ result_id: idSchema })
+export const clearResultUpdateCommentInput = idInputSchema
+export const deleteResultUpdateInput = idInputSchema
+export const setHabitMarkInput = z
+  .object({ result_id: idSchema, day: dateSchema, marked: z.boolean() })
+  .strict()
+export const listHabitMarksInput = z
+  .object({ result_id: idSchema, from: dateSchema.optional(), to: dateSchema.optional() })
+  .strict()
+  .refine((value) => !value.from || !value.to || value.from <= value.to, {
+    message: 'To must not precede from.',
+    path: ['to'],
+  })
+export const resultWriteInput = z.discriminatedUnion('operation', [
+  z.discriminatedUnion('metric_type', [
+    createResultArms[0].extend({ operation: z.literal('create'), title: z.string().trim().min(1) }),
+    createResultArms[1].extend({ operation: z.literal('create'), title: z.string().trim().min(1) }),
+    createResultArms[2].extend({ operation: z.literal('create'), title: z.string().trim().min(1) }),
+    createResultArms[3].extend({ operation: z.literal('create'), title: z.string().trim().min(1) }),
+    createResultArms[4].extend({ operation: z.literal('create'), title: z.string().trim().min(1) }),
+  ]),
+  updateResultInput.extend({
+    operation: z.literal('update'),
+    title: z.string().trim().min(1).optional(),
+  }),
+])
+export const recordResultProgressInput = z.union([
+  recordResultUpdateInput.safeExtend({ target: z.literal('result') }),
+  setHabitMarkInput.extend({
+    target: z.literal('result'),
+    comment: z.string().trim().min(1).optional(),
+  }),
+])
+
+// MCP transport contracts: reuse domain fields; keep handlers outside declarations.
+import {
+  readerPageSchema,
+  continuationPageFields,
+  readWindowSchema,
+  resolvedReadWindowSchema,
+  deletionInputSchema,
+  deletionOutputSchema,
+} from '../../contracts/mcp.js'
+import {
+  resultSchema,
+  resultUpdateSchema,
+  habitMarkSchema,
+  changedSchema,
+} from '../../contracts/projections.js'
+import { trendPointSchema } from './record-contract.js'
+export const resultListToolInput = listResultsInput
+  .partial({ objective_id: true })
+  .extend({
+    operation: z.literal('list'),
+    cycle_id: idSchema
+      .optional()
+      .describe(
+        'List results across one cycle instead of a single objective. Supply exactly one parent selector.',
+      ),
+    attention: z
+      .enum(['never_updated', 'silent', 'unmarked'])
+      .optional()
+      .describe(
+        'Optional briefing subset: no evidence ever, no update in the window, or habit with no mark in the window.',
+      ),
+    window: resolvedReadWindowSchema
+      .optional()
+      .describe(
+        'Required for silent/unmarked attention. Use exact server-resolved briefing bounds; current result figures remain current.',
+      ),
+  })
+  .refine(
+    (value) => Boolean(value.objective_id) !== Boolean(value.cycle_id),
+    'Supply exactly one of objective_id or cycle_id.',
+  )
+  .refine(
+    (value) =>
+      value.attention === 'silent' || value.attention === 'unmarked'
+        ? Boolean(value.window)
+        : value.window === undefined,
+    'Only silent/unmarked attention requires a resolved window.',
+  )
+export const resultGetToolInput = getResultInput.extend({ operation: z.literal('get') })
+export const resultHistoryToolInput = listResultUpdatesInput.extend({
+  operation: z.literal('history'),
+  kind: z
+    .enum(['updates', 'marks', 'trend'])
+    .describe('Evidence stream to page; get returns current figures regardless of this window.'),
+  window: readWindowSchema.optional(),
+})
+export const resultReadInput = z.discriminatedUnion('operation', [
+  resultListToolInput,
+  resultGetToolInput,
+  resultHistoryToolInput,
+])
+const resultListToolOutput = readerPageSchema(
+  resultSchema,
+  'result_read',
+  resultListToolInput.safeExtend(continuationPageFields),
+).safeExtend({ operation: z.literal('list') })
+export const resultReadOutput = z.union([
+  resultListToolOutput,
+  z.strictObject({ operation: z.literal('get'), result: resultSchema }),
+  readerPageSchema(
+    resultUpdateSchema,
+    'result_read',
+    resultHistoryToolInput.extend({
+      ...continuationPageFields,
+      kind: z.literal('updates'),
+      window: resolvedReadWindowSchema,
+    }),
+  ).safeExtend({
+    operation: z.literal('history'),
+    kind: z.literal('updates'),
+    result_id: idSchema,
+    window: resolvedReadWindowSchema,
+  }),
+  readerPageSchema(
+    habitMarkSchema,
+    'result_read',
+    resultHistoryToolInput.extend({
+      ...continuationPageFields,
+      kind: z.literal('marks'),
+      window: resolvedReadWindowSchema,
+    }),
+  ).safeExtend({
+    operation: z.literal('history'),
+    kind: z.literal('marks'),
+    result_id: idSchema,
+    window: resolvedReadWindowSchema,
+  }),
+  readerPageSchema(
+    trendPointSchema,
+    'result_read',
+    resultHistoryToolInput.extend({
+      ...continuationPageFields,
+      kind: z.literal('trend'),
+      window: resolvedReadWindowSchema,
+    }),
+  ).safeExtend({
+    operation: z.literal('history'),
+    kind: z.literal('trend'),
+    result_id: idSchema,
+    window: resolvedReadWindowSchema,
+  }),
+])
+export const resultMutationOutput = z.strictObject({ result: resultSchema, changed: changedSchema })
+export const resultDeleteToolInput = deletionInputSchema
+export const resultDeleteToolOutput = deletionOutputSchema(
+  resultSchema.pick({ id: true, title: true }),
+  {
+    results: z.literal(1),
+    result_logs: z.number().int().nonnegative(),
+    habit_logs: z.number().int().nonnegative(),
+  },
+)

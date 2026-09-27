@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Personal AI Coach — API contract review</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      footer {
+        position: fixed;
+        bottom: 0;
+        inset-inline: 0;
+        z-index: 100;
+        background: #fff;
+        color: #444;
+        border-top: 1px solid #ddd;
+        padding: 10px 16px;
+        font: 13px system-ui;
+      }
+      footer a {
+        color: #244bbc;
+        margin-inline: 6px;
+      }
+      #app {
+        padding-bottom: 42px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <footer>
+      Civilian Apps © · <a href="https://erd.civilian-apps.com/">Review home</a> ·
+      <a href="sources.html">Contract sources</a> · <a href="openapi.json">OpenAPI</a> ·
+      <a href="metadata.json">Review metadata</a>
+    </footer>
+    <script src="assets/standalone.js"></script>
+    <script>
+      Scalar.createApiReference('#app', {
+        url: 'openapi.json',
+        theme: 'default',
+        hideClientButton: true,
+        showDeveloperTools: 'never',
+        showToolbar: 'never',
+        showSidebar: true,
+        hideDarkModeToggle: false,
+        hideTestRequestButton: true,
+        hiddenClients: true,
+        agent: { disabled: true },
+        withDefaultFonts: false,
+        telemetry: false,
+        showOperationId: true,
+        expandAllResponses: true,
+        orderRequiredPropertiesFirst: true,
+        persistAuth: false,
+      })
+    </script>
+  </body>
+</html>

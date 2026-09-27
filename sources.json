@@ -88,6 +88,47 @@
         "sha256": "dbea9323e734e85ee317e3197c9c9d42e094828f3868973075631f7d927fa17b"
       }
     ],
-    "rulesSha256": "a3f632ff6961a367c7f5c3ef210647e7cf3172430b376a361b0ac036e64f314a"
+    "rulesSha256": "a3f632ff6961a367c7f5c3ef210647e7cf3172430b376a361b0ac036e64f314a",
+    "apiDocs": {
+      "metadataSha256": "eaf2380c714b74f32a0e5e187c486091e30ef6950cd4688247c895c1fc716fdd",
+      "openapiSha256": "fadd76ddb9db8d7e2d976f997d956b7bacde6398d9abac5e26a662acc7e715d2",
+      "operations": 50,
+      "inputs": {
+        "packages/core/src/contracts/input.ts": "b48d5db0b66f1dd849fbc0fce340bd7ea003fd0a42b7bfcc03d3e2936299517e",
+        "packages/core/src/contracts/mcp.ts": "1df3e52514c60c9da2021ad2d6b353bfda715f4ba89da7c070e54dd73d215418",
+        "packages/core/src/contracts/paging.ts": "82f2da14fe31aaa4780127e2c0a0ccc4634df3a916de6d9b65e7b7c633ac4749",
+        "packages/core/src/contracts/projections.ts": "050156a145a68f67e8b72537374c4be93f0e6022ead02073285ad33f2d1bb2e3",
+        "packages/core/src/contracts/scopes.ts": "6b5ca5d82a7f80eda39d8805b3690e28159b7a6bad57b1d30598859663f37fc6",
+        "packages/core/src/features/actions/api.contract.ts": "9e4a3d9b23985739ff60f8c83ce106b626b1e5637462d94436d3c6f73a6bf7c3",
+        "packages/core/src/features/actions/contract.ts": "b8b28b5d6f63d909514e3ad9933abe62b4e75b385bc39d74ced0d429c183e96a",
+        "packages/core/src/features/actions/record-contract.ts": "28340e7fb95bf7f16fdb41c0a18d38dfbc45c05a4df3d28af22b8194cbafad28",
+        "packages/core/src/features/cycles/api.contract.ts": "de51f066bc86c36fccf6a2b30c251c0e3a82c86cb960fca5997a94192405dcff",
+        "packages/core/src/features/cycles/inputs.ts": "5078c38e8cc2b4db4faefa0b4e61c60017a81284d890d22042fb92fcfd3a43d6",
+        "packages/core/src/features/cycles/record-contract.ts": "63780b3c3246597725554e7ec5d20cfe69973c39c2ceeae7703b924452449899",
+        "packages/core/src/features/example/api.contract.ts": "518174bca9f0714a2c88512c341a737fc388081d5d00c7dcb806bd3fa4c4ce33",
+        "packages/core/src/features/example/contract.ts": "9eebd48529233a66e04537a9d270b5ace3f0ea6985cdc634fae01789374f1ea7",
+        "packages/core/src/features/identity-billing/api.contract.ts": "f305a1afa527a8d96f9317e1d41af1b7ff3ed2ad876ddf8c51ae563973be39e6",
+        "packages/core/src/features/identity-billing/contract.ts": "d3d73061e1c5284cafd04b3ca9b69a6998ecbd412f857f2748f2c5e4d9d931fb",
+        "packages/core/src/features/identity-billing/record-contract.ts": "bc5211f34206b69a1ab285b07defe1c3c9d8cb17ee8af148a320bbf5ed12e061",
+        "packages/core/src/features/notes/api.contract.ts": "fbb06dd03cccdc9d8dd046532a43c98a6cdb737b3bb0e904b02ee207cca12feb",
+        "packages/core/src/features/notes/contract.ts": "232faaa8f2b0586aef9e80bb6c3b06b77e6ddb739812f71f5b02418c30eda8b7",
+        "packages/core/src/features/notes/record-contract.ts": "8c0b14e94c8d9c19b922e9dba284ca3e28176bc39daafaca626f31f9b3a10348",
+        "packages/core/src/features/objectives/api.contract.ts": "149d75c66a1f7b424dcb2d2b008bae255527c0841ff5fe23f4ce2b20fb47b2ab",
+        "packages/core/src/features/objectives/contract.ts": "9088c2b1382b95f06a1ffb4a31236237edb9bb19a073b4c45201fbc16e65c548",
+        "packages/core/src/features/objectives/record-contract.ts": "ae509a4dc066487648b21c5d40a537e546dc07a98334a059924abcc383135f3c",
+        "packages/core/src/features/record-query/api.contract.ts": "a20e6e92ca2fa24cfeee9752a7309f9288d52f902ee0349a98806dcf5c83a662",
+        "packages/core/src/features/record-query/contract.ts": "02e6780d498fb06b3fb4d1860b457f293056cfd14487fd568372a7c4666648b9",
+        "packages/core/src/features/results/api.contract.ts": "01db749f992c69227c50c8392c4c6d0460f5285c43c4f03be00eacb884c67ab7",
+        "packages/core/src/features/results/contract.ts": "cd5ed0135c32373ccfec21bb3ddf7ccceed427c894843d77ca1b66c2435be0f5",
+        "packages/core/src/features/results/record-contract.ts": "6aa0968cabf227f85b775fe56a6ceda55437402fc43ef2d5b6234919905a4574",
+        "packages/core/src/features/sessions/api.contract.ts": "80ae815add925aea996fb42cf1a97ee62e38bd21e1a7fd7158b72ac17b2a553e",
+        "packages/core/src/features/sessions/contract.ts": "fe325c97b96d7465f5d7f00f1ca8dc7766a280b48e4b14c5c6afd96a7ba3edc6",
+        "packages/core/src/features/sessions/record-contract.ts": "197c431982eee20d7d5da2c0d1b5f53aa13413f2405052c1b869a2ab74ae6cc2",
+        "packages/core/src/shared/api/contract-base.ts": "6ea2eb6bc9c9c6c154091e2c2fcb26daa7a417a785957296840b04af4709ca69",
+        "packages/core/src/shared/api/contract.ts": "872776047d55dd966b6b9760cc3c1b6757b75ee80512c78872063b5c5b1184ca",
+        "packages/core/src/shared/cursor.ts": "2720490807e47b0fb16f2070482ac9d4538b8bbab245be1e52fbbd76b32fd859",
+        "packages/core/src/shared/mcp/annotations.ts": "085f5b7e09673303a18b839a09c43cc3aba9d507d8f7cc031a492d6878a06f03"
+      }
+    }
   }
 }
