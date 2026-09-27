@@ -2,11 +2,11 @@
 import { apiProcedure } from '../../shared/api/contract-base.js'
 import {
   deleteResultSchema,
-  habitMarkSchema,
+  habitLogSchema,
   pageSchema,
   resultDetailSchema,
   resultSchema,
-  resultUpdateSchema,
+  resultLogSchema,
   resultWriteResultSchema,
 } from '../../contracts/projections.js'
 import * as inputs from './contract.js'
@@ -38,36 +38,47 @@ export const resultsContract = {
     .output(deleteResultSchema),
 }
 
-export const resultUpdatesContract = {
-  recordResultUpdate: apiProcedure
+export const resultLogsContract = {
+  createResultLog: apiProcedure
+    .route({
+      description:
+        'Append result evidence or a comment as a result log. Reuse the idempotency key on retries; current result figures are derived from retained logs.',
+    })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
-    .input(inputs.orpcRecordResultUpdateInput)
+    .input(inputs.orpcCreateResultLogInput)
     .output(resultWriteResultSchema),
-  listResultUpdates: apiProcedure
+  listResultLogs: apiProcedure
+    .route({
+      description: 'Read a bounded page of result logs for the selected result, newest first.',
+    })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
-    .input(inputs.listResultUpdatesInput)
-    .output(pageSchema(resultUpdateSchema)),
-  clearResultUpdateComment: apiProcedure
+    .input(inputs.listResultLogsInput)
+    .output(pageSchema(resultLogSchema)),
+  clearResultLogComment: apiProcedure
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
-    .input(inputs.clearResultUpdateCommentInput)
+    .input(inputs.clearResultLogCommentInput)
     .output(resultWriteResultSchema),
-  deleteResultUpdate: apiProcedure
+  deleteResultLog: apiProcedure
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
-    .input(inputs.deleteResultUpdateInput)
+    .input(inputs.deleteResultLogInput)
     .output(resultWriteResultSchema),
 }
 
-export const habitMarksContract = {
-  setHabitMark: apiProcedure
-    .meta({ access: 'entitled-write', implementation: 'contract-only' })
-    .input(inputs.setHabitMarkInput)
-    .output(resultWriteResultSchema),
-  listHabitMarks: apiProcedure
+export const habitLogsContract = {
+  setHabitLog: apiProcedure
     .route({
       description:
-        'Return the declared habit-mark array. Review gap: this existing signature has no cursor; reconcile bounded history before freezing this API contract.',
+        'Set whether a habit happened on one calendar day. marked=true creates the habit log if absent; marked=false removes it. Repeating the same desired state is safe.',
+    })
+    .meta({ access: 'entitled-write', implementation: 'contract-only' })
+    .input(inputs.setHabitLogInput)
+    .output(resultWriteResultSchema),
+  listHabitLogs: apiProcedure
+    .route({
+      description:
+        'Read habit logs (checked days) for the selected result and optional date range. Review gap: this existing signature has no cursor; reconcile bounded history before freezing this API contract.',
     })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
-    .input(inputs.listHabitMarksInput)
-    .output(habitMarkSchema.array()),
+    .input(inputs.listHabitLogsInput)
+    .output(habitLogSchema.array()),
 }

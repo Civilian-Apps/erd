@@ -13,7 +13,7 @@ import {
   cadenceSchema,
 } from '../../contracts/input.js'
 import { pageSchema } from '../../contracts/paging.js'
-export const resultUpdateSchema = z
+export const resultLogSchema = z
   .strictObject({
     id: idSchema,
     result_id: idSchema,
@@ -23,9 +23,9 @@ export const resultUpdateSchema = z
     recorded_at: timestampSchema,
   })
   .describe(
-    'ResultUpdate is the domain/API name for evidence stored in result_logs. Value may be null for a comment-only habit entry; evidence and timestamps are immutable.',
+    'ResultLog is the domain/API name for evidence stored in result_logs. Value may be null for a comment-only habit entry; evidence and timestamps are immutable.',
   )
-export const habitMarkSchema = z
+export const habitLogSchema = z
   .strictObject({
     id: idSchema,
     result_id: idSchema,
@@ -34,7 +34,7 @@ export const habitMarkSchema = z
     created_at: timestampSchema,
   })
   .describe(
-    'HabitMark is the domain/API name for checked-day state stored in habit_logs. One row per result/day; unmarking deletes the row. This is not append-only history.',
+    'HabitLog is the domain/API name for checked-day state stored in habit_logs. One row per result/day; unmarking deletes the row. This is not append-only history.',
   )
 export const resultSchema = z.strictObject({
   id: idSchema,
@@ -62,7 +62,7 @@ export const resultSchema = z.strictObject({
   evidence_count: z.number().int().nonnegative(),
   last_recorded_at: timestampSchema.nullable(),
   habit_expected_since_boundary: z.number().int().nonnegative().nullable(),
-  habit_marks_since_boundary: z.number().int().nonnegative().nullable(),
+  habit_logs_since_boundary: z.number().int().nonnegative().nullable(),
   performance_share: z.number().nullable(),
 })
 export const trendPointSchema = z.discriminatedUnion('kind', [
@@ -92,6 +92,6 @@ export const trendPointSchema = z.discriminatedUnion('kind', [
 ])
 export const resultsFragmentSchema = z.strictObject({
   results: pageSchema(resultSchema, 50),
-  updates: pageSchema(resultUpdateSchema, 50),
-  marks: pageSchema(habitMarkSchema, 50),
+  result_logs: pageSchema(resultLogSchema, 50),
+  habit_logs: pageSchema(habitLogSchema, 50),
 })

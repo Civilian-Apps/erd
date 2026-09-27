@@ -49,7 +49,7 @@ export const createActionLogInput = z
 export const orpcCreateActionLogInput = createActionLogInput.extend({
   idempotency_key: idempotencyKeySchema,
 })
-export const listActionLogInput = pageInputSchema.extend({ action_id: idSchema })
+export const listActionLogsInput = pageInputSchema.extend({ action_id: idSchema })
 export const clearActionLogCommentInput = idInputSchema
 export const actionWriteInput = z.discriminatedUnion('operation', [
   createActionInput.extend({
@@ -107,7 +107,7 @@ export const actionListToolInput = listActionsInput
     'Outstanding and overdue filters exclude done actions.',
   )
 export const actionGetToolInput = getActionInput.extend({ operation: z.literal('get') })
-export const actionHistoryToolInput = listActionLogInput.extend({
+export const actionHistoryToolInput = listActionLogsInput.extend({
   operation: z.literal('history'),
   window: readWindowSchema.optional(),
 })

@@ -75,7 +75,7 @@ export const updateResultInput = idInputSchema.extend({
 export const getResultInput = idInputSchema
 export const deleteResultInput = idInputSchema
 export const listResultsInput = pageInputSchema.extend({ objective_id: idSchema })
-export const recordResultUpdateInput = z
+export const createResultLogInput = z
   .object({
     result_id: idSchema,
     value: z.number().finite().optional(),
@@ -85,16 +85,16 @@ export const recordResultUpdateInput = z
   .refine((value) => value.value !== undefined || value.comment !== undefined, {
     message: 'A value or comment is required.',
   })
-export const orpcRecordResultUpdateInput = recordResultUpdateInput.safeExtend({
+export const orpcCreateResultLogInput = createResultLogInput.safeExtend({
   idempotency_key: idempotencyKeySchema,
 })
-export const listResultUpdatesInput = pageInputSchema.extend({ result_id: idSchema })
-export const clearResultUpdateCommentInput = idInputSchema
-export const deleteResultUpdateInput = idInputSchema
-export const setHabitMarkInput = z
+export const listResultLogsInput = pageInputSchema.extend({ result_id: idSchema })
+export const clearResultLogCommentInput = idInputSchema
+export const deleteResultLogInput = idInputSchema
+export const setHabitLogInput = z
   .object({ result_id: idSchema, day: dateSchema, marked: z.boolean() })
   .strict()
-export const listHabitMarksInput = z
+export const listHabitLogsInput = z
   .object({ result_id: idSchema, from: dateSchema.optional(), to: dateSchema.optional() })
   .strict()
   .refine((value) => !value.from || !value.to || value.from <= value.to, {
@@ -115,8 +115,8 @@ export const resultWriteInput = z.discriminatedUnion('operation', [
   }),
 ])
 export const recordResultProgressInput = z.union([
-  recordResultUpdateInput.safeExtend({ target: z.literal('result') }),
-  setHabitMarkInput.extend({
+  createResultLogInput.safeExtend({ target: z.literal('result') }),
+  setHabitLogInput.extend({
     target: z.literal('result'),
     comment: z.string().trim().min(1).optional(),
   }),
@@ -133,8 +133,8 @@ import {
 } from '../../contracts/mcp.js'
 import {
   resultSchema,
-  resultUpdateSchema,
-  habitMarkSchema,
+  resultLogSchema,
+  habitLogSchema,
   changedSchema,
 } from '../../contracts/projections.js'
 import { trendPointSchema } from './record-contract.js'
@@ -171,10 +171,10 @@ export const resultListToolInput = listResultsInput
     'Only silent/unmarked attention requires a resolved window.',
   )
 export const resultGetToolInput = getResultInput.extend({ operation: z.literal('get') })
-export const resultHistoryToolInput = listResultUpdatesInput.extend({
+export const resultHistoryToolInput = listResultLogsInput.extend({
   operation: z.literal('history'),
   kind: z
-    .enum(['updates', 'marks', 'trend'])
+    .enum(['result_logs', 'habit_logs', 'trend'])
     .describe('Evidence stream to page; get returns current figures regardless of this window.'),
   window: readWindowSchema.optional(),
 })
@@ -192,30 +192,30 @@ export const resultReadOutput = z.union([
   resultListToolOutput,
   z.strictObject({ operation: z.literal('get'), result: resultSchema }),
   readerPageSchema(
-    resultUpdateSchema,
+    resultLogSchema,
     'result_read',
     resultHistoryToolInput.extend({
       ...continuationPageFields,
-      kind: z.literal('updates'),
+      kind: z.literal('result_logs'),
       window: resolvedReadWindowSchema,
     }),
   ).safeExtend({
     operation: z.literal('history'),
-    kind: z.literal('updates'),
+    kind: z.literal('result_logs'),
     result_id: idSchema,
     window: resolvedReadWindowSchema,
   }),
   readerPageSchema(
-    habitMarkSchema,
+    habitLogSchema,
     'result_read',
     resultHistoryToolInput.extend({
       ...continuationPageFields,
-      kind: z.literal('marks'),
+      kind: z.literal('habit_logs'),
       window: resolvedReadWindowSchema,
     }),
   ).safeExtend({
     operation: z.literal('history'),
-    kind: z.literal('marks'),
+    kind: z.literal('habit_logs'),
     result_id: idSchema,
     window: resolvedReadWindowSchema,
   }),

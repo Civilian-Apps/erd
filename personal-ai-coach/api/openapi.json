@@ -2,7 +2,7 @@
   "info": {
     "title": "Personal AI Coach — API contract review",
     "version": "0.0.0",
-    "description": "Review the proposed API inputs, outputs and errors before service implementation.\n\n47 procedures are contract-only; 3 procedures are marked implemented.\n\nThis OpenAPI document projects the logical contracts into HTTP operations for review. The running application uses oRPC RPC; these are not published REST endpoints. Request execution is disabled.\n\nDisplayed JSON samples are generated from schemas; they are illustrations, not actual service responses or accepted business scenarios.\n\nThese are domain API views, not database rows. ResultUpdate maps to result_logs; HabitMark maps to habit_logs. User billing fields derive from subscription and connected derives from oauth_consent. These naming and projection differences are intentional.\n\nRequired, optional and nullable fields are generated from the canonical schemas. Cross-field checks and rules requiring stored state remain runtime/service obligations; read operation notes and the feature acceptance criteria."
+    "description": "Review the proposed API inputs, outputs and errors before service implementation.\n\n47 procedures are contract-only; 3 procedures are marked implemented.\n\nThis OpenAPI document projects the logical contracts into HTTP operations for review. The running application uses oRPC RPC; these are not published REST endpoints. Request execution is disabled.\n\nDisplayed JSON samples are generated from schemas; they are illustrations, not actual service responses or accepted business scenarios.\n\nResult logs, habit logs and action logs each have a dedicated API group and model. Their wire collections use result_logs, habit_logs and action_logs. User billing fields derive from subscription and connected derives from oauth_consent.\n\nRequired, optional and nullable fields are generated from the canonical schemas. Cross-field checks and rules requiring stored state remain runtime/service obligations; read operation notes and the feature acceptance criteria."
   },
   "servers": [
     {
@@ -27,10 +27,10 @@
       "name": "Results"
     },
     {
-      "name": "Result updates"
+      "name": "Result logs"
     },
     {
-      "name": "Habit marks"
+      "name": "Habit logs"
     },
     {
       "name": "Actions"
@@ -428,7 +428,7 @@
               }
             ]
           },
-          "habit_marks_since_boundary": {
+          "habit_logs_since_boundary": {
             "anyOf": [
               {
                 "type": "integer",
@@ -476,7 +476,7 @@
           "evidence_count",
           "last_recorded_at",
           "habit_expected_since_boundary",
-          "habit_marks_since_boundary",
+          "habit_logs_since_boundary",
           "performance_share"
         ],
         "additionalProperties": false
@@ -822,7 +822,7 @@
         "additionalProperties": false,
         "description": "Account view: chosen name and profile from user, billing state from subscription, and connected from oauth_consent. Auth credentials and provider tokens are not exposed."
       },
-      "ResultUpdate": {
+      "ResultLog": {
         "type": "object",
         "properties": {
           "id": {
@@ -881,9 +881,9 @@
           "recorded_at"
         ],
         "additionalProperties": false,
-        "description": "ResultUpdate is the domain/API name for evidence stored in result_logs. Value may be null for a comment-only habit entry; evidence and timestamps are immutable."
+        "description": "ResultLog is the domain/API name for evidence stored in result_logs. Value may be null for a comment-only habit entry; evidence and timestamps are immutable."
       },
-      "HabitMark": {
+      "HabitLog": {
         "type": "object",
         "properties": {
           "id": {
@@ -926,7 +926,7 @@
           "created_at"
         ],
         "additionalProperties": false,
-        "description": "HabitMark is the domain/API name for checked-day state stored in habit_logs. One row per result/day; unmarking deletes the row. This is not append-only history."
+        "description": "HabitLog is the domain/API name for checked-day state stored in habit_logs. One row per result/day; unmarking deletes the row. This is not append-only history."
       },
       "ActionLog": {
         "type": "object",
@@ -984,7 +984,8 @@
           "session_id",
           "recorded_at"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Action log stored in action_logs. Records a status observation and optional comment; status and timestamps are immutable, and only the comment may be cleared."
       }
     }
   },
@@ -3774,12 +3775,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -3806,9 +3807,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -6580,9 +6581,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -6612,12 +6613,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -6644,9 +6645,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -8040,9 +8041,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -9505,9 +9506,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -9537,12 +9538,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -9569,9 +9570,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -11849,9 +11850,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -11883,12 +11884,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -11915,9 +11916,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -13377,9 +13378,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -14169,9 +14170,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -14203,12 +14204,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -14235,9 +14236,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -15907,14 +15908,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "updates": {
+                        "result_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/ResultUpdate"
+                                "$ref": "#/components/schemas/ResultLog"
                               }
                             },
                             "next_cursor": {
@@ -15935,14 +15936,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "marks": {
+                        "habit_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/HabitMark"
+                                "$ref": "#/components/schemas/HabitLog"
                               }
                             },
                             "next_cursor": {
@@ -16111,9 +16112,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -16127,8 +16128,8 @@
                       "required": [
                         "result",
                         "parents",
-                        "updates",
-                        "marks",
+                        "result_logs",
+                        "habit_logs",
                         "trend",
                         "continuations"
                       ],
@@ -16146,12 +16147,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -16178,9 +16179,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -17622,14 +17623,14 @@
                       ],
                       "additionalProperties": false
                     },
-                    "updates": {
+                    "result_logs": {
                       "type": "object",
                       "properties": {
                         "items": {
                           "type": "array",
                           "maxItems": 100,
                           "items": {
-                            "$ref": "#/components/schemas/ResultUpdate"
+                            "$ref": "#/components/schemas/ResultLog"
                           }
                         },
                         "next_cursor": {
@@ -17650,14 +17651,14 @@
                       ],
                       "additionalProperties": false
                     },
-                    "marks": {
+                    "habit_logs": {
                       "type": "object",
                       "properties": {
                         "items": {
                           "type": "array",
                           "maxItems": 100,
                           "items": {
-                            "$ref": "#/components/schemas/HabitMark"
+                            "$ref": "#/components/schemas/HabitLog"
                           }
                         },
                         "next_cursor": {
@@ -17826,9 +17827,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -17842,8 +17843,8 @@
                   "required": [
                     "result",
                     "parents",
-                    "updates",
-                    "marks",
+                    "result_logs",
+                    "habit_logs",
                     "trend",
                     "continuations"
                   ],
@@ -18647,14 +18648,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "updates": {
+                        "result_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/ResultUpdate"
+                                "$ref": "#/components/schemas/ResultLog"
                               }
                             },
                             "next_cursor": {
@@ -18675,14 +18676,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "marks": {
+                        "habit_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/HabitMark"
+                                "$ref": "#/components/schemas/HabitLog"
                               }
                             },
                             "next_cursor": {
@@ -18851,9 +18852,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -18867,8 +18868,8 @@
                       "required": [
                         "result",
                         "parents",
-                        "updates",
-                        "marks",
+                        "result_logs",
+                        "habit_logs",
                         "trend",
                         "continuations"
                       ],
@@ -18886,12 +18887,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -18918,9 +18919,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -20250,13 +20251,13 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/resultUpdates/recordResultUpdate": {
+    "/resultLogs/createResultLog": {
       "post": {
-        "operationId": "resultUpdates.recordResultUpdate",
-        "summary": "Record result update",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
+        "operationId": "resultLogs.createResultLog",
+        "summary": "Create result log",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nAppend result evidence or a comment as a result log. Reuse the idempotency key on retries; current result figures are derived from retained logs.",
         "tags": [
-          "Result updates"
+          "Result logs"
         ],
         "requestBody": {
           "required": true,
@@ -20354,14 +20355,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "updates": {
+                        "result_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/ResultUpdate"
+                                "$ref": "#/components/schemas/ResultLog"
                               }
                             },
                             "next_cursor": {
@@ -20382,14 +20383,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "marks": {
+                        "habit_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/HabitMark"
+                                "$ref": "#/components/schemas/HabitLog"
                               }
                             },
                             "next_cursor": {
@@ -20558,9 +20559,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -20574,8 +20575,8 @@
                       "required": [
                         "result",
                         "parents",
-                        "updates",
-                        "marks",
+                        "result_logs",
+                        "habit_logs",
                         "trend",
                         "continuations"
                       ],
@@ -20593,12 +20594,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -20625,9 +20626,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -21277,13 +21278,13 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/resultUpdates/listResultUpdates": {
+    "/resultLogs/listResultLogs": {
       "post": {
-        "operationId": "resultUpdates.listResultUpdates",
-        "summary": "List result updates",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
+        "operationId": "resultLogs.listResultLogs",
+        "summary": "List result logs",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead a bounded page of result logs for the selected result, newest first.",
         "tags": [
-          "Result updates"
+          "Result logs"
         ],
         "requestBody": {
           "required": true,
@@ -21328,7 +21329,7 @@
                       "type": "array",
                       "maxItems": 100,
                       "items": {
-                        "$ref": "#/components/schemas/ResultUpdate"
+                        "$ref": "#/components/schemas/ResultLog"
                       }
                     },
                     "next_cursor": {
@@ -21981,13 +21982,13 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/resultUpdates/clearResultUpdateComment": {
+    "/resultLogs/clearResultLogComment": {
       "post": {
-        "operationId": "resultUpdates.clearResultUpdateComment",
-        "summary": "Clear result update comment",
+        "operationId": "resultLogs.clearResultLogComment",
+        "summary": "Clear result log comment",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
-          "Result updates"
+          "Result logs"
         ],
         "requestBody": {
           "required": true,
@@ -22072,14 +22073,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "updates": {
+                        "result_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/ResultUpdate"
+                                "$ref": "#/components/schemas/ResultLog"
                               }
                             },
                             "next_cursor": {
@@ -22100,14 +22101,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "marks": {
+                        "habit_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/HabitMark"
+                                "$ref": "#/components/schemas/HabitLog"
                               }
                             },
                             "next_cursor": {
@@ -22276,9 +22277,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -22292,8 +22293,8 @@
                       "required": [
                         "result",
                         "parents",
-                        "updates",
-                        "marks",
+                        "result_logs",
+                        "habit_logs",
                         "trend",
                         "continuations"
                       ],
@@ -22311,12 +22312,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -22343,9 +22344,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -22995,13 +22996,13 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/resultUpdates/deleteResultUpdate": {
+    "/resultLogs/deleteResultLog": {
       "post": {
-        "operationId": "resultUpdates.deleteResultUpdate",
-        "summary": "Delete result update",
+        "operationId": "resultLogs.deleteResultLog",
+        "summary": "Delete result log",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
-          "Result updates"
+          "Result logs"
         ],
         "requestBody": {
           "required": true,
@@ -23086,14 +23087,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "updates": {
+                        "result_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/ResultUpdate"
+                                "$ref": "#/components/schemas/ResultLog"
                               }
                             },
                             "next_cursor": {
@@ -23114,14 +23115,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "marks": {
+                        "habit_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/HabitMark"
+                                "$ref": "#/components/schemas/HabitLog"
                               }
                             },
                             "next_cursor": {
@@ -23290,9 +23291,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -23306,8 +23307,8 @@
                       "required": [
                         "result",
                         "parents",
-                        "updates",
-                        "marks",
+                        "result_logs",
+                        "habit_logs",
                         "trend",
                         "continuations"
                       ],
@@ -23325,12 +23326,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -23357,9 +23358,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -24009,13 +24010,13 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/habitMarks/setHabitMark": {
+    "/habitLogs/setHabitLog": {
       "post": {
-        "operationId": "habitMarks.setHabitMark",
-        "summary": "Set habit mark",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
+        "operationId": "habitLogs.setHabitLog",
+        "summary": "Set habit log",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nSet whether a habit happened on one calendar day. marked=true creates the habit log if absent; marked=false removes it. Repeating the same desired state is safe.",
         "tags": [
-          "Habit marks"
+          "Habit logs"
         ],
         "requestBody": {
           "required": true,
@@ -24110,14 +24111,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "updates": {
+                        "result_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/ResultUpdate"
+                                "$ref": "#/components/schemas/ResultLog"
                               }
                             },
                             "next_cursor": {
@@ -24138,14 +24139,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "marks": {
+                        "habit_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "$ref": "#/components/schemas/HabitMark"
+                                "$ref": "#/components/schemas/HabitLog"
                               }
                             },
                             "next_cursor": {
@@ -24314,9 +24315,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -24330,8 +24331,8 @@
                       "required": [
                         "result",
                         "parents",
-                        "updates",
-                        "marks",
+                        "result_logs",
+                        "habit_logs",
                         "trend",
                         "continuations"
                       ],
@@ -24349,12 +24350,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -24381,9 +24382,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -25033,13 +25034,13 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/habitMarks/listHabitMarks": {
+    "/habitLogs/listHabitLogs": {
       "post": {
-        "operationId": "habitMarks.listHabitMarks",
-        "summary": "List habit marks",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nReturn the declared habit-mark array. Review gap: this existing signature has no cursor; reconcile bounded history before freezing this API contract.",
+        "operationId": "habitLogs.listHabitLogs",
+        "summary": "List habit logs",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead habit logs (checked days) for the selected result and optional date range. Review gap: this existing signature has no cursor; reconcile bounded history before freezing this API contract.",
         "tags": [
-          "Habit marks"
+          "Habit logs"
         ],
         "requestBody": {
           "required": true,
@@ -25080,7 +25081,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/HabitMark"
+                    "$ref": "#/components/schemas/HabitLog"
                   }
                 }
               }
@@ -25820,7 +25821,7 @@
                             }
                           ]
                         },
-                        "logs": {
+                        "action_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
@@ -25858,9 +25859,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -25876,7 +25877,7 @@
                         "cycle",
                         "objective",
                         "source_session",
-                        "logs",
+                        "action_logs",
                         "continuations"
                       ],
                       "additionalProperties": false
@@ -25893,12 +25894,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -25925,9 +25926,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -27366,7 +27367,7 @@
                         }
                       ]
                     },
-                    "logs": {
+                    "action_logs": {
                       "type": "object",
                       "properties": {
                         "items": {
@@ -27404,9 +27405,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -27422,7 +27423,7 @@
                     "cycle",
                     "objective",
                     "source_session",
-                    "logs",
+                    "action_logs",
                     "continuations"
                   ],
                   "additionalProperties": false
@@ -28167,7 +28168,7 @@
                             }
                           ]
                         },
-                        "logs": {
+                        "action_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
@@ -28205,9 +28206,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -28223,7 +28224,7 @@
                         "cycle",
                         "objective",
                         "source_session",
-                        "logs",
+                        "action_logs",
                         "continuations"
                       ],
                       "additionalProperties": false
@@ -28240,12 +28241,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -28272,9 +28273,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -28994,7 +28995,7 @@
                             }
                           ]
                         },
-                        "logs": {
+                        "action_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
@@ -29032,9 +29033,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -29050,7 +29051,7 @@
                         "cycle",
                         "objective",
                         "source_session",
-                        "logs",
+                        "action_logs",
                         "continuations"
                       ],
                       "additionalProperties": false
@@ -29067,12 +29068,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -29099,9 +29100,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -30435,7 +30436,7 @@
       "post": {
         "operationId": "actionLogs.createActionLog",
         "summary": "Create action log",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nAppend an action log with a status and optional comment. The action status changes in the same transaction; repeating a status with a comment is a valid log entry.",
         "tags": [
           "Action logs"
         ],
@@ -30516,7 +30517,7 @@
                             }
                           ]
                         },
-                        "logs": {
+                        "action_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
@@ -30554,9 +30555,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -30572,7 +30573,7 @@
                         "cycle",
                         "objective",
                         "source_session",
-                        "logs",
+                        "action_logs",
                         "continuations"
                       ],
                       "additionalProperties": false
@@ -30589,12 +30590,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -30621,9 +30622,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -31273,11 +31274,11 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/actionLogs/listActionLog": {
+    "/actionLogs/listActionLogs": {
       "post": {
-        "operationId": "actionLogs.listActionLog",
-        "summary": "List action log",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
+        "operationId": "actionLogs.listActionLogs",
+        "summary": "List action logs",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead a bounded page of action logs for the selected action, newest first.",
         "tags": [
           "Action logs"
         ],
@@ -32043,7 +32044,7 @@
                             }
                           ]
                         },
-                        "logs": {
+                        "action_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
@@ -32081,9 +32082,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -32099,7 +32100,7 @@
                         "cycle",
                         "objective",
                         "source_session",
-                        "logs",
+                        "action_logs",
                         "continuations"
                       ],
                       "additionalProperties": false
@@ -32116,12 +32117,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -32148,9 +32149,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -32857,12 +32858,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -32889,9 +32890,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -33598,12 +33599,12 @@
                               "cycle",
                               "objective",
                               "result",
-                              "result_update",
+                              "result_log",
                               "action",
                               "action_log",
                               "session",
                               "note",
-                              "habit_mark"
+                              "habit_log"
                             ],
                             "type": "string"
                           },
@@ -33630,9 +33631,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -36751,9 +36752,9 @@
                                       "actions",
                                       "notes",
                                       "sessions",
-                                      "updates",
-                                      "marks",
-                                      "logs",
+                                      "result_logs",
+                                      "habit_logs",
+                                      "action_logs",
                                       "trend"
                                     ],
                                     "type": "string"
@@ -38537,9 +38538,9 @@
                           "actions",
                           "notes",
                           "sessions",
-                          "updates",
-                          "marks",
-                          "logs",
+                          "result_logs",
+                          "habit_logs",
+                          "action_logs",
                           "trend"
                         ],
                         "type": "string"
@@ -39946,9 +39947,9 @@
                         "minItems": 1,
                         "items": {
                           "enum": [
-                            "updates",
-                            "marks",
-                            "logs",
+                            "result_logs",
+                            "habit_logs",
+                            "action_logs",
                             "notes",
                             "sessions"
                           ],
@@ -40028,15 +40029,15 @@
                         "type": "string",
                         "minLength": 1
                       },
-                      "updates": {
+                      "result_logs": {
                         "type": "string",
                         "minLength": 1
                       },
-                      "marks": {
+                      "habit_logs": {
                         "type": "string",
                         "minLength": 1
                       },
-                      "logs": {
+                      "action_logs": {
                         "type": "string",
                         "minLength": 1
                       }
@@ -40416,9 +40417,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -40466,14 +40467,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "updates": {
+                        "result_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 50,
                               "items": {
-                                "$ref": "#/components/schemas/ResultUpdate"
+                                "$ref": "#/components/schemas/ResultLog"
                               }
                             },
                             "next_cursor": {
@@ -40494,14 +40495,14 @@
                           ],
                           "additionalProperties": false
                         },
-                        "marks": {
+                        "habit_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
                               "type": "array",
                               "maxItems": 50,
                               "items": {
-                                "$ref": "#/components/schemas/HabitMark"
+                                "$ref": "#/components/schemas/HabitLog"
                               }
                             },
                             "next_cursor": {
@@ -40522,7 +40523,7 @@
                           ],
                           "additionalProperties": false
                         },
-                        "logs": {
+                        "action_logs": {
                           "type": "object",
                           "properties": {
                             "items": {
@@ -40616,9 +40617,9 @@
                               "actions",
                               "notes",
                               "sessions",
-                              "updates",
-                              "marks",
-                              "logs",
+                              "result_logs",
+                              "habit_logs",
+                              "action_logs",
                               "trend"
                             ],
                             "type": "string"
@@ -40631,9 +40632,9 @@
                       },
                       "required": [
                         "window",
-                        "updates",
-                        "marks",
-                        "logs",
+                        "result_logs",
+                        "habit_logs",
+                        "action_logs",
                         "notes",
                         "sessions",
                         "continuations"

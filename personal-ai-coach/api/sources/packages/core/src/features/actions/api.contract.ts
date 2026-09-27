@@ -47,12 +47,19 @@ export const actionsContract = {
 
 export const actionLogsContract = {
   createActionLog: apiProcedure
+    .route({
+      description:
+        'Append an action log with a status and optional comment. The action status changes in the same transaction; repeating a status with a comment is a valid log entry.',
+    })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcCreateActionLogInput)
     .output(actionWriteResultSchema),
-  listActionLog: apiProcedure
+  listActionLogs: apiProcedure
+    .route({
+      description: 'Read a bounded page of action logs for the selected action, newest first.',
+    })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
-    .input(inputs.listActionLogInput)
+    .input(inputs.listActionLogsInput)
     .output(pageSchema(actionLogSchema)),
   clearActionLogComment: apiProcedure
     .meta({ access: 'entitled-write', implementation: 'contract-only' })

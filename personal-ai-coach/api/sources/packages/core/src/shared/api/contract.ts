@@ -8,8 +8,8 @@ import { objectivesContract } from '../../features/objectives/api.contract.js'
 import { recordQueryContract } from '../../features/record-query/api.contract.js'
 import {
   resultsContract,
-  resultUpdatesContract,
-  habitMarksContract,
+  resultLogsContract,
+  habitLogsContract,
 } from '../../features/results/api.contract.js'
 import { sessionsContract } from '../../features/sessions/api.contract.js'
 
@@ -20,8 +20,8 @@ export const apiContract = {
   cycles: cyclesContract,
   objectives: objectivesContract,
   results: resultsContract,
-  resultUpdates: resultUpdatesContract,
-  habitMarks: habitMarksContract,
+  resultLogs: resultLogsContract,
+  habitLogs: habitLogsContract,
   actions: actionsContract,
   actionLogs: actionLogsContract,
   notes: notesContract,
