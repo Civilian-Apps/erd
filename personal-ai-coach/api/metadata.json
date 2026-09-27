@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-27T20:09:27.098Z",
+  "generated_at": "2026-09-27T20:44:22.233Z",
   "base_revision": "5ef0e866c17c65714bf9e739fdb0272a2b637e98",
   "includes_working_tree_edits": true,
-  "contract_sha256": "5a50e61aea622dacf062e98b4a27f5c74bfc00586aeef9f83ed30180124edb79",
-  "openapi_sha256": "fadd76ddb9db8d7e2d976f997d956b7bacde6398d9abac5e26a662acc7e715d2",
+  "contract_sha256": "118bed1f12dfd9402198cac3af9519ea7eb4455685b535d5778146ab5cc6889c",
+  "openapi_sha256": "f3519594099dad5f387d3745053b86e5635d6508f98d7c80768c725cd0893812",
   "operations": 50,
   "files": [
     {
@@ -28,11 +28,11 @@
     },
     {
       "path": "packages/core/src/features/actions/api.contract.ts",
-      "sha256": "9e4a3d9b23985739ff60f8c83ce106b626b1e5637462d94436d3c6f73a6bf7c3"
+      "sha256": "2c5e47b6e62b1b943e88f0e4316f3cff0a66927cd60fe2570eea878d1d21511f"
     },
     {
       "path": "packages/core/src/features/actions/contract.ts",
-      "sha256": "b8b28b5d6f63d909514e3ad9933abe62b4e75b385bc39d74ced0d429c183e96a"
+      "sha256": "34e29e24fa2ee5cd80f2d126227f3c36ad37f20f2311e364c0a240296f35283a"
     },
     {
       "path": "packages/core/src/features/actions/record-contract.ts",
@@ -60,7 +60,7 @@
     },
     {
       "path": "packages/core/src/features/identity-billing/api.contract.ts",
-      "sha256": "f305a1afa527a8d96f9317e1d41af1b7ff3ed2ad876ddf8c51ae563973be39e6"
+      "sha256": "00f808deb7466ae0a117fa36ca0cfbd8ddc28d78ba4e2bf4d513ca8e02b9fc93"
     },
     {
       "path": "packages/core/src/features/identity-billing/contract.ts",
@@ -68,7 +68,7 @@
     },
     {
       "path": "packages/core/src/features/identity-billing/record-contract.ts",
-      "sha256": "bc5211f34206b69a1ab285b07defe1c3c9d8cb17ee8af148a320bbf5ed12e061"
+      "sha256": "f62c22079580d17bf6326b5800459a2c5b8bc93a5814e767d5d4709e1a6ce379"
     },
     {
       "path": "packages/core/src/features/notes/api.contract.ts",
@@ -112,7 +112,7 @@
     },
     {
       "path": "packages/core/src/features/results/record-contract.ts",
-      "sha256": "6aa0968cabf227f85b775fe56a6ceda55437402fc43ef2d5b6234919905a4574"
+      "sha256": "d433560524483275f5ad9fe1c086995445c599e19f20c5407de885dfbbd68bff"
     },
     {
       "path": "packages/core/src/features/sessions/api.contract.ts",

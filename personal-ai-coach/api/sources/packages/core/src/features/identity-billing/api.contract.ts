@@ -10,6 +10,10 @@ import * as inputs from './contract.js'
 
 export const userContract = {
   getUser: apiProcedure
+    .route({
+      description:
+        'Read the authenticated account profile with locally derived subscription state and onboarding connection status. No live billing request; no auth credentials in the response.',
+    })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getUserInput)
     .output(userProfileSchema),

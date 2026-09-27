@@ -22,7 +22,11 @@ export const orpcCreateActionInput = createActionInput.extend({
 export const updateActionInput = idInputSchema.extend({
   title: z.string().optional(),
   description: z.string().nullable().optional(),
-  due_at: dateSchema.nullable().optional(),
+  due_at: dateSchema
+    .optional()
+    .describe(
+      'New due date. Omit to preserve; a previously set date cannot be cleared. Web creation may initially have no date.',
+    ),
   objective_id: idSchema.nullable().optional(),
   session_id: idSchema.nullable().optional(),
 })

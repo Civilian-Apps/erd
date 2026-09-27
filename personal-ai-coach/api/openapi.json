@@ -2,7 +2,7 @@
   "info": {
     "title": "Personal AI Coach — API contract review",
     "version": "0.0.0",
-    "description": "Review the proposed API inputs, outputs and errors before service implementation.\n\n47 procedures are contract-only; 3 procedures are marked implemented.\n\nThis OpenAPI document projects the logical contracts into HTTP operations for review. The running application uses oRPC RPC; these are not published REST endpoints. Request execution is disabled.\n\nDisplayed JSON samples are generated from schemas; they are illustrations, not actual service responses or accepted business scenarios.\n\nRequired, optional and nullable fields are generated from the canonical schemas. Cross-field checks and rules requiring stored state remain runtime/service obligations; read operation notes and the feature acceptance criteria."
+    "description": "Review the proposed API inputs, outputs and errors before service implementation.\n\n47 procedures are contract-only; 3 procedures are marked implemented.\n\nThis OpenAPI document projects the logical contracts into HTTP operations for review. The running application uses oRPC RPC; these are not published REST endpoints. Request execution is disabled.\n\nDisplayed JSON samples are generated from schemas; they are illustrations, not actual service responses or accepted business scenarios.\n\nThese are domain API views, not database rows. ResultUpdate maps to result_logs; HabitMark maps to habit_logs. User billing fields derive from subscription and connected derives from oauth_consent. These naming and projection differences are intentional.\n\nRequired, optional and nullable fields are generated from the canonical schemas. Cross-field checks and rules requiring stored state remain runtime/service obligations; read operation notes and the feature acceptance criteria."
   },
   "servers": [
     {
@@ -779,10 +779,12 @@
               "past_due",
               "canceled"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "Derived from local subscription rows; not a User column. Only active grants paid access."
           },
           "subscription_cancel_at_period_end": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Derived from the selected local subscription; false when none exists."
           },
           "subscription_current_period_end": {
             "anyOf": [
@@ -793,7 +795,12 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Derived from the selected local subscription; null when none exists."
+          },
+          "connected": {
+            "type": "boolean",
+            "description": "True when an OAuth consent row exists for this user, for any client. Indicates prior authorization for onboarding, not current connector liveness."
           },
           "created_at": {
             "type": "string",
@@ -809,7 +816,173 @@
           "subscription_status",
           "subscription_cancel_at_period_end",
           "subscription_current_period_end",
+          "connected",
           "created_at"
+        ],
+        "additionalProperties": false,
+        "description": "Account view: chosen name and profile from user, billing state from subscription, and connected from oauth_consent. Auth credentials and provider tokens are not exposed."
+      },
+      "ResultUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+          },
+          "result_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "result_id",
+          "value",
+          "comment",
+          "session_id",
+          "recorded_at"
+        ],
+        "additionalProperties": false,
+        "description": "ResultUpdate is the domain/API name for evidence stored in result_logs. Value may be null for a comment-only habit entry; evidence and timestamps are immutable."
+      },
+      "HabitMark": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+          },
+          "result_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+          },
+          "day": {
+            "type": "string",
+            "format": "date",
+            "description": "Calendar date as YYYY-MM-DD in the profile timezone."
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "result_id",
+          "day",
+          "session_id",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "description": "HabitMark is the domain/API name for checked-day state stored in habit_logs. One row per result/day; unmarking deletes the row. This is not append-only history."
+      },
+      "ActionLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+          },
+          "action_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+          },
+          "status": {
+            "enum": [
+              "open",
+              "in_progress",
+              "done"
+            ],
+            "type": "string"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "action_id",
+          "status",
+          "comment",
+          "session_id",
+          "recorded_at"
         ],
         "additionalProperties": false
       }
@@ -2866,7 +3039,7 @@
       "post": {
         "operationId": "user.getUser",
         "summary": "Get user",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead the authenticated account profile with locally derived subscription state and onboarding connection status. No live billing request; no auth credentials in the response.",
         "tags": [
           "User"
         ],
@@ -15741,64 +15914,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "value": {
-                                    "anyOf": [
-                                      {
-                                        "type": "number"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "value",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ResultUpdate"
                               }
                             },
                             "next_cursor": {
@@ -15826,48 +15942,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "day": {
-                                    "type": "string",
-                                    "format": "date",
-                                    "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "created_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "day",
-                                  "session_id",
-                                  "created_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/HabitMark"
                               }
                             },
                             "next_cursor": {
@@ -17554,64 +17629,7 @@
                           "type": "array",
                           "maxItems": 100,
                           "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                              },
-                              "result_id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                              },
-                              "value": {
-                                "anyOf": [
-                                  {
-                                    "type": "number"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "comment": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "session_id": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "recorded_at": {
-                                "type": "string",
-                                "format": "date-time"
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "result_id",
-                              "value",
-                              "comment",
-                              "session_id",
-                              "recorded_at"
-                            ],
-                            "additionalProperties": false
+                            "$ref": "#/components/schemas/ResultUpdate"
                           }
                         },
                         "next_cursor": {
@@ -17639,48 +17657,7 @@
                           "type": "array",
                           "maxItems": 100,
                           "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                              },
-                              "result_id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                              },
-                              "day": {
-                                "type": "string",
-                                "format": "date",
-                                "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                              },
-                              "session_id": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "created_at": {
-                                "type": "string",
-                                "format": "date-time"
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "result_id",
-                              "day",
-                              "session_id",
-                              "created_at"
-                            ],
-                            "additionalProperties": false
+                            "$ref": "#/components/schemas/HabitMark"
                           }
                         },
                         "next_cursor": {
@@ -18677,64 +18654,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "value": {
-                                    "anyOf": [
-                                      {
-                                        "type": "number"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "value",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ResultUpdate"
                               }
                             },
                             "next_cursor": {
@@ -18762,48 +18682,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "day": {
-                                    "type": "string",
-                                    "format": "date",
-                                    "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "created_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "day",
-                                  "session_id",
-                                  "created_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/HabitMark"
                               }
                             },
                             "next_cursor": {
@@ -20482,64 +20361,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "value": {
-                                    "anyOf": [
-                                      {
-                                        "type": "number"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "value",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ResultUpdate"
                               }
                             },
                             "next_cursor": {
@@ -20567,48 +20389,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "day": {
-                                    "type": "string",
-                                    "format": "date",
-                                    "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "created_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "day",
-                                  "session_id",
-                                  "created_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/HabitMark"
                               }
                             },
                             "next_cursor": {
@@ -21547,64 +21328,7 @@
                       "type": "array",
                       "maxItems": 100,
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid",
-                            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                          },
-                          "result_id": {
-                            "type": "string",
-                            "format": "uuid",
-                            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                          },
-                          "value": {
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "comment": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "session_id": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "recorded_at": {
-                            "type": "string",
-                            "format": "date-time"
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "result_id",
-                          "value",
-                          "comment",
-                          "session_id",
-                          "recorded_at"
-                        ],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResultUpdate"
                       }
                     },
                     "next_cursor": {
@@ -22355,64 +22079,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "value": {
-                                    "anyOf": [
-                                      {
-                                        "type": "number"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "value",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ResultUpdate"
                               }
                             },
                             "next_cursor": {
@@ -22440,48 +22107,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "day": {
-                                    "type": "string",
-                                    "format": "date",
-                                    "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "created_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "day",
-                                  "session_id",
-                                  "created_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/HabitMark"
                               }
                             },
                             "next_cursor": {
@@ -23467,64 +23093,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "value": {
-                                    "anyOf": [
-                                      {
-                                        "type": "number"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "value",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ResultUpdate"
                               }
                             },
                             "next_cursor": {
@@ -23552,48 +23121,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "day": {
-                                    "type": "string",
-                                    "format": "date",
-                                    "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "created_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "day",
-                                  "session_id",
-                                  "created_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/HabitMark"
                               }
                             },
                             "next_cursor": {
@@ -24589,64 +24117,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "value": {
-                                    "anyOf": [
-                                      {
-                                        "type": "number"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "value",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ResultUpdate"
                               }
                             },
                             "next_cursor": {
@@ -24674,48 +24145,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "day": {
-                                    "type": "string",
-                                    "format": "date",
-                                    "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "created_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "day",
-                                  "session_id",
-                                  "created_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/HabitMark"
                               }
                             },
                             "next_cursor": {
@@ -25650,48 +25080,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                      },
-                      "result_id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                      },
-                      "day": {
-                        "type": "string",
-                        "format": "date",
-                        "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                      },
-                      "session_id": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "format": "uuid",
-                            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "result_id",
-                      "day",
-                      "session_id",
-                      "created_at"
-                    ],
-                    "additionalProperties": false
+                    "$ref": "#/components/schemas/HabitMark"
                   }
                 }
               }
@@ -26438,62 +25827,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "action_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "status": {
-                                    "enum": [
-                                      "open",
-                                      "in_progress",
-                                      "done"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "action_id",
-                                  "status",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ActionLog"
                               }
                             },
                             "next_cursor": {
@@ -28039,62 +27373,7 @@
                           "type": "array",
                           "maxItems": 100,
                           "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                              },
-                              "action_id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                              },
-                              "status": {
-                                "enum": [
-                                  "open",
-                                  "in_progress",
-                                  "done"
-                                ],
-                                "type": "string"
-                              },
-                              "comment": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "session_id": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "recorded_at": {
-                                "type": "string",
-                                "format": "date-time"
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "action_id",
-                              "status",
-                              "comment",
-                              "session_id",
-                              "recorded_at"
-                            ],
-                            "additionalProperties": false
+                            "$ref": "#/components/schemas/ActionLog"
                           }
                         },
                         "next_cursor": {
@@ -28784,7 +28063,7 @@
       "post": {
         "operationId": "actions.updateAction",
         "summary": "Update action",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPatch action fields. Status changes belong to action-log creation; ordering belongs to reorderAction.",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPatch action fields. Omit fields to preserve them; null may clear optional links and description, but cannot clear a set due date. Status changes belong to action-log creation; ordering belongs to reorderAction.",
         "tags": [
           "Actions"
         ],
@@ -28814,16 +28093,9 @@
                     ]
                   },
                   "due_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date",
-                        "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "format": "date",
+                    "description": "New due date. Omit to preserve; a previously set date cannot be cleared. Web creation may initially have no date."
                   },
                   "objective_id": {
                     "anyOf": [
@@ -28902,62 +28174,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "action_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "status": {
-                                    "enum": [
-                                      "open",
-                                      "in_progress",
-                                      "done"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "action_id",
-                                  "status",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ActionLog"
                               }
                             },
                             "next_cursor": {
@@ -29784,62 +29001,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "action_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "status": {
-                                    "enum": [
-                                      "open",
-                                      "in_progress",
-                                      "done"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "action_id",
-                                  "status",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ActionLog"
                               }
                             },
                             "next_cursor": {
@@ -31361,62 +30523,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "action_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "status": {
-                                    "enum": [
-                                      "open",
-                                      "in_progress",
-                                      "done"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "action_id",
-                                  "status",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ActionLog"
                               }
                             },
                             "next_cursor": {
@@ -32217,62 +31324,7 @@
                       "type": "array",
                       "maxItems": 100,
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid",
-                            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                          },
-                          "action_id": {
-                            "type": "string",
-                            "format": "uuid",
-                            "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                          },
-                          "status": {
-                            "enum": [
-                              "open",
-                              "in_progress",
-                              "done"
-                            ],
-                            "type": "string"
-                          },
-                          "comment": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "session_id": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "recorded_at": {
-                            "type": "string",
-                            "format": "date-time"
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "action_id",
-                          "status",
-                          "comment",
-                          "session_id",
-                          "recorded_at"
-                        ],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ActionLog"
                       }
                     },
                     "next_cursor": {
@@ -32998,62 +32050,7 @@
                               "type": "array",
                               "maxItems": 100,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "action_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "status": {
-                                    "enum": [
-                                      "open",
-                                      "in_progress",
-                                      "done"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "action_id",
-                                  "status",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ActionLog"
                               }
                             },
                             "next_cursor": {
@@ -41476,64 +40473,7 @@
                               "type": "array",
                               "maxItems": 50,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "value": {
-                                    "anyOf": [
-                                      {
-                                        "type": "number"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "value",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ResultUpdate"
                               }
                             },
                             "next_cursor": {
@@ -41561,48 +40501,7 @@
                               "type": "array",
                               "maxItems": 50,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "result_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "day": {
-                                    "type": "string",
-                                    "format": "date",
-                                    "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "created_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "result_id",
-                                  "day",
-                                  "session_id",
-                                  "created_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/HabitMark"
                               }
                             },
                             "next_cursor": {
@@ -41630,62 +40529,7 @@
                               "type": "array",
                               "maxItems": 50,
                               "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "action_id": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                  },
-                                  "status": {
-                                    "enum": [
-                                      "open",
-                                      "in_progress",
-                                      "done"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "comment": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "session_id": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "recorded_at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "action_id",
-                                  "status",
-                                  "comment",
-                                  "session_id",
-                                  "recorded_at"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "#/components/schemas/ActionLog"
                               }
                             },
                             "next_cursor": {

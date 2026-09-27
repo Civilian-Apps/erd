@@ -26,7 +26,7 @@ export const actionsContract = {
   updateAction: apiProcedure
     .route({
       description:
-        'Patch action fields. Status changes belong to action-log creation; ordering belongs to reorderAction.',
+        'Patch action fields. Omit fields to preserve them; null may clear optional links and description, but cannot clear a set due date. Status changes belong to action-log creation; ordering belongs to reorderAction.',
     })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateActionInput)
