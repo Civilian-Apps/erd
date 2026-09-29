@@ -12,7 +12,11 @@ export const closeSessionInput = z
     session_id: idSchema,
     type: sessionTypeSchema,
     headline: z.string().trim().min(1).max(200),
-    summary_notes: z.string().trim().min(1),
+    summary_notes: z
+      .string()
+      .trim()
+      .min(1)
+      .describe('UI document: Summary. Saved when closing the coaching session.'),
   })
   .strict()
 export const listSessionsInput = pageInputSchema

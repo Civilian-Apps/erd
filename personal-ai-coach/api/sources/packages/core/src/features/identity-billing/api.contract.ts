@@ -11,6 +11,7 @@ import * as inputs from './contract.js'
 export const userContract = {
   getUser: apiProcedure
     .route({
+      summary: 'Read profile and subscription',
       description:
         'Read the authenticated account profile with locally derived subscription state and onboarding connection status. No live billing request; no auth credentials in the response.',
     })
@@ -18,11 +19,13 @@ export const userContract = {
     .input(inputs.getUserInput)
     .output(userProfileSchema),
   updateUser: apiProcedure
+    .route({ summary: 'Edit profile' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateUserInput)
     .output(userWriteResultSchema),
   deleteUser: apiProcedure
     .route({
+      summary: 'Delete account',
       description:
         'Web-only account deletion. Requires fresh identity confirmation; do not infer authorization from possession of an account ID.',
     })
@@ -34,6 +37,7 @@ export const userContract = {
 export const billingContract = {
   createCheckoutSession: apiProcedure
     .route({
+      summary: 'Subscribe (open checkout)',
       description:
         'Create a checkout session for subscription setup. A browser return from checkout does not establish entitlement; subscription state follows verified billing events.',
     })
@@ -41,7 +45,11 @@ export const billingContract = {
     .input(inputs.createCheckoutSessionInput)
     .output(checkoutSessionResultSchema),
   createBillingPortalSession: apiProcedure
-    .route({ description: 'Create a billing portal session for the authenticated account.' })
+    .route({
+      summary: 'Manage subscription (open billing portal)',
+      description:
+        'Return a billing portal URL for the authenticated account; the client opens it for the Settings action Manage subscription. A billing portal session is separate from a coaching session.',
+    })
     .meta({ access: 'account-management', implementation: 'contract-only' })
     .input(inputs.createBillingPortalSessionInput)
     .output(billingPortalSessionResultSchema),

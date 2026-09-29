@@ -8,12 +8,16 @@ export const updateUserInput = z
       .string()
       .trim()
       .optional()
-      .describe('Chosen name; omit to preserve, empty text clears it.'),
+      .describe(
+        'Chosen coaching/display name; use verbatim. Omit to preserve, empty text clears it.',
+      ),
     about_me: z
       .string()
       .max(4000)
       .optional()
-      .describe('Coaching context; omit to preserve, empty text clears it, null is invalid.'),
+      .describe(
+        'UI label: About me. Coaching context; omit to preserve, empty text clears it, null is invalid.',
+      ),
     timezone: z
       .string()
       .refine((value) => {
@@ -24,6 +28,7 @@ export const updateUserInput = z
           return false
         }
       }, 'Unknown IANA timezone')
+      .describe('UI label: Time zone. IANA zone used for calendar dates and boundaries.')
       .optional(),
   })
   .strict()

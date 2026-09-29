@@ -13,6 +13,7 @@ import * as inputs from './inputs.js'
 export const cyclesContract = {
   createCycle: apiProcedure
     .route({
+      summary: 'Start a cycle',
       description:
         'Create a cycle and archive the prior active cycle. Reuse the idempotency key and identical fields for retries. End date must be after start date. Original-outcome replay is a service obligation.',
     })
@@ -21,6 +22,7 @@ export const cyclesContract = {
     .output(cycleWriteResultSchema),
   getActiveCycle: apiProcedure
     .route({
+      summary: 'Read the active cycle',
       description:
         'Resolve the active cycle with lazy expiry. This API read may archive an expired cycle; it differs from the MCP stored-active lookup.',
     })
@@ -28,15 +30,18 @@ export const cyclesContract = {
     .input(inputs.getActiveCycleInput)
     .output(cycleSchema.nullable()),
   getCycle: apiProcedure
+    .route({ summary: 'Read cycle details' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getCycleInput)
     .output(cycleDetailSchema),
   listCycles: apiProcedure
+    .route({ summary: 'List cycles' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listCyclesInput)
     .output(pageSchema(cycleSchema)),
   updateCycle: apiProcedure
     .route({
+      summary: 'Edit cycle details or status',
       description:
         'Patch an owned cycle by UUID or the stored active selector. Omitted fields stay unchanged; null intention clears it. Validate date ordering after merging with stored dates. Activating a cycle archives the incumbent.',
     })
@@ -45,6 +50,7 @@ export const cyclesContract = {
     .output(cycleWriteResultSchema),
   previewCycleDeletion: apiProcedure
     .route({
+      summary: 'Preview cycle deletion impact',
       description:
         'Compute complete deletion impact and return a trusted application approval URL. A preview does not authorize deletion. Fail closed when impact cannot be established.',
     })
@@ -53,6 +59,7 @@ export const cyclesContract = {
     .output(cycleDeletionPreviewSchema),
   deleteCycle: apiProcedure
     .route({
+      summary: 'Delete cycle',
       description:
         'Permanently delete the cycle and its dependants only after checking actor-bound application approval, preview expiry and unchanged impact in the transaction. A preview ID alone is not approval.',
     })

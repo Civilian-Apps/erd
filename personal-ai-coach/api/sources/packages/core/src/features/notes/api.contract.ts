@@ -10,23 +10,28 @@ import * as inputs from './contract.js'
 
 export const notesContract = {
   addNote: apiProcedure
+    .route({ summary: 'New note' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcAddNoteInput)
     .output(noteWriteResultSchema),
   updateNote: apiProcedure
+    .route({ summary: 'Edit note' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateNoteInput)
     .output(noteWriteResultSchema),
   listNotes: apiProcedure
+    .route({ summary: 'List notes' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listNotesInput)
     .output(pageSchema(noteSchema)),
   getNote: apiProcedure
+    .route({ summary: 'Read note' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getNoteInput)
     .output(noteSchema),
   deleteNote: apiProcedure
     .route({
+      summary: 'Delete note',
       description:
         'Permanently delete an owned note. Review gap: the existing ID-only API input needs reconciliation with the shared impact-preview and application-approval boundary.',
     })

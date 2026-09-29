@@ -2,7 +2,7 @@
   "info": {
     "title": "Personal AI Coach — API contract review",
     "version": "0.0.0",
-    "description": "Review the proposed API inputs, outputs and errors before service implementation.\n\n47 procedures are contract-only; 3 procedures are marked implemented.\n\nThis OpenAPI document projects the logical contracts into HTTP operations for review. The running application uses oRPC RPC; these are not published REST endpoints. Request execution is disabled.\n\nDisplayed JSON samples are generated from schemas; they are illustrations, not actual service responses or accepted business scenarios.\n\nResult logs, habit logs and action logs each have a dedicated API group and model. Their wire collections use result_logs, habit_logs and action_logs. User billing fields derive from subscription and connected derives from oauth_consent.\n\nRequired, optional and nullable fields are generated from the canonical schemas. Cross-field checks and rules requiring stored state remain runtime/service obligations; read operation notes and the feature acceptance criteria."
+    "description": "Review the proposed API inputs, outputs and errors before service implementation.\n\n47 procedures are contract-only; 3 procedures are marked implemented.\n\nThis OpenAPI document projects the logical contracts into HTTP operations for review. The running application uses oRPC RPC; these are not published REST endpoints. Request execution is disabled.\n\nDisplayed JSON samples are generated from schemas; they are illustrations, not actual service responses or accepted business scenarios.\n\nResult logs, habit logs and action logs each have a dedicated API group and model. Their wire collections use result_logs, habit_logs and action_logs. User billing fields derive from subscription and connected derives from oauth_consent.\n\nRequired, optional and nullable fields are generated from the canonical schemas. Cross-field checks and rules requiring stored state remain runtime/service obligations; read operation notes and the feature acceptance criteria.\n\n## API and UI language\n\nWire names follow the current domain schema. Screen labels describe the same records from the user’s perspective; they do not introduce additional entities or enum values.\n\n| API concept | Prototype UI label |\n| --- | --- |\n| Result logs | Updates; non-empty log comments also appear under Comments |\n| Habit logs | Marked calendar days; Updates table with a Marked column |\n| Action logs | Comments shows only logs with comments; status history remains in the API |\n| Action status: open / in_progress / done | Open / In progress / Done; To do groups the first two |\n| Cycle start_at / end_at; objective deadline_at; action due_at | Starts / Ends; Deadline; Due |\n| Result metric_type; start_value / target_value; per | Type; Start / Target (Goal on chart); Times per Cadence |\n| Session vendor: openai / claude | ChatGPT / Claude |\n| Session briefing_notes / summary_notes / source_url | Briefing / Summary / Open the conversation |\n| Session ended_at | In progress when null; Closed when set |\n| Subscription past_due / incomplete | Payment failed / Awaiting payment |\n\n## Prototype differences to reconcile\n\nThe repository prototype is a design reference, not the authority for API field names. These differences remain visible for review:\n\n- **Profile name:** Settings still shows First name and Last name. The current schema and API use one chosen `name`; target signup copy is “What should we call you?”.\n\n- **Old entity wording:** prototype authoring notes and fixture comments still say ResultUpdate. The current entity is ResultLog; visible Updates remains valid UI copy.\n\n- **Payment failure:** prototype and UI specification promise coaching access until a date after payment failure. The current entitlement contract grants paid access only while active; reads remain available. Reconcile the copy before implementation.\n\n- **Objective deadline:** the UI date-picker rule forbids clearing an existing deadline, while the API currently accepts null to clear it. This is a behavioral decision, not a wording change.\n\n- **Billing details:** Settings shows Plan, Price and Payment method; the account response does not supply all of them. Identify their source before implementing that screen.\n\n- **Scheduled cancellation:** the prototype fixture uses cancel_scheduled as a display state. The API keeps subscription status and cancel-at-period-end separate; do not add a fifth status."
   },
   "servers": [
     {
@@ -70,17 +70,18 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Intention. Optional guiding focus; the cycle is identified by its date range, not a name."
           },
           "start_at": {
             "type": "string",
             "format": "date",
-            "description": "Calendar date as YYYY-MM-DD in the profile timezone."
+            "description": "UI label: Starts."
           },
           "end_at": {
             "type": "string",
             "format": "date",
-            "description": "Calendar date as YYYY-MM-DD in the profile timezone."
+            "description": "UI label: Ends."
           },
           "status": {
             "enum": [
@@ -105,17 +106,20 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Achievement. Derived from objective progress; unavailable when nothing is measurable."
           },
           "time_gone_pct": {
             "type": "number",
             "minimum": 0,
-            "maximum": 100
+            "maximum": 100,
+            "description": "UI label: Time gone. Derived percentage of the cycle elapsed."
           },
           "length_weeks": {
             "type": "integer",
             "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+            "maximum": 9007199254740991,
+            "description": "UI label: Length, in weeks; derived from Starts and Ends."
           }
         },
         "required": [
@@ -161,7 +165,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Deadline; null when no deadline has been set."
           },
           "status": {
             "enum": [
@@ -169,7 +174,8 @@
               "off_track",
               "completed"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "Objective status: On track, Off track or Completed. Coaching judgment, independent of the derived Progress percentage."
           },
           "created_at": {
             "type": "string",
@@ -191,7 +197,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Progress. Derived from measurable results, independently of Status."
           },
           "boundary_progress_pct": {
             "anyOf": [
@@ -201,7 +208,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Historical progress at the resolved last-session boundary; not current Progress."
           },
           "movement_pp": {
             "anyOf": [
@@ -264,7 +272,8 @@
               "habit",
               "performance"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "UI label: Type. Number, Percentage, Milestone, Habit or Performance."
           },
           "start_value": {
             "anyOf": [
@@ -274,7 +283,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Start. Metric baseline; habit baselines are derived rather than stored."
           },
           "target_value": {
             "anyOf": [
@@ -284,7 +294,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Target; shown as Goal on the trend chart. Habit target is derived rather than stored."
           },
           "unit": {
             "anyOf": [
@@ -294,7 +305,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Unit. Used by Number and Performance results."
           },
           "cadence": {
             "anyOf": [
@@ -303,7 +315,8 @@
                   "weekly",
                   "monthly"
                 ],
-                "type": "string"
+                "type": "string",
+                "description": "UI label: Cadence. Weekly or Monthly; per supplies the Times value."
               },
               {
                 "type": "null"
@@ -321,7 +334,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Times. Habit frequency within the selected Cadence."
           },
           "since": {
             "anyOf": [
@@ -333,14 +347,16 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Measurement start date for Habit and Performance; distinct from the last-session movement boundary."
           },
           "status": {
             "enum": [
               "in_progress",
               "completed"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "Result status: In progress or Completed. Reaching the target does not automatically mark the result completed."
           },
           "created_at": {
             "type": "string",
@@ -355,7 +371,8 @@
             "format": "uri"
           },
           "current_value": {
-            "type": "number"
+            "type": "number",
+            "description": "Current value displayed in the result headline; derived according to metric type from its baseline and retained evidence."
           },
           "boundary_value": {
             "type": "number"
@@ -529,7 +546,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI label: Due. May be unset on a web draft; a set date cannot be cleared."
           },
           "status": {
             "enum": [
@@ -537,7 +555,8 @@
               "in_progress",
               "done"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "Action status: Open, In progress or Done. The To do UI group includes Open and In progress; Overdue is derived, not a status."
           },
           "sort_order": {
             "anyOf": [
@@ -547,7 +566,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Drag order within an action group; not a progress status."
           },
           "session_id": {
             "anyOf": [
@@ -639,7 +659,8 @@
               "claude",
               "openai"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "Conversation host: claude is shown as Claude; openai is shown as ChatGPT."
           },
           "source_url": {
             "anyOf": [
@@ -650,7 +671,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "External conversation link used by Open the conversation. Not the app detail URL."
           },
           "type": {
             "anyOf": [
@@ -661,7 +683,8 @@
                   "review",
                   "open_coaching"
                 ],
-                "type": "string"
+                "type": "string",
+                "description": "Coaching session type: Goal setup, Check-in, Review or Open coaching. Separate from whether the session is still open."
               },
               {
                 "type": "null"
@@ -669,7 +692,8 @@
             ]
           },
           "briefing_notes": {
-            "type": "string"
+            "type": "string",
+            "description": "UI document: Briefing. Server-prepared coaching context."
           },
           "headline": {
             "anyOf": [
@@ -679,7 +703,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "One-line coaching-session summary used in session lists."
           },
           "summary_notes": {
             "anyOf": [
@@ -689,7 +714,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "UI document: Summary. Saved when the coaching session closes."
           },
           "started_at": {
             "type": "string",
@@ -704,11 +730,13 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Closed when set; In progress when null. This is derived session state, not a stored status enum."
           },
           "url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Internal app link to coaching session details; distinct from source_url."
           },
           "duration_minutes": {
             "anyOf": [
@@ -759,14 +787,17 @@
             "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Chosen coaching/display name, used verbatim. Target UI prompt: What should we call you? Empty means unknown; no separate surname."
           },
           "about_me": {
-            "type": "string"
+            "type": "string",
+            "description": "UI label: About me."
           },
           "timezone": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "UI label: Time zone. IANA zone used for calendar dates and boundaries."
           },
           "email": {
             "type": "string",
@@ -780,7 +811,7 @@
               "canceled"
             ],
             "type": "string",
-            "description": "Derived from local subscription rows; not a User column. Only active grants paid access."
+            "description": "Derived from subscription, not a User column: active = Active, past_due = Payment failed, canceled = Canceled, incomplete = Awaiting payment. Only active grants paid access. Scheduled cancellation uses the separate flag; it is not a fifth status."
           },
           "subscription_cancel_at_period_end": {
             "type": "boolean",
@@ -881,7 +912,7 @@
           "recorded_at"
         ],
         "additionalProperties": false,
-        "description": "ResultLog is the domain/API name for evidence stored in result_logs. Value may be null for a comment-only habit entry; evidence and timestamps are immutable."
+        "description": "Result log stored in result_logs. The UI shows value entries under Updates and their non-empty comments under Comments. Value may be null for a comment-only habit entry; evidence and timestamps are immutable."
       },
       "HabitLog": {
         "type": "object",
@@ -926,7 +957,7 @@
           "created_at"
         ],
         "additionalProperties": false,
-        "description": "HabitLog is the domain/API name for checked-day state stored in habit_logs. One row per result/day; unmarking deletes the row. This is not append-only history."
+        "description": "Habit log stored in habit_logs. The UI marks calendar days and lists them under Updates with the Marked column. One row per result/day; unmarking deletes the row. This is not append-only history."
       },
       "ActionLog": {
         "type": "object",
@@ -947,7 +978,8 @@
               "in_progress",
               "done"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "Action status: Open, In progress or Done. The To do UI group includes Open and In progress; Overdue is derived, not a status."
           },
           "comment": {
             "anyOf": [
@@ -985,7 +1017,7 @@
           "recorded_at"
         ],
         "additionalProperties": false,
-        "description": "Action log stored in action_logs. Records a status observation and optional comment; status and timestamps are immutable, and only the comment may be cleared."
+        "description": "Action log stored in action_logs. Records a status observation and optional comment. Action detail shows Comments, a filtered view rather than the complete status history; status and timestamps are immutable, and only the comment may be cleared."
       }
     }
   },
@@ -3039,7 +3071,7 @@
     "/user/getUser": {
       "post": {
         "operationId": "user.getUser",
-        "summary": "Get user",
+        "summary": "Read profile and subscription",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead the authenticated account profile with locally derived subscription state and onboarding connection status. No live billing request; no auth credentials in the response.",
         "tags": [
           "User"
@@ -3698,7 +3730,7 @@
     "/user/updateUser": {
       "post": {
         "operationId": "user.updateUser",
-        "summary": "Update user",
+        "summary": "Edit profile",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "User"
@@ -3712,15 +3744,16 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "Chosen name; omit to preserve, empty text clears it."
+                    "description": "Chosen coaching/display name; use verbatim. Omit to preserve, empty text clears it."
                   },
                   "about_me": {
                     "type": "string",
                     "maxLength": 4000,
-                    "description": "Coaching context; omit to preserve, empty text clears it, null is invalid."
+                    "description": "UI label: About me. Coaching context; omit to preserve, empty text clears it, null is invalid."
                   },
                   "timezone": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "UI label: Time zone. IANA zone used for calendar dates and boundaries."
                   }
                 },
                 "additionalProperties": false
@@ -3745,14 +3778,17 @@
                           "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
                         },
                         "name": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Chosen coaching/display name, used verbatim. Target UI prompt: What should we call you? Empty means unknown; no separate surname."
                         },
                         "about_me": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "UI label: About me."
                         },
                         "timezone": {
                           "type": "string",
-                          "minLength": 1
+                          "minLength": 1,
+                          "description": "UI label: Time zone. IANA zone used for calendar dates and boundaries."
                         }
                       },
                       "required": [
@@ -4462,7 +4498,7 @@
     "/user/deleteUser": {
       "post": {
         "operationId": "user.deleteUser",
-        "summary": "Delete user",
+        "summary": "Delete account",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `account-management`. Identity is resolved server-side.\n\nWeb-only account deletion. Requires fresh identity confirmation; do not infer authorization from possession of an account ID.",
         "tags": [
           "User"
@@ -5141,7 +5177,7 @@
     "/billing/createCheckoutSession": {
       "post": {
         "operationId": "billing.createCheckoutSession",
-        "summary": "Create checkout session",
+        "summary": "Subscribe (open checkout)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `account-management`. Identity is resolved server-side.\n\nCreate a checkout session for subscription setup. A browser return from checkout does not establish entitlement; subscription state follows verified billing events.",
         "tags": [
           "Billing"
@@ -5810,8 +5846,8 @@
     "/billing/createBillingPortalSession": {
       "post": {
         "operationId": "billing.createBillingPortalSession",
-        "summary": "Create billing portal session",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `account-management`. Identity is resolved server-side.\n\nCreate a billing portal session for the authenticated account.",
+        "summary": "Manage subscription (open billing portal)",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `account-management`. Identity is resolved server-side.\n\nReturn a billing portal URL for the authenticated account; the client opens it for the Settings action Manage subscription. A billing portal session is separate from a coaching session.",
         "tags": [
           "Billing"
         ],
@@ -6479,7 +6515,7 @@
     "/cycles/createCycle": {
       "post": {
         "operationId": "cycles.createCycle",
-        "summary": "Create cycle",
+        "summary": "Start a cycle",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nCreate a cycle and archive the prior active cycle. Reuse the idempotency key and identical fields for retries. End date must be after start date. Original-outcome replay is a service obligation.",
         "tags": [
           "Cycles"
@@ -6494,12 +6530,12 @@
                   "start_at": {
                     "type": "string",
                     "format": "date",
-                    "description": "Start date, YYYY-MM-DD. Supply only when changing it."
+                    "description": "UI label: Starts. Calendar date, YYYY-MM-DD. Required on create; omit on update to preserve."
                   },
                   "end_at": {
                     "type": "string",
                     "format": "date",
-                    "description": "End date, YYYY-MM-DD; must be after the resulting start date."
+                    "description": "UI label: Ends. Calendar date, YYYY-MM-DD; must be after the resulting start date."
                   },
                   "intention": {
                     "anyOf": [
@@ -7300,7 +7336,7 @@
     "/cycles/getActiveCycle": {
       "post": {
         "operationId": "cycles.getActiveCycle",
-        "summary": "Get active cycle",
+        "summary": "Read the active cycle",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nResolve the active cycle with lazy expiry. This API read may archive an expired cycle; it differs from the MCP stored-active lookup.",
         "tags": [
           "Cycles"
@@ -7966,7 +8002,7 @@
     "/cycles/getCycle": {
       "post": {
         "operationId": "cycles.getCycle",
-        "summary": "Get cycle",
+        "summary": "Read cycle details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
           "Cycles"
@@ -9392,7 +9428,7 @@
     "/cycles/updateCycle": {
       "post": {
         "operationId": "cycles.updateCycle",
-        "summary": "Update cycle",
+        "summary": "Edit cycle details or status",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPatch an owned cycle by UUID or the stored active selector. Omitted fields stay unchanged; null intention clears it. Validate date ordering after merging with stored dates. Activating a cycle archives the incumbent.",
         "tags": [
           "Cycles"
@@ -9420,12 +9456,12 @@
                   "start_at": {
                     "type": "string",
                     "format": "date",
-                    "description": "Start date, YYYY-MM-DD. Supply only when changing it."
+                    "description": "UI label: Starts. Calendar date, YYYY-MM-DD. Required on create; omit on update to preserve."
                   },
                   "end_at": {
                     "type": "string",
                     "format": "date",
-                    "description": "End date, YYYY-MM-DD; must be after the resulting start date."
+                    "description": "UI label: Ends. Calendar date, YYYY-MM-DD; must be after the resulting start date."
                   },
                   "intention": {
                     "anyOf": [
@@ -10225,7 +10261,7 @@
     "/cycles/previewCycleDeletion": {
       "post": {
         "operationId": "cycles.previewCycleDeletion",
-        "summary": "Preview cycle deletion",
+        "summary": "Preview cycle deletion impact",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nCompute complete deletion impact and return a trusted application approval URL. A preview does not authorize deletion. Fail closed when impact cannot be established.",
         "tags": [
           "Cycles"
@@ -10282,12 +10318,12 @@
                         "start_at": {
                           "type": "string",
                           "format": "date",
-                          "description": "Calendar date as YYYY-MM-DD in the profile timezone."
+                          "description": "UI label: Starts."
                         },
                         "end_at": {
                           "type": "string",
                           "format": "date",
-                          "description": "Calendar date as YYYY-MM-DD in the profile timezone."
+                          "description": "UI label: Ends."
                         },
                         "status": {
                           "enum": [
@@ -11722,7 +11758,7 @@
     "/objectives/createObjective": {
       "post": {
         "operationId": "objectives.createObjective",
-        "summary": "Create objective",
+        "summary": "Add objective",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Objectives"
@@ -11750,7 +11786,8 @@
                       {
                         "type": "null"
                       }
-                    ]
+                    ],
+                    "description": "UI label: Deadline. Optional when creating; on update, omission preserves and null clears."
                   },
                   "idempotency_key": {
                     "type": "string",
@@ -13272,7 +13309,7 @@
     "/objectives/getObjective": {
       "post": {
         "operationId": "objectives.getObjective",
-        "summary": "Get objective",
+        "summary": "Read objective details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
           "Objectives"
@@ -14035,7 +14072,7 @@
     "/objectives/updateObjective": {
       "post": {
         "operationId": "objectives.updateObjective",
-        "summary": "Update objective",
+        "summary": "Edit objective",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Objectives"
@@ -14068,7 +14105,8 @@
                       {
                         "type": "null"
                       }
-                    ]
+                    ],
+                    "description": "UI label: Deadline. Optional when creating; on update, omission preserves and null clears."
                   },
                   "status": {
                     "enum": [
@@ -14076,7 +14114,8 @@
                       "off_track",
                       "completed"
                     ],
-                    "type": "string"
+                    "type": "string",
+                    "description": "Objective status: On track, Off track or Completed. Coaching judgment, independent of the derived Progress percentage."
                   }
                 },
                 "required": [
@@ -15571,7 +15610,7 @@
     "/results/createResult": {
       "post": {
         "operationId": "results.createResult",
-        "summary": "Create result",
+        "summary": "Add result",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Results"
@@ -15753,12 +15792,14 @@
                           "weekly",
                           "monthly"
                         ],
-                        "type": "string"
+                        "type": "string",
+                        "description": "UI label: Cadence. Weekly or Monthly; per supplies the Times value."
                       },
                       "per": {
                         "type": "integer",
                         "minimum": 1,
-                        "maximum": 9007199254740991
+                        "maximum": 9007199254740991,
+                        "description": "UI label: Times per selected Cadence."
                       },
                       "since": {
                         "type": "string",
@@ -17538,7 +17579,7 @@
     "/results/getResult": {
       "post": {
         "operationId": "results.getResult",
-        "summary": "Get result",
+        "summary": "Read result details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
           "Results"
@@ -18485,7 +18526,7 @@
     "/results/updateResult": {
       "post": {
         "operationId": "results.updateResult",
-        "summary": "Update result",
+        "summary": "Edit result",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Results"
@@ -18528,7 +18569,8 @@
                       "habit",
                       "performance"
                     ],
-                    "type": "string"
+                    "type": "string",
+                    "description": "UI label: Type. Number, Percentage, Milestone, Habit or Performance."
                   },
                   "target_value": {
                     "type": "number"
@@ -18558,12 +18600,14 @@
                       "weekly",
                       "monthly"
                     ],
-                    "type": "string"
+                    "type": "string",
+                    "description": "UI label: Cadence. Weekly or Monthly; per supplies the Times value."
                   },
                   "per": {
                     "type": "integer",
                     "minimum": 1,
-                    "maximum": 9007199254740991
+                    "maximum": 9007199254740991,
+                    "description": "UI label: Times per selected Cadence."
                   },
                   "since": {
                     "type": "string",
@@ -18575,7 +18619,8 @@
                       "in_progress",
                       "completed"
                     ],
-                    "type": "string"
+                    "type": "string",
+                    "description": "Result status: In progress or Completed. Reaching the target does not automatically mark the result completed."
                   }
                 },
                 "required": [
@@ -20254,7 +20299,7 @@
     "/resultLogs/createResultLog": {
       "post": {
         "operationId": "resultLogs.createResultLog",
-        "summary": "Create result log",
+        "summary": "Add result log (update or comment)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nAppend result evidence or a comment as a result log. Reuse the idempotency key on retries; current result figures are derived from retained logs.",
         "tags": [
           "Result logs"
@@ -21281,7 +21326,7 @@
     "/resultLogs/listResultLogs": {
       "post": {
         "operationId": "resultLogs.listResultLogs",
-        "summary": "List result logs",
+        "summary": "List result logs (Updates and Comments)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead a bounded page of result logs for the selected result, newest first.",
         "tags": [
           "Result logs"
@@ -21985,7 +22030,7 @@
     "/resultLogs/clearResultLogComment": {
       "post": {
         "operationId": "resultLogs.clearResultLogComment",
-        "summary": "Clear result log comment",
+        "summary": "Clear comment from result log",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Result logs"
@@ -22999,7 +23044,7 @@
     "/resultLogs/deleteResultLog": {
       "post": {
         "operationId": "resultLogs.deleteResultLog",
-        "summary": "Delete result log",
+        "summary": "Delete result log (update)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Result logs"
@@ -24013,7 +24058,7 @@
     "/habitLogs/setHabitLog": {
       "post": {
         "operationId": "habitLogs.setHabitLog",
-        "summary": "Set habit log",
+        "summary": "Mark or unmark a habit day",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nSet whether a habit happened on one calendar day. marked=true creates the habit log if absent; marked=false removes it. Repeating the same desired state is safe.",
         "tags": [
           "Habit logs"
@@ -24036,7 +24081,8 @@
                     "description": "Calendar date as YYYY-MM-DD in the profile timezone."
                   },
                   "marked": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Desired calendar state: true marks the day; false unmarks it. Not an append-only history event."
                   }
                 },
                 "required": [
@@ -25037,7 +25083,7 @@
     "/habitLogs/listHabitLogs": {
       "post": {
         "operationId": "habitLogs.listHabitLogs",
-        "summary": "List habit logs",
+        "summary": "List habit logs (marked days)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead habit logs (checked days) for the selected result and optional date range. Review gap: this existing signature has no cursor; reconcile bounded history before freezing this API contract.",
         "tags": [
           "Habit logs"
@@ -25719,7 +25765,7 @@
     "/actions/createAction": {
       "post": {
         "operationId": "actions.createAction",
-        "summary": "Create action",
+        "summary": "Add action",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Actions"
@@ -26626,7 +26672,8 @@
                       "in_progress",
                       "done"
                     ],
-                    "type": "string"
+                    "type": "string",
+                    "description": "Action status: Open, In progress or Done. The To do UI group includes Open and In progress; Overdue is derived, not a status."
                   },
                   "due_before": {
                     "type": "string",
@@ -27307,7 +27354,7 @@
     "/actions/getAction": {
       "post": {
         "operationId": "actions.getAction",
-        "summary": "Get action",
+        "summary": "Read action details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
           "Actions"
@@ -28063,7 +28110,7 @@
     "/actions/updateAction": {
       "post": {
         "operationId": "actions.updateAction",
-        "summary": "Update action",
+        "summary": "Edit action details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPatch action fields. Omit fields to preserve them; null may clear optional links and description, but cannot clear a set due date. Status changes belong to action-log creation; ordering belongs to reorderAction.",
         "tags": [
           "Actions"
@@ -30435,7 +30482,7 @@
     "/actionLogs/createActionLog": {
       "post": {
         "operationId": "actionLogs.createActionLog",
-        "summary": "Create action log",
+        "summary": "Add action log (status or comment)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nAppend an action log with a status and optional comment. The action status changes in the same transaction; repeating a status with a comment is a valid log entry.",
         "tags": [
           "Action logs"
@@ -30458,7 +30505,8 @@
                       "in_progress",
                       "done"
                     ],
-                    "type": "string"
+                    "type": "string",
+                    "description": "Action status: Open, In progress or Done. The To do UI group includes Open and In progress; Overdue is derived, not a status."
                   },
                   "comment": {
                     "type": "string",
@@ -31981,7 +32029,7 @@
     "/actionLogs/clearActionLogComment": {
       "post": {
         "operationId": "actionLogs.clearActionLogComment",
-        "summary": "Clear action log comment",
+        "summary": "Clear comment from action log",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Action logs"
@@ -32804,7 +32852,7 @@
     "/notes/addNote": {
       "post": {
         "operationId": "notes.addNote",
-        "summary": "Add note",
+        "summary": "New note",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Notes"
@@ -33545,7 +33593,7 @@
     "/notes/updateNote": {
       "post": {
         "operationId": "notes.updateNote",
-        "summary": "Update note",
+        "summary": "Edit note",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
           "Notes"
@@ -34982,7 +35030,7 @@
     "/notes/getNote": {
       "post": {
         "operationId": "notes.getNote",
-        "summary": "Get note",
+        "summary": "Read note",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
           "Notes"
@@ -36331,7 +36379,7 @@
     "/sessions/loadBriefing": {
       "post": {
         "operationId": "sessions.loadBriefing",
-        "summary": "Load briefing",
+        "summary": "Start or resume a coaching session and load its briefing",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `session-start`. Identity is resolved server-side.\n\nStarts or reuses a session and persists briefing notes; this operation has write effects. An unpaid account receives the declared enablement response instead of coaching state.",
         "tags": [
           "Sessions"
@@ -36409,14 +36457,17 @@
                                       "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
                                     },
                                     "name": {
-                                      "type": "string"
+                                      "type": "string",
+                                      "description": "Chosen coaching/display name, used verbatim. Target UI prompt: What should we call you? Empty means unknown; no separate surname."
                                     },
                                     "about_me": {
-                                      "type": "string"
+                                      "type": "string",
+                                      "description": "UI label: About me."
                                     },
                                     "timezone": {
                                       "type": "string",
-                                      "minLength": 1
+                                      "minLength": 1,
+                                      "description": "UI label: Time zone. IANA zone used for calendar dates and boundaries."
                                     }
                                   },
                                   "required": [
@@ -37767,7 +37818,7 @@
     "/sessions/listSessions": {
       "post": {
         "operationId": "sessions.listSessions",
-        "summary": "List sessions",
+        "summary": "List coaching sessions",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
           "Sessions"
@@ -38463,7 +38514,7 @@
     "/sessions/getSession": {
       "post": {
         "operationId": "sessions.getSession",
-        "summary": "Get session",
+        "summary": "Read coaching session details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
           "Sessions"
@@ -39193,7 +39244,7 @@
     "/sessions/closeSession": {
       "post": {
         "operationId": "sessions.closeSession",
-        "summary": "Close session",
+        "summary": "Close coaching session and save summary",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nSave the session summary and end time. Moving the session boundary affects subsequent reads on both surfaces.",
         "tags": [
           "Sessions"
@@ -39217,7 +39268,8 @@
                       "review",
                       "open_coaching"
                     ],
-                    "type": "string"
+                    "type": "string",
+                    "description": "Coaching session type: Goal setup, Check-in, Review or Open coaching. Separate from whether the session is still open."
                   },
                   "headline": {
                     "type": "string",
@@ -39226,7 +39278,8 @@
                   },
                   "summary_notes": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "UI document: Summary. Saved when closing the coaching session."
                   }
                 },
                 "required": [
@@ -39897,7 +39950,7 @@
     "/recordQuery/queryRecord": {
       "post": {
         "operationId": "recordQuery.queryRecord",
-        "summary": "Query record",
+        "summary": "Read coaching context and history",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead application context without session effects. History kinds require a window; explicit window bounds must increase. Date-only bounds resolve in the profile timezone. This generic reader is not an MCP tool.",
         "tags": [
           "Record query"
@@ -40074,14 +40127,17 @@
                               "description": "Owned record UUID from fresh tool results or user-selected context. Never invent an ID; clarify ambiguous targets."
                             },
                             "name": {
-                              "type": "string"
+                              "type": "string",
+                              "description": "Chosen coaching/display name, used verbatim. Target UI prompt: What should we call you? Empty means unknown; no separate surname."
                             },
                             "about_me": {
-                              "type": "string"
+                              "type": "string",
+                              "description": "UI label: About me."
                             },
                             "timezone": {
                               "type": "string",
-                              "minLength": 1
+                              "minLength": 1,
+                              "description": "UI label: Time zone. IANA zone used for calendar dates and boundaries."
                             }
                           },
                           "required": [

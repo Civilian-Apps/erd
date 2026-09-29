@@ -23,7 +23,7 @@ export const resultLogSchema = z
     recorded_at: timestampSchema,
   })
   .describe(
-    'ResultLog is the domain/API name for evidence stored in result_logs. Value may be null for a comment-only habit entry; evidence and timestamps are immutable.',
+    'Result log stored in result_logs. The UI shows value entries under Updates and their non-empty comments under Comments. Value may be null for a comment-only habit entry; evidence and timestamps are immutable.',
   )
 export const habitLogSchema = z
   .strictObject({
@@ -34,7 +34,7 @@ export const habitLogSchema = z
     created_at: timestampSchema,
   })
   .describe(
-    'HabitLog is the domain/API name for checked-day state stored in habit_logs. One row per result/day; unmarking deletes the row. This is not append-only history.',
+    'Habit log stored in habit_logs. The UI marks calendar days and lists them under Updates with the Marked column. One row per result/day; unmarking deletes the row. This is not append-only history.',
   )
 export const resultSchema = z.strictObject({
   id: idSchema,
@@ -42,17 +42,38 @@ export const resultSchema = z.strictObject({
   title: z.string(),
   description: z.string().nullable(),
   metric_type: metricTypeSchema,
-  start_value: z.number().nullable(),
-  target_value: z.number().nullable(),
-  unit: z.string().nullable(),
+  start_value: z
+    .number()
+    .nullable()
+    .describe('UI label: Start. Metric baseline; habit baselines are derived rather than stored.'),
+  target_value: z
+    .number()
+    .nullable()
+    .describe(
+      'UI label: Target; shown as Goal on the trend chart. Habit target is derived rather than stored.',
+    ),
+  unit: z.string().nullable().describe('UI label: Unit. Used by Number and Performance results.'),
   cadence: cadenceSchema.nullable(),
-  per: z.number().int().positive().nullable(),
-  since: dateSchema.nullable(),
+  per: z
+    .number()
+    .int()
+    .positive()
+    .nullable()
+    .describe('UI label: Times. Habit frequency within the selected Cadence.'),
+  since: dateSchema
+    .nullable()
+    .describe(
+      'Measurement start date for Habit and Performance; distinct from the last-session movement boundary.',
+    ),
   status: resultStatusSchema,
   created_at: timestampSchema,
   short_code: z.string().min(1),
   url: z.url(),
-  current_value: z.number(),
+  current_value: z
+    .number()
+    .describe(
+      'Current value displayed in the result headline; derived according to metric type from its baseline and retained evidence.',
+    ),
   boundary_value: z.number(),
   progress_pct: z.number().nullable(),
   boundary_progress_pct: z.number().nullable(),

@@ -19,9 +19,14 @@ export const actionSchema = z.strictObject({
   objective_id: idSchema.nullable(),
   title: z.string(),
   description: z.string().nullable(),
-  due_at: dateSchema.nullable(),
+  due_at: dateSchema
+    .nullable()
+    .describe('UI label: Due. May be unset on a web draft; a set date cannot be cleared.'),
   status: actionStatusSchema,
-  sort_order: z.number().nullable(),
+  sort_order: z
+    .number()
+    .nullable()
+    .describe('Drag order within an action group; not a progress status.'),
   session_id: idSchema.nullable(),
   created_at: timestampSchema,
   url: z.url(),
@@ -38,7 +43,7 @@ export const actionLogSchema = z
     recorded_at: timestampSchema,
   })
   .describe(
-    'Action log stored in action_logs. Records a status observation and optional comment; status and timestamps are immutable, and only the comment may be cleared.',
+    'Action log stored in action_logs. Records a status observation and optional comment. Action detail shows Comments, a filtered view rather than the complete status history; status and timestamps are immutable, and only the comment may be cleared.',
   )
 export const actionsFragmentSchema = z.strictObject({
   actions: pageSchema(actionSchema, 50),

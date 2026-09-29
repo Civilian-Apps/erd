@@ -12,6 +12,7 @@ import * as inputs from './contract.js'
 export const sessionsContract = {
   loadBriefing: apiProcedure
     .route({
+      summary: 'Start or resume a coaching session and load its briefing',
       description:
         'Starts or reuses a session and persists briefing notes; this operation has write effects. An unpaid account receives the declared enablement response instead of coaching state.',
     })
@@ -19,15 +20,18 @@ export const sessionsContract = {
     .input(inputs.loadBriefingInput)
     .output(loadBriefingResultSchema),
   listSessions: apiProcedure
+    .route({ summary: 'List coaching sessions' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listSessionsInput)
     .output(pageSchema(sessionSchema)),
   getSession: apiProcedure
+    .route({ summary: 'Read coaching session details' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getSessionInput)
     .output(sessionDetailSchema),
   closeSession: apiProcedure
     .route({
+      summary: 'Close coaching session and save summary',
       description:
         'Save the session summary and end time. Moving the session boundary affects subsequent reads on both surfaces.',
     })

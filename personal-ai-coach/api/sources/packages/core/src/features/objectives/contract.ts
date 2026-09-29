@@ -12,7 +12,12 @@ export const createObjectiveInput = z
   .object({
     title: z.string(),
     description: z.string().optional(),
-    deadline_at: dateSchema.nullable().optional(),
+    deadline_at: dateSchema
+      .nullable()
+      .optional()
+      .describe(
+        'UI label: Deadline. Optional when creating; on update, omission preserves and null clears.',
+      ),
   })
   .strict()
 export const orpcCreateObjectiveInput = createObjectiveInput.extend({
@@ -21,7 +26,12 @@ export const orpcCreateObjectiveInput = createObjectiveInput.extend({
 export const updateObjectiveInput = idInputSchema.extend({
   title: z.string().optional(),
   description: z.string().optional(),
-  deadline_at: dateSchema.nullable().optional(),
+  deadline_at: dateSchema
+    .nullable()
+    .optional()
+    .describe(
+      'UI label: Deadline. Optional when creating; on update, omission preserves and null clears.',
+    ),
   status: objectiveStatusSchema.optional(),
 })
 export const deleteObjectiveInput = idInputSchema

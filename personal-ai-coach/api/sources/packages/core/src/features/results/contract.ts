@@ -36,7 +36,7 @@ export const createResultArms = [
       ...base,
       metric_type: z.literal('habit'),
       cadence: cadenceSchema,
-      per: z.number().int().min(1),
+      per: z.number().int().min(1).describe('UI label: Times per selected Cadence.'),
       since: dateSchema.optional(),
     })
     .strict(),
@@ -68,7 +68,7 @@ export const updateResultInput = idInputSchema.extend({
   start_value: z.number().finite().nullable().optional(),
   unit: z.string().nullable().optional(),
   cadence: cadenceSchema.optional(),
-  per: z.number().int().min(1).optional(),
+  per: z.number().int().min(1).describe('UI label: Times per selected Cadence.').optional(),
   since: dateSchema.optional(),
   status: resultStatusSchema.optional(),
 })
@@ -92,7 +92,15 @@ export const listResultLogsInput = pageInputSchema.extend({ result_id: idSchema 
 export const clearResultLogCommentInput = idInputSchema
 export const deleteResultLogInput = idInputSchema
 export const setHabitLogInput = z
-  .object({ result_id: idSchema, day: dateSchema, marked: z.boolean() })
+  .object({
+    result_id: idSchema,
+    day: dateSchema,
+    marked: z
+      .boolean()
+      .describe(
+        'Desired calendar state: true marks the day; false unmarks it. Not an append-only history event.',
+      ),
+  })
   .strict()
 export const listHabitLogsInput = z
   .object({ result_id: idSchema, from: dateSchema.optional(), to: dateSchema.optional() })

@@ -15,9 +15,16 @@ import {
 import { pageSchema } from '../../contracts/paging.js'
 export const profileSchema = z.strictObject({
   id: idSchema,
-  name: z.string(),
-  about_me: z.string(),
-  timezone: z.string().min(1),
+  name: z
+    .string()
+    .describe(
+      'Chosen coaching/display name, used verbatim. Target UI prompt: What should we call you? Empty means unknown; no separate surname.',
+    ),
+  about_me: z.string().describe('UI label: About me.'),
+  timezone: z
+    .string()
+    .min(1)
+    .describe('UI label: Time zone. IANA zone used for calendar dates and boundaries.'),
 })
 export const userProfileSchema = profileSchema
   .extend({
@@ -25,7 +32,7 @@ export const userProfileSchema = profileSchema
     subscription_status: z
       .enum(['incomplete', 'active', 'past_due', 'canceled'])
       .describe(
-        'Derived from local subscription rows; not a User column. Only active grants paid access.',
+        'Derived from subscription, not a User column: active = Active, past_due = Payment failed, canceled = Canceled, incomplete = Awaiting payment. Only active grants paid access. Scheduled cancellation uses the separate flag; it is not a fifth status.',
       ),
     subscription_cancel_at_period_end: z
       .boolean()
