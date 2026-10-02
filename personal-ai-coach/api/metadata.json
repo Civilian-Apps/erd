@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-29T22:01:05.785Z",
+  "generated_at": "2026-10-02T23:27:40.969Z",
   "base_revision": "5ef0e866c17c65714bf9e739fdb0272a2b637e98",
   "includes_working_tree_edits": true,
-  "contract_sha256": "ac27b352ef528d62d1dea8280f63db655d7a06ade19cc3966f8e4c08caf9259d",
-  "openapi_sha256": "edd390cbcc82dc03b96c4cf34f9b25cfee664599fc7929e20e95908c4612dc9d",
+  "contract_sha256": "08c7aa3ad8a2827f50f68f01fb6ad065a1bcac35f6a2d0bf599e09334624a253",
+  "openapi_sha256": "3a112fa3541e78650eb76f7bb457daaf957cbc790aa45f166109b52b0a03eaff",
   "operations": 50,
   "files": [
     {
@@ -28,7 +28,7 @@
     },
     {
       "path": "packages/core/src/features/actions/api.contract.ts",
-      "sha256": "8a815051377336ea61eb34801cac52cc6bc9e1d1608201df8cc2357949e7c7d3"
+      "sha256": "dc3beb08043570fa3b5da5f84cd92c4f6ee1ebbb545658c548ba98d3870c0e64"
     },
     {
       "path": "packages/core/src/features/actions/contract.ts",
@@ -40,7 +40,7 @@
     },
     {
       "path": "packages/core/src/features/cycles/api.contract.ts",
-      "sha256": "477b31f030115a0fc86bc6e2a7a9e91be4fd052812ae0ce4774837142a0ef018"
+      "sha256": "0f61b8cd6e794c3fb00fcc030eb6814a20f61ff703782388ce390ab9af2660b8"
     },
     {
       "path": "packages/core/src/features/cycles/inputs.ts",
@@ -60,7 +60,7 @@
     },
     {
       "path": "packages/core/src/features/identity-billing/api.contract.ts",
-      "sha256": "f2ee43b7f94d5f245c8e258e7fd33486a2517a83100147f1c62f2a3d29979766"
+      "sha256": "7e3afede55d73d5d481ff02024c659892133a30fb87e99055aaeb08dbda76d7f"
     },
     {
       "path": "packages/core/src/features/identity-billing/contract.ts",
@@ -72,7 +72,7 @@
     },
     {
       "path": "packages/core/src/features/notes/api.contract.ts",
-      "sha256": "c88be130adf4a366756635e624ee5ee06ad5f57ae61a88ead1c4bf745b1502e0"
+      "sha256": "7d1a163f52a2cc4906c3b034d99ab277a66b1773ae6d52cebba09d8139a01fa0"
     },
     {
       "path": "packages/core/src/features/notes/contract.ts",
@@ -84,7 +84,7 @@
     },
     {
       "path": "packages/core/src/features/objectives/api.contract.ts",
-      "sha256": "74df841fb1f09de522969d463cc87e5ea3a4af2a9b2581f9520974e87cf93419"
+      "sha256": "f0b8fd55aa985b4f23fd3c7f3eadb3d06bc01026839096bfc72adf3b85ea434f"
     },
     {
       "path": "packages/core/src/features/objectives/contract.ts",
@@ -96,7 +96,7 @@
     },
     {
       "path": "packages/core/src/features/record-query/api.contract.ts",
-      "sha256": "e7220a54710a6ed7611222f537f6a5c6aded337a7d4aad08228d4d2fc1ece678"
+      "sha256": "b0f0d718d41e66d2ffe650dea843c78fdaf5900b8edc8677eef00f2ba5c785a9"
     },
     {
       "path": "packages/core/src/features/record-query/contract.ts",
@@ -104,7 +104,7 @@
     },
     {
       "path": "packages/core/src/features/results/api.contract.ts",
-      "sha256": "12ef8de1c96395f838b84bd9c9ca5f667f394cf56ab248f46f3497803b9d5f9c"
+      "sha256": "ff01636127de465aa89aca2144e5c9a8c3a5dc5d457bfaabbcc47df8e0934719"
     },
     {
       "path": "packages/core/src/features/results/contract.ts",
@@ -116,7 +116,7 @@
     },
     {
       "path": "packages/core/src/features/sessions/api.contract.ts",
-      "sha256": "7bc9afd16dc74168effe5dbb3782cd6188ef5c2c7fa781e35ef6a2205515f9be"
+      "sha256": "ba6c7f8878478bd04a61af338610dff565cb8a1b729bcfed59d2fc2097e2a12e"
     },
     {
       "path": "packages/core/src/features/sessions/contract.ts",
@@ -132,7 +132,7 @@
     },
     {
       "path": "packages/core/src/shared/api/contract.ts",
-      "sha256": "76876acbd4aa2df835f58dc012966f9b92169a2deb5bf6b9276c71aaf4357e52"
+      "sha256": "df36e3a4f8cd255f45cef5d476edc50b0fcca7c5b3d1ff69ed1c11be66bf4698"
     },
     {
       "path": "packages/core/src/shared/cursor.ts",

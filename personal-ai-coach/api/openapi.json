@@ -45,7 +45,7 @@
       "name": "Sessions"
     },
     {
-      "name": "Record query"
+      "name": "Record"
     },
     {
       "name": "Example"
@@ -3068,9 +3068,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/user/getUser": {
+    "/user/get": {
       "post": {
-        "operationId": "user.getUser",
+        "operationId": "user.get",
         "summary": "Read profile and subscription",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead the authenticated account profile with locally derived subscription state and onboarding connection status. No live billing request; no auth credentials in the response.",
         "tags": [
@@ -3727,9 +3727,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/user/updateUser": {
+    "/user/update": {
       "post": {
-        "operationId": "user.updateUser",
+        "operationId": "user.update",
         "summary": "Edit profile",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -4495,9 +4495,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/user/deleteUser": {
+    "/user/delete": {
       "post": {
-        "operationId": "user.deleteUser",
+        "operationId": "user.delete",
         "summary": "Delete account",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `account-management`. Identity is resolved server-side.\n\nWeb-only account deletion. Requires fresh identity confirmation; do not infer authorization from possession of an account ID.",
         "tags": [
@@ -5843,9 +5843,9 @@
         "x-access-policy": "account-management"
       }
     },
-    "/billing/createBillingPortalSession": {
+    "/billing/createPortalSession": {
       "post": {
-        "operationId": "billing.createBillingPortalSession",
+        "operationId": "billing.createPortalSession",
         "summary": "Manage subscription (open billing portal)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `account-management`. Identity is resolved server-side.\n\nReturn a billing portal URL for the authenticated account; the client opens it for the Settings action Manage subscription. A billing portal session is separate from a coaching session.",
         "tags": [
@@ -6512,9 +6512,9 @@
         "x-access-policy": "account-management"
       }
     },
-    "/cycles/createCycle": {
+    "/cycles/create": {
       "post": {
-        "operationId": "cycles.createCycle",
+        "operationId": "cycles.create",
         "summary": "Start a cycle",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nCreate a cycle and archive the prior active cycle. Reuse the idempotency key and identical fields for retries. End date must be after start date. Original-outcome replay is a service obligation.",
         "tags": [
@@ -7333,11 +7333,11 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/cycles/getActiveCycle": {
+    "/cycles/resolveActive": {
       "post": {
-        "operationId": "cycles.getActiveCycle",
-        "summary": "Read the active cycle",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nResolve the active cycle with lazy expiry. This API read may archive an expired cycle; it differs from the MCP stored-active lookup.",
+        "operationId": "cycles.resolveActive",
+        "summary": "Resolve the active cycle and reconcile expiry",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nResolve the active cycle with lazy expiry. This operation may archive an expired cycle; it differs from the MCP stored-active lookup.",
         "tags": [
           "Cycles"
         ],
@@ -7999,9 +7999,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/cycles/getCycle": {
+    "/cycles/get": {
       "post": {
-        "operationId": "cycles.getCycle",
+        "operationId": "cycles.get",
         "summary": "Read cycle details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -8729,9 +8729,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/cycles/listCycles": {
+    "/cycles/list": {
       "post": {
-        "operationId": "cycles.listCycles",
+        "operationId": "cycles.list",
         "summary": "List cycles",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -9425,9 +9425,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/cycles/updateCycle": {
+    "/cycles/update": {
       "post": {
-        "operationId": "cycles.updateCycle",
+        "operationId": "cycles.update",
         "summary": "Edit cycle details or status",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPatch an owned cycle by UUID or the stored active selector. Omitted fields stay unchanged; null intention clears it. Validate date ordering after merging with stored dates. Activating a cycle archives the incumbent.",
         "tags": [
@@ -10258,9 +10258,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/cycles/previewCycleDeletion": {
+    "/cycles/previewDeletion": {
       "post": {
-        "operationId": "cycles.previewCycleDeletion",
+        "operationId": "cycles.previewDeletion",
         "summary": "Preview cycle deletion impact",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nCompute complete deletion impact and return a trusted application approval URL. A preview does not authorize deletion. Fail closed when impact cannot be established.",
         "tags": [
@@ -11065,9 +11065,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/cycles/deleteCycle": {
+    "/cycles/delete": {
       "post": {
-        "operationId": "cycles.deleteCycle",
+        "operationId": "cycles.delete",
         "summary": "Delete cycle",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPermanently delete the cycle and its dependants only after checking actor-bound application approval, preview expiry and unchanged impact in the transaction. A preview ID alone is not approval.",
         "tags": [
@@ -11755,9 +11755,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/objectives/createObjective": {
+    "/objectives/create": {
       "post": {
-        "operationId": "objectives.createObjective",
+        "operationId": "objectives.create",
         "summary": "Add objective",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -12605,9 +12605,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/objectives/listObjectives": {
+    "/objectives/list": {
       "post": {
-        "operationId": "objectives.listObjectives",
+        "operationId": "objectives.list",
         "summary": "List objectives",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -13306,9 +13306,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/objectives/getObjective": {
+    "/objectives/get": {
       "post": {
-        "operationId": "objectives.getObjective",
+        "operationId": "objectives.get",
         "summary": "Read objective details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -14069,9 +14069,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/objectives/updateObjective": {
+    "/objectives/update": {
       "post": {
-        "operationId": "objectives.updateObjective",
+        "operationId": "objectives.update",
         "summary": "Edit objective",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -14927,9 +14927,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/objectives/deleteObjective": {
+    "/objectives/delete": {
       "post": {
-        "operationId": "objectives.deleteObjective",
+        "operationId": "objectives.delete",
         "summary": "Delete objective",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPermanently delete an owned objective. Review gap: the existing ID-only API input needs reconciliation with the shared impact-preview and application-approval boundary.",
         "tags": [
@@ -15607,9 +15607,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/results/createResult": {
+    "/results/create": {
       "post": {
-        "operationId": "results.createResult",
+        "operationId": "results.create",
         "summary": "Add result",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -16872,9 +16872,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/results/listResults": {
+    "/results/list": {
       "post": {
-        "operationId": "results.listResults",
+        "operationId": "results.list",
         "summary": "List results",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -17576,9 +17576,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/results/getResult": {
+    "/results/get": {
       "post": {
-        "operationId": "results.getResult",
+        "operationId": "results.get",
         "summary": "Read result details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -18523,9 +18523,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/results/updateResult": {
+    "/results/update": {
       "post": {
-        "operationId": "results.updateResult",
+        "operationId": "results.update",
         "summary": "Edit result",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -19616,9 +19616,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/results/deleteResult": {
+    "/results/delete": {
       "post": {
-        "operationId": "results.deleteResult",
+        "operationId": "results.delete",
         "summary": "Delete result",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPermanently delete an owned result. Review gap: the existing ID-only API input needs reconciliation with the shared impact-preview and application-approval boundary.",
         "tags": [
@@ -20296,9 +20296,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/resultLogs/createResultLog": {
+    "/resultLogs/create": {
       "post": {
-        "operationId": "resultLogs.createResultLog",
+        "operationId": "resultLogs.create",
         "summary": "Add result log (update or comment)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nAppend result evidence or a comment as a result log. Reuse the idempotency key on retries; current result figures are derived from retained logs.",
         "tags": [
@@ -21323,9 +21323,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/resultLogs/listResultLogs": {
+    "/resultLogs/list": {
       "post": {
-        "operationId": "resultLogs.listResultLogs",
+        "operationId": "resultLogs.list",
         "summary": "List result logs (Updates and Comments)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead a bounded page of result logs for the selected result, newest first.",
         "tags": [
@@ -22027,9 +22027,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/resultLogs/clearResultLogComment": {
+    "/resultLogs/clearComment": {
       "post": {
-        "operationId": "resultLogs.clearResultLogComment",
+        "operationId": "resultLogs.clearComment",
         "summary": "Clear comment from result log",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -23041,9 +23041,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/resultLogs/deleteResultLog": {
+    "/resultLogs/delete": {
       "post": {
-        "operationId": "resultLogs.deleteResultLog",
+        "operationId": "resultLogs.delete",
         "summary": "Delete result log (update)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -24055,9 +24055,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/habitLogs/setHabitLog": {
+    "/habitLogs/set": {
       "post": {
-        "operationId": "habitLogs.setHabitLog",
+        "operationId": "habitLogs.set",
         "summary": "Mark or unmark a habit day",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nSet whether a habit happened on one calendar day. marked=true creates the habit log if absent; marked=false removes it. Repeating the same desired state is safe.",
         "tags": [
@@ -25080,9 +25080,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/habitLogs/listHabitLogs": {
+    "/habitLogs/list": {
       "post": {
-        "operationId": "habitLogs.listHabitLogs",
+        "operationId": "habitLogs.list",
         "summary": "List habit logs (marked days)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead habit logs (checked days) for the selected result and optional date range. Review gap: this existing signature has no cursor; reconcile bounded history before freezing this API contract.",
         "tags": [
@@ -25762,9 +25762,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/actions/createAction": {
+    "/actions/create": {
       "post": {
-        "operationId": "actions.createAction",
+        "operationId": "actions.create",
         "summary": "Add action",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -26624,9 +26624,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/actions/listActions": {
+    "/actions/list": {
       "post": {
-        "operationId": "actions.listActions",
+        "operationId": "actions.list",
         "summary": "List actions",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -27351,9 +27351,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/actions/getAction": {
+    "/actions/get": {
       "post": {
-        "operationId": "actions.getAction",
+        "operationId": "actions.get",
         "summary": "Read action details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -28107,11 +28107,11 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/actions/updateAction": {
+    "/actions/update": {
       "post": {
-        "operationId": "actions.updateAction",
+        "operationId": "actions.update",
         "summary": "Edit action details",
-        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPatch action fields. Omit fields to preserve them; null may clear optional links and description, but cannot clear a set due date. Status changes belong to action-log creation; ordering belongs to reorderAction.",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPatch action fields. Omit fields to preserve them; null may clear optional links and description, but cannot clear a set due date. Status changes belong to action-log creation; ordering belongs to actions.reorder.",
         "tags": [
           "Actions"
         ],
@@ -28972,9 +28972,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/actions/reorderAction": {
+    "/actions/reorder": {
       "post": {
-        "operationId": "actions.reorderAction",
+        "operationId": "actions.reorder",
         "summary": "Reorder action",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -29799,9 +29799,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/actions/deleteAction": {
+    "/actions/delete": {
       "post": {
-        "operationId": "actions.deleteAction",
+        "operationId": "actions.delete",
         "summary": "Delete action",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPermanently delete an owned action. Review gap: the existing ID-only API input needs reconciliation with the shared impact-preview and application-approval boundary.",
         "tags": [
@@ -30479,9 +30479,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/actionLogs/createActionLog": {
+    "/actionLogs/create": {
       "post": {
-        "operationId": "actionLogs.createActionLog",
+        "operationId": "actionLogs.create",
         "summary": "Add action log (status or comment)",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nAppend an action log with a status and optional comment. The action status changes in the same transaction; repeating a status with a comment is a valid log entry.",
         "tags": [
@@ -31322,9 +31322,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/actionLogs/listActionLogs": {
+    "/actionLogs/list": {
       "post": {
-        "operationId": "actionLogs.listActionLogs",
+        "operationId": "actionLogs.list",
         "summary": "List action logs",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead a bounded page of action logs for the selected action, newest first.",
         "tags": [
@@ -32026,9 +32026,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/actionLogs/clearActionLogComment": {
+    "/actionLogs/clearComment": {
       "post": {
-        "operationId": "actionLogs.clearActionLogComment",
+        "operationId": "actionLogs.clearComment",
         "summary": "Clear comment from action log",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -32849,9 +32849,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/notes/addNote": {
+    "/notes/create": {
       "post": {
-        "operationId": "notes.addNote",
+        "operationId": "notes.create",
         "summary": "New note",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -33590,9 +33590,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/notes/updateNote": {
+    "/notes/update": {
       "post": {
-        "operationId": "notes.updateNote",
+        "operationId": "notes.update",
         "summary": "Edit note",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.",
         "tags": [
@@ -34331,9 +34331,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/notes/listNotes": {
+    "/notes/list": {
       "post": {
-        "operationId": "notes.listNotes",
+        "operationId": "notes.list",
         "summary": "List notes",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -35027,9 +35027,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/notes/getNote": {
+    "/notes/get": {
       "post": {
-        "operationId": "notes.getNote",
+        "operationId": "notes.get",
         "summary": "Read note",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -35696,9 +35696,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/notes/deleteNote": {
+    "/notes/delete": {
       "post": {
-        "operationId": "notes.deleteNote",
+        "operationId": "notes.delete",
         "summary": "Delete note",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nPermanently delete an owned note. Review gap: the existing ID-only API input needs reconciliation with the shared impact-preview and application-approval boundary.",
         "tags": [
@@ -36376,9 +36376,9 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/sessions/loadBriefing": {
+    "/sessions/start": {
       "post": {
-        "operationId": "sessions.loadBriefing",
+        "operationId": "sessions.start",
         "summary": "Start or resume a coaching session and load its briefing",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `session-start`. Identity is resolved server-side.\n\nStarts or reuses a session and persists briefing notes; this operation has write effects. An unpaid account receives the declared enablement response instead of coaching state.",
         "tags": [
@@ -37815,9 +37815,9 @@
         "x-access-policy": "session-start"
       }
     },
-    "/sessions/listSessions": {
+    "/sessions/list": {
       "post": {
-        "operationId": "sessions.listSessions",
+        "operationId": "sessions.list",
         "summary": "List coaching sessions",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -38511,9 +38511,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/sessions/getSession": {
+    "/sessions/get": {
       "post": {
-        "operationId": "sessions.getSession",
+        "operationId": "sessions.get",
         "summary": "Read coaching session details",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.",
         "tags": [
@@ -39241,9 +39241,9 @@
         "x-access-policy": "retained-read"
       }
     },
-    "/sessions/closeSession": {
+    "/sessions/close": {
       "post": {
-        "operationId": "sessions.closeSession",
+        "operationId": "sessions.close",
         "summary": "Close coaching session and save summary",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `entitled-write`. Identity is resolved server-side.\n\nSave the session summary and end time. Moving the session boundary affects subsequent reads on both surfaces.",
         "tags": [
@@ -39947,13 +39947,13 @@
         "x-access-policy": "entitled-write"
       }
     },
-    "/recordQuery/queryRecord": {
+    "/record/query": {
       "post": {
-        "operationId": "recordQuery.queryRecord",
+        "operationId": "record.query",
         "summary": "Read coaching context and history",
         "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `retained-read`. Identity is resolved server-side.\n\nRead application context without session effects. History kinds require a window; explicit window bounds must increase. Date-only bounds resolve in the profile timezone. This generic reader is not an MCP tool.",
         "tags": [
-          "Record query"
+          "Record"
         ],
         "requestBody": {
           "required": true,

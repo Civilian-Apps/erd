@@ -10,27 +10,27 @@ import {
 import * as inputs from './contract.js'
 
 export const objectivesContract = {
-  createObjective: apiProcedure
+  create: apiProcedure
     .route({ summary: 'Add objective' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcCreateObjectiveInput)
     .output(objectiveWriteResultSchema),
-  listObjectives: apiProcedure
+  list: apiProcedure
     .route({ summary: 'List objectives' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listObjectivesInput)
     .output(pageSchema(objectiveSchema)),
-  getObjective: apiProcedure
+  get: apiProcedure
     .route({ summary: 'Read objective details' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getObjectiveInput)
     .output(objectiveDetailSchema),
-  updateObjective: apiProcedure
+  update: apiProcedure
     .route({ summary: 'Edit objective' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateObjectiveInput)
     .output(objectiveWriteResultSchema),
-  deleteObjective: apiProcedure
+  delete: apiProcedure
     .route({
       summary: 'Delete objective',
       description:

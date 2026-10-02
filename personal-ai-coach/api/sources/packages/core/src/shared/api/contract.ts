@@ -26,7 +26,7 @@ export const apiContract = {
   actionLogs: actionLogsContract,
   notes: notesContract,
   sessions: sessionsContract,
-  recordQuery: recordQueryContract,
+  record: recordQueryContract,
 }
 
 export type ApiContract = typeof apiContract

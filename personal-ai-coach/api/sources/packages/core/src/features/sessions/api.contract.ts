@@ -10,7 +10,7 @@ import {
 import * as inputs from './contract.js'
 
 export const sessionsContract = {
-  loadBriefing: apiProcedure
+  start: apiProcedure
     .route({
       summary: 'Start or resume a coaching session and load its briefing',
       description:
@@ -19,17 +19,17 @@ export const sessionsContract = {
     .meta({ access: 'session-start', implementation: 'contract-only' })
     .input(inputs.loadBriefingInput)
     .output(loadBriefingResultSchema),
-  listSessions: apiProcedure
+  list: apiProcedure
     .route({ summary: 'List coaching sessions' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listSessionsInput)
     .output(pageSchema(sessionSchema)),
-  getSession: apiProcedure
+  get: apiProcedure
     .route({ summary: 'Read coaching session details' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getSessionInput)
     .output(sessionDetailSchema),
-  closeSession: apiProcedure
+  close: apiProcedure
     .route({
       summary: 'Close coaching session and save summary',
       description:

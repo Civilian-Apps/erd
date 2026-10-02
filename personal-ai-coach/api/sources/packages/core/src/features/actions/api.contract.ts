@@ -11,36 +11,36 @@ import {
 import * as inputs from './contract.js'
 
 export const actionsContract = {
-  createAction: apiProcedure
+  create: apiProcedure
     .route({ summary: 'Add action' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcCreateActionInput)
     .output(actionWriteResultSchema),
-  listActions: apiProcedure
+  list: apiProcedure
     .route({ summary: 'List actions' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listActionsInput)
     .output(pageSchema(actionSchema)),
-  getAction: apiProcedure
+  get: apiProcedure
     .route({ summary: 'Read action details' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getActionInput)
     .output(actionDetailSchema),
-  updateAction: apiProcedure
+  update: apiProcedure
     .route({
       summary: 'Edit action details',
       description:
-        'Patch action fields. Omit fields to preserve them; null may clear optional links and description, but cannot clear a set due date. Status changes belong to action-log creation; ordering belongs to reorderAction.',
+        'Patch action fields. Omit fields to preserve them; null may clear optional links and description, but cannot clear a set due date. Status changes belong to action-log creation; ordering belongs to actions.reorder.',
     })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateActionInput)
     .output(actionWriteResultSchema),
-  reorderAction: apiProcedure
+  reorder: apiProcedure
     .route({ summary: 'Reorder action' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.reorderActionInput)
     .output(actionWriteResultSchema),
-  deleteAction: apiProcedure
+  delete: apiProcedure
     .route({
       summary: 'Delete action',
       description:
@@ -52,7 +52,7 @@ export const actionsContract = {
 }
 
 export const actionLogsContract = {
-  createActionLog: apiProcedure
+  create: apiProcedure
     .route({
       summary: 'Add action log (status or comment)',
       description:
@@ -61,7 +61,7 @@ export const actionLogsContract = {
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcCreateActionLogInput)
     .output(actionWriteResultSchema),
-  listActionLogs: apiProcedure
+  list: apiProcedure
     .route({
       summary: 'List action logs',
       description: 'Read a bounded page of action logs for the selected action, newest first.',
@@ -69,7 +69,7 @@ export const actionLogsContract = {
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listActionLogsInput)
     .output(pageSchema(actionLogSchema)),
-  clearActionLogComment: apiProcedure
+  clearComment: apiProcedure
     .route({ summary: 'Clear comment from action log' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.clearActionLogCommentInput)

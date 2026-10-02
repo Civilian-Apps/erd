@@ -9,7 +9,7 @@ import {
 import * as inputs from './contract.js'
 
 export const userContract = {
-  getUser: apiProcedure
+  get: apiProcedure
     .route({
       summary: 'Read profile and subscription',
       description:
@@ -18,12 +18,12 @@ export const userContract = {
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getUserInput)
     .output(userProfileSchema),
-  updateUser: apiProcedure
+  update: apiProcedure
     .route({ summary: 'Edit profile' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateUserInput)
     .output(userWriteResultSchema),
-  deleteUser: apiProcedure
+  delete: apiProcedure
     .route({
       summary: 'Delete account',
       description:
@@ -44,7 +44,7 @@ export const billingContract = {
     .meta({ access: 'account-management', implementation: 'contract-only' })
     .input(inputs.createCheckoutSessionInput)
     .output(checkoutSessionResultSchema),
-  createBillingPortalSession: apiProcedure
+  createPortalSession: apiProcedure
     .route({
       summary: 'Manage subscription (open billing portal)',
       description:

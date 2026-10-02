@@ -4,7 +4,7 @@ import { recordQuerySchema } from '../../contracts/projections.js'
 import * as inputs from './contract.js'
 
 export const recordQueryContract = {
-  queryRecord: apiProcedure
+  query: apiProcedure
     .route({
       summary: 'Read coaching context and history',
       description:

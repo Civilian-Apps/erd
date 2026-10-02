@@ -12,27 +12,27 @@ import {
 import * as inputs from './contract.js'
 
 export const resultsContract = {
-  createResult: apiProcedure
+  create: apiProcedure
     .route({ summary: 'Add result' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcCreateResultInput)
     .output(resultWriteResultSchema),
-  listResults: apiProcedure
+  list: apiProcedure
     .route({ summary: 'List results' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listResultsInput)
     .output(pageSchema(resultSchema)),
-  getResult: apiProcedure
+  get: apiProcedure
     .route({ summary: 'Read result details' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getResultInput)
     .output(resultDetailSchema),
-  updateResult: apiProcedure
+  update: apiProcedure
     .route({ summary: 'Edit result' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateResultInput)
     .output(resultWriteResultSchema),
-  deleteResult: apiProcedure
+  delete: apiProcedure
     .route({
       summary: 'Delete result',
       description:
@@ -44,7 +44,7 @@ export const resultsContract = {
 }
 
 export const resultLogsContract = {
-  createResultLog: apiProcedure
+  create: apiProcedure
     .route({
       summary: 'Add result log (update or comment)',
       description:
@@ -53,7 +53,7 @@ export const resultLogsContract = {
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcCreateResultLogInput)
     .output(resultWriteResultSchema),
-  listResultLogs: apiProcedure
+  list: apiProcedure
     .route({
       summary: 'List result logs (Updates and Comments)',
       description: 'Read a bounded page of result logs for the selected result, newest first.',
@@ -61,12 +61,12 @@ export const resultLogsContract = {
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listResultLogsInput)
     .output(pageSchema(resultLogSchema)),
-  clearResultLogComment: apiProcedure
+  clearComment: apiProcedure
     .route({ summary: 'Clear comment from result log' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.clearResultLogCommentInput)
     .output(resultWriteResultSchema),
-  deleteResultLog: apiProcedure
+  delete: apiProcedure
     .route({ summary: 'Delete result log (update)' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.deleteResultLogInput)
@@ -74,7 +74,7 @@ export const resultLogsContract = {
 }
 
 export const habitLogsContract = {
-  setHabitLog: apiProcedure
+  set: apiProcedure
     .route({
       summary: 'Mark or unmark a habit day',
       description:
@@ -83,7 +83,7 @@ export const habitLogsContract = {
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.setHabitLogInput)
     .output(resultWriteResultSchema),
-  listHabitLogs: apiProcedure
+  list: apiProcedure
     .route({
       summary: 'List habit logs (marked days)',
       description:

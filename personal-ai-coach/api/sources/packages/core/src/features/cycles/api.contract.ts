@@ -11,7 +11,7 @@ import {
 import * as inputs from './inputs.js'
 
 export const cyclesContract = {
-  createCycle: apiProcedure
+  create: apiProcedure
     .route({
       summary: 'Start a cycle',
       description:
@@ -20,26 +20,26 @@ export const cyclesContract = {
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcCreateCycleInput)
     .output(cycleWriteResultSchema),
-  getActiveCycle: apiProcedure
+  resolveActive: apiProcedure
     .route({
-      summary: 'Read the active cycle',
+      summary: 'Resolve the active cycle and reconcile expiry',
       description:
-        'Resolve the active cycle with lazy expiry. This API read may archive an expired cycle; it differs from the MCP stored-active lookup.',
+        'Resolve the active cycle with lazy expiry. This operation may archive an expired cycle; it differs from the MCP stored-active lookup.',
     })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getActiveCycleInput)
     .output(cycleSchema.nullable()),
-  getCycle: apiProcedure
+  get: apiProcedure
     .route({ summary: 'Read cycle details' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getCycleInput)
     .output(cycleDetailSchema),
-  listCycles: apiProcedure
+  list: apiProcedure
     .route({ summary: 'List cycles' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listCyclesInput)
     .output(pageSchema(cycleSchema)),
-  updateCycle: apiProcedure
+  update: apiProcedure
     .route({
       summary: 'Edit cycle details or status',
       description:
@@ -48,7 +48,7 @@ export const cyclesContract = {
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateCycleInput)
     .output(cycleWriteResultSchema),
-  previewCycleDeletion: apiProcedure
+  previewDeletion: apiProcedure
     .route({
       summary: 'Preview cycle deletion impact',
       description:
@@ -57,7 +57,7 @@ export const cyclesContract = {
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.previewCycleDeletionInput)
     .output(cycleDeletionPreviewSchema),
-  deleteCycle: apiProcedure
+  delete: apiProcedure
     .route({
       summary: 'Delete cycle',
       description:

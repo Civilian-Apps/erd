@@ -9,27 +9,27 @@ import {
 import * as inputs from './contract.js'
 
 export const notesContract = {
-  addNote: apiProcedure
+  create: apiProcedure
     .route({ summary: 'New note' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcAddNoteInput)
     .output(noteWriteResultSchema),
-  updateNote: apiProcedure
+  update: apiProcedure
     .route({ summary: 'Edit note' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateNoteInput)
     .output(noteWriteResultSchema),
-  listNotes: apiProcedure
+  list: apiProcedure
     .route({ summary: 'List notes' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listNotesInput)
     .output(pageSchema(noteSchema)),
-  getNote: apiProcedure
+  get: apiProcedure
     .route({ summary: 'Read note' })
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.getNoteInput)
     .output(noteSchema),
-  deleteNote: apiProcedure
+  delete: apiProcedure
     .route({
       summary: 'Delete note',
       description:
