@@ -193,7 +193,7 @@ export const resultReadInput = z.discriminatedUnion('operation', [
 ])
 const resultListToolOutput = readerPageSchema(
   resultSchema,
-  'result_read',
+  'results_read',
   resultListToolInput.safeExtend(continuationPageFields),
 ).safeExtend({ operation: z.literal('list') })
 export const resultReadOutput = z.union([
@@ -201,7 +201,7 @@ export const resultReadOutput = z.union([
   z.strictObject({ operation: z.literal('get'), result: resultSchema }),
   readerPageSchema(
     resultLogSchema,
-    'result_read',
+    'results_read',
     resultHistoryToolInput.extend({
       ...continuationPageFields,
       kind: z.literal('result_logs'),
@@ -215,7 +215,7 @@ export const resultReadOutput = z.union([
   }),
   readerPageSchema(
     habitLogSchema,
-    'result_read',
+    'results_read',
     resultHistoryToolInput.extend({
       ...continuationPageFields,
       kind: z.literal('habit_logs'),
@@ -229,7 +229,7 @@ export const resultReadOutput = z.union([
   }),
   readerPageSchema(
     trendPointSchema,
-    'result_read',
+    'results_read',
     resultHistoryToolInput.extend({
       ...continuationPageFields,
       kind: z.literal('trend'),

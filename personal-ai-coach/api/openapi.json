@@ -2,7 +2,7 @@
   "info": {
     "title": "Personal AI Coach — API contract review",
     "version": "0.0.0",
-    "description": "Review the proposed API inputs, outputs and errors before service implementation.\n\n47 procedures are contract-only; 3 procedures are marked implemented.\n\nThis OpenAPI document projects the logical contracts into HTTP operations for review. The running application uses oRPC RPC; these are not published REST endpoints. Request execution is disabled.\n\nDisplayed JSON samples are generated from schemas; they are illustrations, not actual service responses or accepted business scenarios.\n\nResult logs, habit logs and action logs each have a dedicated API group and model. Their wire collections use result_logs, habit_logs and action_logs. User billing fields derive from subscription and connected derives from oauth_consent.\n\nRequired, optional and nullable fields are generated from the canonical schemas. Cross-field checks and rules requiring stored state remain runtime/service obligations; read operation notes and the feature acceptance criteria.\n\n## API and UI language\n\nWire names follow the current domain schema. Screen labels describe the same records from the user’s perspective; they do not introduce additional entities or enum values.\n\n| API concept | Prototype UI label |\n| --- | --- |\n| Result logs | Updates; non-empty log comments also appear under Comments |\n| Habit logs | Marked calendar days; Updates table with a Marked column |\n| Action logs | Comments shows only logs with comments; status history remains in the API |\n| Action status: open / in_progress / done | Open / In progress / Done; To do groups the first two |\n| Cycle start_at / end_at; objective deadline_at; action due_at | Starts / Ends; Deadline; Due |\n| Result metric_type; start_value / target_value; per | Type; Start / Target (Goal on chart); Times per Cadence |\n| Session vendor: openai / claude | ChatGPT / Claude |\n| Session briefing_notes / summary_notes / source_url | Briefing / Summary / Open the conversation |\n| Session ended_at | In progress when null; Closed when set |\n| Subscription past_due / incomplete | Payment failed / Awaiting payment |\n\n## Prototype differences to reconcile\n\nThe repository prototype is a design reference, not the authority for API field names. These differences remain visible for review:\n\n- **Profile name:** Settings still shows First name and Last name. The current schema and API use one chosen `name`; target signup copy is “What should we call you?”.\n\n- **Old entity wording:** prototype authoring notes and fixture comments still say ResultUpdate. The current entity is ResultLog; visible Updates remains valid UI copy.\n\n- **Payment failure:** prototype and UI specification promise coaching access until a date after payment failure. The current entitlement contract grants paid access only while active; reads remain available. Reconcile the copy before implementation.\n\n- **Objective deadline:** the UI date-picker rule forbids clearing an existing deadline, while the API currently accepts null to clear it. This is a behavioral decision, not a wording change.\n\n- **Billing details:** Settings shows Plan, Price and Payment method; the account response does not supply all of them. Identify their source before implementing that screen.\n\n- **Scheduled cancellation:** the prototype fixture uses cancel_scheduled as a display state. The API keeps subscription status and cancel-at-period-end separate; do not add a fifth status."
+    "description": "Review the proposed API inputs, outputs and errors before service implementation.\n\n48 procedures are contract-only; 3 procedures are marked implemented.\n\nThis OpenAPI document projects the logical contracts into HTTP operations for review. The running application uses oRPC RPC; these are not published REST endpoints. Request execution is disabled.\n\nDisplayed JSON samples are generated from schemas; they are illustrations, not actual service responses or accepted business scenarios.\n\nResult logs, habit logs and action logs each have a dedicated API group and model. Their wire collections use result_logs, habit_logs and action_logs. User billing fields derive from subscription and connected derives from oauth_consent.\n\nRequired, optional and nullable fields are generated from the canonical schemas. Cross-field checks and rules requiring stored state remain runtime/service obligations; read operation notes and the feature acceptance criteria.\n\n## API and UI language\n\nWire names follow the current domain schema. Screen labels describe the same records from the user’s perspective; they do not introduce additional entities or enum values.\n\n| API concept | Prototype UI label |\n| --- | --- |\n| Result logs | Updates; non-empty log comments also appear under Comments |\n| Habit logs | Marked calendar days; Updates table with a Marked column |\n| Action logs | Comments shows only logs with comments; status history remains in the API |\n| Action status: open / in_progress / done | Open / In progress / Done; To do groups the first two |\n| Cycle start_at / end_at; objective deadline_at; action due_at | Starts / Ends; Deadline; Due |\n| Result metric_type; start_value / target_value; per | Type; Start / Target (Goal on chart); Times per Cadence |\n| Session vendor: openai / claude | ChatGPT / Claude |\n| Session briefing_notes / summary_notes / source_url | Briefing / Summary / Open the conversation |\n| Session ended_at | In progress when null; Closed when set |\n| Subscription past_due / incomplete | Payment failed / Awaiting payment |\n| Subscription active with cancel_at_period_end | Cancels <date> with Access until; Cancellation scheduled when no period end is known |\n| User name | Name; signup asks “What should we call you?” |\n| Billing details plan / payment_method (null) | Plan and Price / Payment method (No subscription / No payment method) |\n\n## Prototype alignment\n\nReconciled on 2 Oct 2026 (CB-049 Reconcile API and prototype language differences); the prototype was revised in its design source and these now agree:\n\n- **Profile name:** Settings has one Name field and signup asks “What should we call you?”, matching the single chosen `name`.\n\n- **Entity wording:** prototype authoring notes and fixture identifiers say ResultLog and HabitLog; visible Updates and Marked remain UI copy.\n\n- **Payment failure:** paid access is active-only; past-due, canceled and incomplete keep reads and block coaching writes and session starts, with no grace-period promise.\n\n- **Objective deadline:** an update accepts an omitted field or a date; null is rejected on API and MCP alike. Creation without a deadline stays valid and the returned value stays nullable.\n\n- **Billing details:** Settings reads Plan, Price and Payment method from `billing.get_billing_details`, which loads independently and fails with a retryable error without blocking local status.\n\n- **Scheduled cancellation:** the prototype derives it from active status, cancel-at-period-end and the period end; there is no fifth status.\n\n**Open:** `user.update` is declared `entitled-write`, while the revised prototype keeps Name, Time zone and About me editable for a lapsed plan. Awaiting a decision on which side changes."
   },
   "servers": [
     {
@@ -6512,6 +6512,827 @@
         "x-access-policy": "account-management"
       }
     },
+    "/billing/get_billing_details": {
+      "post": {
+        "operationId": "billing.get_billing_details",
+        "summary": "Read billing details (Settings)",
+        "description": "**Contract only — service pending**\n\n**Access:** authenticated session; policy `account-management`. Identity is resolved server-side.\n\nWeb-only read of the selected subscription plan, price and effective payment method for Settings. The account and customer resolve server-side. This is the only read that may contact the billing provider; user.get and coaching reads never do. No subscription returns null plan and payment method without a provider call. A transient provider failure returns SERVICE_UNAVAILABLE with error_code billing_details_unavailable; unsupported or unresolvable billing data also fails explicitly and is never reported as no subscription. Display only: it never grants entitlement, and a portal return re-reads it. Not an MCP tool.",
+        "tags": [
+          "Billing"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plan": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "UI label: Plan. Provider-backed name of the selected plan."
+                            },
+                            "amount_minor": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991,
+                              "description": "UI label: Price. Recurring plan amount in the currency minor unit; not an invoice total or a tax/credit promise."
+                            },
+                            "currency": {
+                              "type": "string",
+                              "pattern": "^[A-Z]{3}$",
+                              "description": "Three-letter currency code, upper case."
+                            },
+                            "interval": {
+                              "const": "month",
+                              "description": "One monthly plan only."
+                            },
+                            "interval_count": {
+                              "const": 1
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "amount_minor",
+                            "currency",
+                            "interval",
+                            "interval_count"
+                          ],
+                          "additionalProperties": false,
+                          "description": "The selected subscription plan, read from the billing provider."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Null when the account has no subscription (shown as No subscription)."
+                    },
+                    "payment_method": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "display": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "UI label: Payment method. Display text only, for example Visa ending in 4242; never a full number, token or provider object."
+                            }
+                          },
+                          "required": [
+                            "display"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Null when no payment method applies (shown as No payment method); never a provider failure."
+                    },
+                    "retrieved_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When these display details were fetched; not a subscription event ordering token."
+                    }
+                  },
+                  "required": [
+                    "plan",
+                    "payment_method",
+                    "retrieved_at"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Settings billing details. Display only: never grants or denies entitlement and is never persisted."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": true
+                        },
+                        "code": {
+                          "const": "BAD_REQUEST"
+                        },
+                        "status": {
+                          "const": 400
+                        },
+                        "message": {
+                          "type": "string",
+                          "default": "Bad Request"
+                        },
+                        "data": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "error_code": {
+                                  "type": "string"
+                                },
+                                "constraint": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "table": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "message": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "error_code"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "issues": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "message": {
+                                        "type": "string"
+                                      },
+                                      "path": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "anyOf": [
+                                                {
+                                                  "type": "string"
+                                                },
+                                                {
+                                                  "type": "number"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "key": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "string"
+                                                    },
+                                                    {
+                                                      "type": "number"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "required": [
+                                                "key"
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "message"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "issues"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": false
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": true
+                        },
+                        "code": {
+                          "const": "UNAUTHORIZED"
+                        },
+                        "status": {
+                          "const": 401
+                        },
+                        "message": {
+                          "type": "string",
+                          "default": "Unauthorized"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": false
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": true
+                        },
+                        "code": {
+                          "const": "FORBIDDEN"
+                        },
+                        "status": {
+                          "const": 403
+                        },
+                        "message": {
+                          "type": "string",
+                          "default": "Forbidden"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "error_code": {
+                              "type": "string"
+                            },
+                            "constraint": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "table": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "error_code"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": false
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": true
+                        },
+                        "code": {
+                          "const": "NOT_FOUND"
+                        },
+                        "status": {
+                          "const": 404
+                        },
+                        "message": {
+                          "type": "string",
+                          "default": "Not Found"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "error_code": {
+                              "type": "string"
+                            },
+                            "constraint": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "table": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "error_code"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": false
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "409",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": true
+                        },
+                        "code": {
+                          "const": "CONFLICT"
+                        },
+                        "status": {
+                          "const": 409
+                        },
+                        "message": {
+                          "type": "string",
+                          "default": "Conflict"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "error_code": {
+                              "type": "string"
+                            },
+                            "constraint": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "table": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "error_code"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": false
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "429",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": true
+                        },
+                        "code": {
+                          "const": "TOO_MANY_REQUESTS"
+                        },
+                        "status": {
+                          "const": 429
+                        },
+                        "message": {
+                          "type": "string",
+                          "default": "Too Many Requests"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": false
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "501",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": true
+                        },
+                        "code": {
+                          "const": "NOT_IMPLEMENTED"
+                        },
+                        "status": {
+                          "const": 501
+                        },
+                        "message": {
+                          "type": "string",
+                          "default": "Not Implemented"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "error_code": {
+                              "const": "NOT_IMPLEMENTED"
+                            }
+                          },
+                          "required": [
+                            "error_code"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message",
+                        "data"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": false
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "503",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": true
+                        },
+                        "code": {
+                          "const": "SERVICE_UNAVAILABLE"
+                        },
+                        "status": {
+                          "const": 503
+                        },
+                        "message": {
+                          "type": "string",
+                          "default": "Service Unavailable"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "error_code": {
+                              "const": "billing_details_unavailable"
+                            },
+                            "message": {
+                              "type": "string",
+                              "description": "Sanitized text: Billing details are temporarily unavailable."
+                            },
+                            "retryable": {
+                              "const": true
+                            }
+                          },
+                          "required": [
+                            "error_code",
+                            "message",
+                            "retryable"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message",
+                        "data"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "defined": {
+                          "const": false
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {}
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-implementation": "contract-only",
+        "x-access-policy": "account-management"
+      }
+    },
     "/cycles/create": {
       "post": {
         "operationId": "cycles.create",
@@ -11787,7 +12608,7 @@
                         "type": "null"
                       }
                     ],
-                    "description": "UI label: Deadline. Optional when creating; on update, omission preserves and null clears."
+                    "description": "UI label: Deadline. Optional; omitted or null creates the objective with no deadline."
                   },
                   "idempotency_key": {
                     "type": "string",
@@ -14096,17 +14917,9 @@
                     "type": "string"
                   },
                   "deadline_at": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "format": "date",
-                        "description": "Calendar date as YYYY-MM-DD in the profile timezone."
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ],
-                    "description": "UI label: Deadline. Optional when creating; on update, omission preserves and null clears."
+                    "type": "string",
+                    "format": "date",
+                    "description": "UI label: Deadline. Omit to preserve; a date sets or replaces it. A deadline cannot be cleared, so null is rejected."
                   },
                   "status": {
                     "enum": [

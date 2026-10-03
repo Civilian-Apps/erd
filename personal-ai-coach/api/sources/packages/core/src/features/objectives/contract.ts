@@ -15,9 +15,7 @@ export const createObjectiveInput = z
     deadline_at: dateSchema
       .nullable()
       .optional()
-      .describe(
-        'UI label: Deadline. Optional when creating; on update, omission preserves and null clears.',
-      ),
+      .describe('UI label: Deadline. Optional; omitted or null creates the objective with no deadline.'),
   })
   .strict()
 export const orpcCreateObjectiveInput = createObjectiveInput.extend({
@@ -27,10 +25,9 @@ export const updateObjectiveInput = idInputSchema.extend({
   title: z.string().optional(),
   description: z.string().optional(),
   deadline_at: dateSchema
-    .nullable()
     .optional()
     .describe(
-      'UI label: Deadline. Optional when creating; on update, omission preserves and null clears.',
+      'UI label: Deadline. Omit to preserve; a date sets or replaces it. A deadline cannot be cleared, so null is rejected.',
     ),
   status: objectiveStatusSchema.optional(),
 })
@@ -67,7 +64,7 @@ export const objectiveReadInput = z.discriminatedUnion('operation', [
 ])
 const objectiveListToolOutput = readerPageSchema(
   objectiveSchema,
-  'objective_read',
+  'objectives_read',
   objectiveListToolInput.extend({ ...continuationPageFields, cycle_id: idSchema }),
 ).safeExtend({ operation: z.literal('list') })
 export const objectiveReadOutput = z.union([

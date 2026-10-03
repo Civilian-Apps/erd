@@ -54,7 +54,7 @@ export const sessionSummarySchema = sessionSchema.omit({
 })
 const sessionListToolOutput = readerPageSchema(
   sessionSummarySchema,
-  'session_read',
+  'sessions_read',
   sessionListToolInput.extend({
     ...continuationPageFields,
     window: resolvedReadWindowSchema.optional(),

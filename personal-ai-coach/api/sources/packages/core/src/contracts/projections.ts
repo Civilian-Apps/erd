@@ -53,7 +53,7 @@ export const cycleListSchema = pageSchema(cycleSchema)
 export const cyclePageToolSchema = cycleListSchema.extend({
   continuation: z
     .strictObject({
-      tool: z.literal('cycle_read'),
+      tool: z.literal('cycles_read'),
       arguments: z.strictObject({
         operation: z.literal('list'),
         cursor: z.string().min(1),

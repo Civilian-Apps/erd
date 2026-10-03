@@ -1,4 +1,9 @@
-import { billingPortalSessionResultSchema, checkoutSessionResultSchema } from './record-contract.js'
+import {
+  billingDetailsSchema,
+  billingDetailsUnavailableData,
+  billingPortalSessionResultSchema,
+  checkoutSessionResultSchema,
+} from './record-contract.js'
 /** identity-billing API: native oRPC declarations, no execution imports. */
 import { apiProcedure } from '../../shared/api/contract-base.js'
 import {
@@ -53,4 +58,16 @@ export const billingContract = {
     .meta({ access: 'account-management', implementation: 'contract-only' })
     .input(inputs.createBillingPortalSessionInput)
     .output(billingPortalSessionResultSchema),
+  get_billing_details: apiProcedure
+    .route({
+      summary: 'Read billing details (Settings)',
+      description:
+        'Web-only read of the selected subscription plan, price and effective payment method for Settings. The account and customer resolve server-side. This is the only read that may contact the billing provider; user.get and coaching reads never do. No subscription returns null plan and payment method without a provider call. A transient provider failure returns SERVICE_UNAVAILABLE with error_code billing_details_unavailable; unsupported or unresolvable billing data also fails explicitly and is never reported as no subscription. Display only: it never grants entitlement, and a portal return re-reads it. Not an MCP tool.',
+    })
+    .meta({ access: 'account-management', implementation: 'contract-only' })
+    .errors({
+      SERVICE_UNAVAILABLE: { status: 503, data: billingDetailsUnavailableData },
+    })
+    .input(inputs.getBillingDetailsInput)
+    .output(billingDetailsSchema),
 }

@@ -35,6 +35,8 @@ export const updateUserInput = z
 export const deleteUserInput = z.object({ password: z.string().min(1) }).strict()
 export const createCheckoutSessionInput = emptyInputSchema
 export const createBillingPortalSessionInput = emptyInputSchema
+// The account and customer resolve server-side; no user or customer ID is ever accepted.
+export const getBillingDetailsInput = emptyInputSchema
 
 import { profileSchema, changedSchema } from '../../contracts/projections.js'
 export const userReadOutput = z.strictObject({ profile: profileSchema })

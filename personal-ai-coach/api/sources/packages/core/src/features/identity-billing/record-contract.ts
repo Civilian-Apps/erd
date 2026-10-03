@@ -53,4 +53,54 @@ export const userProfileSchema = profileSchema
 export const profileFragmentSchema = profileSchema
 
 export const checkoutSessionResultSchema = z.strictObject({ url: z.url() })
+
+// Web-only Settings display read; the local subscription projection stays the sole access source.
+export const billingPlanSchema = z
+  .strictObject({
+    name: z.string().min(1).describe('UI label: Plan. Provider-backed name of the selected plan.'),
+    amount_minor: z
+      .number()
+      .int()
+      .nonnegative()
+      .describe(
+        'UI label: Price. Recurring plan amount in the currency minor unit; not an invoice total or a tax/credit promise.',
+      ),
+    currency: z
+      .string()
+      .regex(/^[A-Z]{3}$/)
+      .describe('Three-letter currency code, upper case.'),
+    interval: z.literal('month').describe('One monthly plan only.'),
+    interval_count: z.literal(1),
+  })
+  .describe('The selected subscription plan, read from the billing provider.')
+export const billingDetailsSchema = z
+  .strictObject({
+    plan: billingPlanSchema
+      .nullable()
+      .describe('Null when the account has no subscription (shown as No subscription).'),
+    payment_method: z
+      .strictObject({
+        display: z
+          .string()
+          .min(1)
+          .describe(
+            'UI label: Payment method. Display text only, for example Visa ending in 4242; never a full number, token or provider object.',
+          ),
+      })
+      .nullable()
+      .describe(
+        'Null when no payment method applies (shown as No payment method); never a provider failure.',
+      ),
+    retrieved_at: timestampSchema.describe(
+      'When these display details were fetched; not a subscription event ordering token.',
+    ),
+  })
+  .describe(
+    'Settings billing details. Display only: never grants or denies entitlement and is never persisted.',
+  )
+export const billingDetailsUnavailableData = z.strictObject({
+  error_code: z.literal('billing_details_unavailable'),
+  message: z.string().describe('Sanitized text: Billing details are temporarily unavailable.'),
+  retryable: z.literal(true),
+})
 export const billingPortalSessionResultSchema = checkoutSessionResultSchema
