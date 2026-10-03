@@ -69,7 +69,7 @@ export const actionLogsContract = {
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listActionLogsInput)
     .output(pageSchema(actionLogSchema)),
-  clearComment: apiProcedure
+  clear_comment: apiProcedure
     .route({ summary: 'Clear comment from action log' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.clearActionLogCommentInput)

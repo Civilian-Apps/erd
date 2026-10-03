@@ -61,7 +61,7 @@ export const resultLogsContract = {
     .meta({ access: 'retained-read', implementation: 'contract-only' })
     .input(inputs.listResultLogsInput)
     .output(pageSchema(resultLogSchema)),
-  clearComment: apiProcedure
+  clear_comment: apiProcedure
     .route({ summary: 'Clear comment from result log' })
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.clearResultLogCommentInput)

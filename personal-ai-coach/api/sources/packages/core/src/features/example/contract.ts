@@ -1,6 +1,6 @@
 // SCAFFOLD-DISPOSABLE — client-safe boundary; no schema/database imports in browser code.
 import { z } from 'zod'
-export const exampleRow = z.object({ id: z.uuid(), name: z.string(), createdAt: z.coerce.date() })
+export const exampleRow = z.object({ id: z.uuid(), name: z.string(), created_at: z.coerce.date() })
 export type ExampleRow = z.infer<typeof exampleRow>
 export const exampleListRow = exampleRow.extend({ stale: z.boolean() })
 export type ExampleListRow = z.infer<typeof exampleListRow>

@@ -20,7 +20,7 @@ export const cyclesContract = {
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.orpcCreateCycleInput)
     .output(cycleWriteResultSchema),
-  resolveActive: apiProcedure
+  resolve_active: apiProcedure
     .route({
       summary: 'Resolve the active cycle and reconcile expiry',
       description:
@@ -48,7 +48,7 @@ export const cyclesContract = {
     .meta({ access: 'entitled-write', implementation: 'contract-only' })
     .input(inputs.updateCycleInput)
     .output(cycleWriteResultSchema),
-  previewDeletion: apiProcedure
+  preview_deletion: apiProcedure
     .route({
       summary: 'Preview cycle deletion impact',
       description:

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-02T23:27:40.969Z",
+  "generated_at": "2026-10-03T00:01:34.735Z",
   "base_revision": "5ef0e866c17c65714bf9e739fdb0272a2b637e98",
   "includes_working_tree_edits": true,
-  "contract_sha256": "08c7aa3ad8a2827f50f68f01fb6ad065a1bcac35f6a2d0bf599e09334624a253",
-  "openapi_sha256": "3a112fa3541e78650eb76f7bb457daaf957cbc790aa45f166109b52b0a03eaff",
+  "contract_sha256": "61774d32ad9698383862d3a81746401caac51da7470373a3006a1a510d70e273",
+  "openapi_sha256": "3da6be667625bb14fdbb0ca49105874f3698a730a014ee68ab73251a1cebed56",
   "operations": 50,
   "files": [
     {
@@ -28,7 +28,7 @@
     },
     {
       "path": "packages/core/src/features/actions/api.contract.ts",
-      "sha256": "dc3beb08043570fa3b5da5f84cd92c4f6ee1ebbb545658c548ba98d3870c0e64"
+      "sha256": "8cc698d39d41f15108d10505175e5f2b68db5602ef799227f86b8494939660bf"
     },
     {
       "path": "packages/core/src/features/actions/contract.ts",
@@ -40,7 +40,7 @@
     },
     {
       "path": "packages/core/src/features/cycles/api.contract.ts",
-      "sha256": "0f61b8cd6e794c3fb00fcc030eb6814a20f61ff703782388ce390ab9af2660b8"
+      "sha256": "53bb7f21fdd77542b41e930aa1b3ba6f18568ed3473725026cbae74c32890149"
     },
     {
       "path": "packages/core/src/features/cycles/inputs.ts",
@@ -56,11 +56,11 @@
     },
     {
       "path": "packages/core/src/features/example/contract.ts",
-      "sha256": "9eebd48529233a66e04537a9d270b5ace3f0ea6985cdc634fae01789374f1ea7"
+      "sha256": "c18953234255226dac1e8aee2794fb35354312c3aacbe76c492c16e526c9705f"
     },
     {
       "path": "packages/core/src/features/identity-billing/api.contract.ts",
-      "sha256": "7e3afede55d73d5d481ff02024c659892133a30fb87e99055aaeb08dbda76d7f"
+      "sha256": "d170f77bb2599cd3bd181fe73d381a94589d5041688e95edcdb5a31d39c1bf81"
     },
     {
       "path": "packages/core/src/features/identity-billing/contract.ts",
@@ -104,7 +104,7 @@
     },
     {
       "path": "packages/core/src/features/results/api.contract.ts",
-      "sha256": "ff01636127de465aa89aca2144e5c9a8c3a5dc5d457bfaabbcc47df8e0934719"
+      "sha256": "98750ea856542cb74d69e4e6b2c786753884d23a52459dfb0d6a283104eaca12"
     },
     {
       "path": "packages/core/src/features/results/contract.ts",
@@ -132,7 +132,7 @@
     },
     {
       "path": "packages/core/src/shared/api/contract.ts",
-      "sha256": "df36e3a4f8cd255f45cef5d476edc50b0fcca7c5b3d1ff69ed1c11be66bf4698"
+      "sha256": "721164083862a87ecd53943a2d3cd859976c098119434f711c83777d4f096055"
     },
     {
       "path": "packages/core/src/shared/cursor.ts",

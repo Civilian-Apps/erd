@@ -531,7 +531,7 @@ export const actions = pgTable(
     tenantPolicy('actions'),
   ],
 ).enableRLS()
-export const resultLogs = pgTable(
+export const result_logs = pgTable(
   'result_logs',
   {
     id: productId(),
@@ -565,7 +565,7 @@ export const resultLogs = pgTable(
     tenantPolicy('result_logs'),
   ],
 ).enableRLS()
-export const actionLogs = pgTable(
+export const action_logs = pgTable(
   'action_logs',
   {
     id: productId(),
@@ -611,7 +611,7 @@ export const notes = pgTable(
     tenantPolicy('notes'),
   ],
 ).enableRLS()
-export const habitLogs = pgTable(
+export const habit_logs = pgTable(
   'habit_logs',
   {
     id: productId(),

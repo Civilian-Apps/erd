@@ -35,7 +35,7 @@ export const userContract = {
 }
 
 export const billingContract = {
-  createCheckoutSession: apiProcedure
+  create_checkout_session: apiProcedure
     .route({
       summary: 'Subscribe (open checkout)',
       description:
@@ -44,7 +44,7 @@ export const billingContract = {
     .meta({ access: 'account-management', implementation: 'contract-only' })
     .input(inputs.createCheckoutSessionInput)
     .output(checkoutSessionResultSchema),
-  createPortalSession: apiProcedure
+  create_portal_session: apiProcedure
     .route({
       summary: 'Manage subscription (open billing portal)',
       description:
