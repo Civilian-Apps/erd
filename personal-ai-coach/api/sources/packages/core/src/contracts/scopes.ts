@@ -2,7 +2,7 @@
 // the MCP route, the consent page and the tool registry all import. Client-safe
 // (no imports, no I/O): the consent page renders these labels in the browser.
 //
-//   coach:read  — read the coaching record: `cycles_read` and future entity readers.
+//   coach:read  — read the coaching record: `cycle_read` and future entity readers.
 //   coach:write — every write-capable tool, `loadBriefing` included (it opens a Session).
 //
 // Identity scopes (`openid profile email offline_access`) stay: the MCP route

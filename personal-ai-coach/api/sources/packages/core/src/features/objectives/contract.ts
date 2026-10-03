@@ -66,7 +66,7 @@ export const objectiveReadInput = z.discriminatedUnion('operation', [
 ])
 const objectiveListToolOutput = readerPageSchema(
   objectiveSchema,
-  'objectives_read',
+  'objective_read',
   objectiveListToolInput.extend({ ...continuationPageFields, cycle_id: idSchema }),
 ).safeExtend({ operation: z.literal('list') })
 export const objectiveReadOutput = z.union([

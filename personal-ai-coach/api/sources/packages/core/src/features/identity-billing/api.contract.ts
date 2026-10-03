@@ -24,8 +24,12 @@ export const userContract = {
     .input(inputs.getUserInput)
     .output(userProfileSchema),
   update: apiProcedure
-    .route({ summary: 'Edit profile' })
-    .meta({ access: 'entitled-write', implementation: 'contract-only' })
+    .route({
+      summary: 'Edit profile',
+      description:
+        'Edit the chosen name, About me and time zone. An account action, not a paid coaching write: it stays available on the web when the subscription is past due, canceled or incomplete. The chat tool user_update still requires an active subscription.',
+    })
+    .meta({ access: 'account-management', implementation: 'contract-only' })
     .input(inputs.updateUserInput)
     .output(userWriteResultSchema),
   delete: apiProcedure
@@ -42,9 +46,9 @@ export const userContract = {
 export const billingContract = {
   create_checkout_session: apiProcedure
     .route({
-      summary: 'Subscribe (open checkout)',
+      summary: 'Subscribe or resubscribe (open checkout)',
       description:
-        'Create a checkout session for subscription setup. A browser return from checkout does not establish entitlement; subscription state follows verified billing events.',
+        'Create a checkout session for a new subscription: the first one from Onboarding, or a replacement from the Settings action Resubscribe after a canceled plan. The billing portal cannot start a subscription. The existing billing customer is reused. Refused with CONFLICT when an active or past-due subscription exists; those are managed in the billing portal. A browser return from checkout does not establish entitlement; subscription state follows verified billing events.',
     })
     .meta({ access: 'account-management', implementation: 'contract-only' })
     .input(inputs.createCheckoutSessionInput)
@@ -53,12 +57,12 @@ export const billingContract = {
     .route({
       summary: 'Manage subscription (open billing portal)',
       description:
-        'Return a billing portal URL for the authenticated account; the client opens it for the Settings action Manage subscription. A billing portal session is separate from a coaching session.',
+        'Return a billing portal URL for the authenticated account; the client opens it for the Settings actions Manage subscription and Fix payment. It manages an existing subscription and cannot start a new one. A billing portal session is separate from a coaching session.',
     })
     .meta({ access: 'account-management', implementation: 'contract-only' })
     .input(inputs.createBillingPortalSessionInput)
     .output(billingPortalSessionResultSchema),
-  get_billing_details: apiProcedure
+  get_details: apiProcedure
     .route({
       summary: 'Read billing details (Settings)',
       description:

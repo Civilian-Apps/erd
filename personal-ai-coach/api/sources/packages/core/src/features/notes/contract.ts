@@ -34,7 +34,7 @@ export const noteReadInput = z.discriminatedUnion('operation', [
 ])
 const noteListToolOutput = readerPageSchema(
   noteSchema,
-  'notes_read',
+  'note_read',
   noteListToolInput.extend({
     ...continuationPageFields,
     window: resolvedReadWindowSchema.optional(),

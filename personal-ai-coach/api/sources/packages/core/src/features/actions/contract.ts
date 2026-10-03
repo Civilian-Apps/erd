@@ -118,7 +118,7 @@ export const actionReadInput = z.discriminatedUnion('operation', [
 ])
 const actionListToolOutput = readerPageSchema(
   actionSchema,
-  'actions_read',
+  'action_read',
   actionListToolInput.safeExtend({ ...continuationPageFields, cycle_id: idSchema }),
 ).safeExtend({ operation: z.literal('list') })
 export const actionReadOutput = z.union([
@@ -126,7 +126,7 @@ export const actionReadOutput = z.union([
   z.strictObject({ operation: z.literal('get'), action: actionSchema }),
   readerPageSchema(
     actionLogSchema,
-    'actions_read',
+    'action_read',
     actionHistoryToolInput.extend({ ...continuationPageFields, window: resolvedReadWindowSchema }),
   ).safeExtend({
     operation: z.literal('history'),
