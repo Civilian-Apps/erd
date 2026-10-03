@@ -1,23 +1,21 @@
+import * as inputs from './inputs.js'
+import { actionCreated, actionStatusChanged } from './events.js'
 import {
   actionDeletionPreviewSchema,
   actionHistorySchema,
   actionListServiceSchema,
 } from './outputs.js'
-/** Pure service declarations; implementations live in service.ts. */
+import { actionDetailSchema, actionWriteResultSchema } from '../../shared/projections.js'
 import { z } from 'zod'
-import { deleteResultSchema } from '../../contracts/outputs.js'
-import {
-  actionDetailSchema,
-  actionWriteResultSchema,
-  pageSchema,
-} from '../../contracts/projections.js'
-import { defineService } from '../../contracts/service-types.js'
-import * as inputs from './inputs.js'
-import { actionLogSchema } from './record-contract.js'
+import { deleteResultSchema, pageSchema } from '../../shared/schemas.js'
+import { defineService } from '../../shared/services/definition.js'
+import { actionLogSchema } from './records.js'
+
 export const createAction = defineService(
   z.union([inputs.orpcCreateActionInput, inputs.createActionInput]),
   actionWriteResultSchema,
   {
+    emits: [{ event: actionCreated, when: 'After durable creation; no replay duplicate.' }],
     access: 'entitled-write',
     effect: 'write',
     retry:
@@ -35,6 +33,7 @@ export const createAction = defineService(
     ],
   },
 )
+
 export const listActions = defineService(inputs.listActionsInput, actionListServiceSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -51,6 +50,7 @@ export const listActions = defineService(inputs.listActionsInput, actionListServ
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const getAction = defineService(inputs.getActionInput, actionDetailSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -67,6 +67,7 @@ export const getAction = defineService(inputs.getActionInput, actionDetailSchema
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const updateAction = defineService(inputs.updateActionInput, actionWriteResultSchema, {
   access: 'entitled-write',
   effect: 'write',
@@ -83,6 +84,7 @@ export const updateAction = defineService(inputs.updateActionInput, actionWriteR
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const reorderAction = defineService(inputs.reorderActionInput, actionWriteResultSchema, {
   access: 'entitled-write',
   effect: 'write',
@@ -99,6 +101,7 @@ export const reorderAction = defineService(inputs.reorderActionInput, actionWrit
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const deleteAction = defineService(inputs.deleteActionInput, deleteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
@@ -115,10 +118,17 @@ export const deleteAction = defineService(inputs.deleteActionInput, deleteResult
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const createActionLog = defineService(
   z.union([inputs.orpcCreateActionLogInput, inputs.createActionLogInput]),
   actionWriteResultSchema,
   {
+    emits: [
+      {
+        event: actionStatusChanged,
+        when: 'For each persisted log, including repeat status with comment; not receipt replay.',
+      },
+    ],
     access: 'entitled-write',
     effect: 'write',
     retry:
@@ -136,6 +146,7 @@ export const createActionLog = defineService(
     ],
   },
 )
+
 export const listActionLogs = defineService(
   inputs.listActionLogsInput,
   pageSchema(actionLogSchema),
@@ -156,6 +167,7 @@ export const listActionLogs = defineService(
     ],
   },
 )
+
 export const clearActionLogComment = defineService(
   inputs.clearActionLogCommentInput,
   actionWriteResultSchema,

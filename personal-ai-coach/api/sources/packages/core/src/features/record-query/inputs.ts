@@ -1,7 +1,9 @@
 /** Feature-owned input schemas shared by permitted transports. */
 import { z } from 'zod'
-import { cursorSchema, dateSchema, idSchema, timestampSchema } from '../../contracts/input.js'
+import { cursorSchema, dateSchema, idSchema, timestampSchema } from '../../shared/schemas.js'
+
 const boundSchema = z.union([dateSchema, timestampSchema])
+
 export const recordQueryFilters = z
   .object({
     cycle_id: idSchema.optional(),
@@ -16,12 +18,14 @@ export const recordQueryFilters = z
       .optional(),
   })
   .strict()
+
 export const recordQueryWindow = z
   .object({
     since: z.union([boundSchema, z.enum(['last_session', 'cycle_start'])]).optional(),
     until: boundSchema.optional(),
   })
   .strict()
+
 export const recordQueryContinuations = z
   .object({
     cycles: cursorSchema.optional(),
@@ -35,6 +39,7 @@ export const recordQueryContinuations = z
     action_logs: cursorSchema.optional(),
   })
   .strict()
+
 export const queryRecordInput = z
   .object({
     filters: recordQueryFilters.optional(),

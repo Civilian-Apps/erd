@@ -1,28 +1,29 @@
-import { idSchema } from '../../contracts/input.js'
-import { pageSchema } from '../../contracts/paging.js'
-/** Feature-owned response schemas; no execution imports. */
 import { z } from 'zod'
+import { objectiveSchema } from './records.js'
+import { idSchema, changedSchema, pageSchema } from '../../shared/schemas.js'
 import {
   continuationPageFields,
   deletionOutputSchema,
   readerPageSchema,
-} from '../../contracts/mcp.js'
-import { changedSchema } from '../../contracts/outputs.js'
+} from '../../shared/mcp/schemas.js'
 import { objectiveListToolInput } from './inputs.js'
-import { objectiveSchema } from './record-contract.js'
+
 export const objectiveListToolOutput = readerPageSchema(
   objectiveSchema,
   'objective_read',
   objectiveListToolInput.extend({ ...continuationPageFields, cycle_id: idSchema }),
 ).safeExtend({ operation: z.literal('list') })
+
 export const objectiveReadOutput = z.union([
   objectiveListToolOutput,
   z.strictObject({ operation: z.literal('get'), objective: objectiveSchema }),
 ])
+
 export const objectiveMutationOutput = z.strictObject({
   objective: objectiveSchema,
   changed: changedSchema,
 })
+
 export const objectiveDeleteToolOutput = deletionOutputSchema(
   objectiveSchema.pick({ id: true, title: true }),
   {

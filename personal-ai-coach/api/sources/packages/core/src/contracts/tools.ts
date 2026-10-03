@@ -1,21 +1,40 @@
 /** Single authored inventory: collection metadata and explicit membership together.
  * Domain modules own public definitions; handlers and publication live outside contracts.
  */
-import type { ToolCollection, ToolDefinition, PromptDefinition } from './mcp.js'
+import type { ToolCollection, ToolDefinition, PromptDefinition } from '../shared/mcp/types.js'
 import {
   cycleReadTool,
   cycleUpdateTool,
   cycleLifecycleTool,
   cycleDeleteTool,
-} from './tools/cycles.js'
-import { objectiveReadTool, objectiveWriteTool, objectiveDeleteTool } from './tools/objectives.js'
-import { resultReadTool, resultWriteTool, resultDeleteTool } from './tools/results.js'
-import { actionReadTool, actionWriteTool, actionDeleteTool } from './tools/actions.js'
-import { noteReadTool, noteWriteTool, noteDeleteTool } from './tools/notes.js'
-import { userReadTool, userUpdateTool } from './tools/users.js'
-import { sessionReadTool, sessionStartTool, sessionCloseTool } from './tools/sessions.js'
-import { progressRecordTool } from './tools/progress.js'
-import { listExamplesDefinition, createExampleDefinition } from './tools/example.js'
+} from '../features/cycles/mcp.contract.js'
+import {
+  objectiveReadTool,
+  objectiveWriteTool,
+  objectiveDeleteTool,
+} from '../features/objectives/mcp.contract.js'
+import {
+  resultReadTool,
+  resultWriteTool,
+  resultDeleteTool,
+} from '../features/results/mcp.contract.js'
+import {
+  actionReadTool,
+  actionWriteTool,
+  actionDeleteTool,
+} from '../features/actions/mcp.contract.js'
+import { noteReadTool, noteWriteTool, noteDeleteTool } from '../features/notes/mcp.contract.js'
+import { userReadTool, userUpdateTool } from '../features/identity-billing/mcp.contract.js'
+import {
+  sessionReadTool,
+  sessionStartTool,
+  sessionCloseTool,
+} from '../features/sessions/mcp.contract.js'
+import { progressRecordTool } from '../shared/mcp/progress.contract.js'
+import {
+  listExamplesDefinition,
+  createExampleDefinition,
+} from '../features/example/mcp.contract.js'
 
 export const collections = {
   cycles: {
@@ -79,7 +98,7 @@ export const allTools: readonly ToolDefinition[] = Object.values(
   collections,
 ).flatMap<ToolDefinition>((group) => group.tools)
 
-export const promptContracts: readonly PromptDefinition[] = [
+export const promptContracts = [
   {
     name: 'coaching_session',
     title: 'Coaching session',
@@ -87,4 +106,21 @@ export const promptContracts: readonly PromptDefinition[] = [
       'Open a flexible coaching session: adapt to goal setup, check-in, review or open coaching within one session.',
     requiredTools: ['session_start', 'session_close'],
   },
-]
+] as const satisfies readonly (Omit<PromptDefinition, 'requiredTools'> & {
+  requiredTools: readonly ToolName[]
+})[]
+
+/** Tool names derive from the authored collection inventory. */
+export type ToolName = (typeof collections)[keyof typeof collections]['tools'][number]['name']
+
+/** Exact grouped operations for consumer references; single-purpose/scaffold tools use call. */
+type RegisteredTool = (typeof collections)[keyof typeof collections]['tools'][number]
+type Operations<T> = T extends { serviceBinding: { operations: infer O } }
+  ? keyof O & string
+  : 'call'
+export type ToolOperationReference = {
+  [Name in ToolName]: {
+    readonly tool: Name
+    readonly operations: readonly Operations<Extract<RegisteredTool, { name: Name }>>[]
+  }
+}[ToolName]

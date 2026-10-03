@@ -1,30 +1,31 @@
 /** Feature-owned input schemas shared by permitted transports. */
 import { z } from 'zod'
+import { cadenceSchema, metricTypeSchema, resultStatusSchema } from './records.js'
 import {
-  cadenceSchema,
   dateSchema,
   idInputSchema,
   idSchema,
   idempotencyKeySchema,
-  metricTypeSchema,
   pageInputSchema,
-  resultStatusSchema,
-} from '../../contracts/input.js'
+} from '../../shared/schemas.js'
 import {
   deletionInputSchema,
   readWindowSchema,
   resolvedReadWindowSchema,
-} from '../../contracts/mcp.js'
+} from '../../shared/mcp/schemas.js'
+
 const base = {
   objective_id: idSchema,
   title: z.string(),
   description: z.string().nullable().optional(),
 }
+
 const numeric = {
   start_value: z.number().finite().optional(),
   target_value: z.number().finite(),
   unit: z.string().nullable().optional(),
 }
+
 export const createResultArms = [
   z.object({ ...base, metric_type: z.literal('number'), ...numeric }).strict(),
   z
@@ -54,7 +55,9 @@ export const createResultArms = [
     })
     .strict(),
 ] as const
+
 export const createResultInput = z.discriminatedUnion('metric_type', createResultArms)
+
 export const orpcCreateResultInput = z.discriminatedUnion('metric_type', [
   createResultArms[0].extend({ idempotency_key: idempotencyKeySchema }),
   createResultArms[1].extend({ idempotency_key: idempotencyKeySchema }),
@@ -62,6 +65,7 @@ export const orpcCreateResultInput = z.discriminatedUnion('metric_type', [
   createResultArms[3].extend({ idempotency_key: idempotencyKeySchema }),
   createResultArms[4].extend({ idempotency_key: idempotencyKeySchema }),
 ])
+
 export const updateResultInput = idInputSchema.extend({
   title: z.string().optional(),
   description: z.string().nullable().optional(),
@@ -75,13 +79,17 @@ export const updateResultInput = idInputSchema.extend({
   since: dateSchema.optional(),
   status: resultStatusSchema.optional(),
 })
+
 export const getResultInput = idInputSchema
+
 export const previewResultDeletionInput = idInputSchema
+
 export const deleteResultInput = idInputSchema.extend({
   preview_id: idSchema.describe(
     'Server impact preview ID; trusted application approval must already exist.',
   ),
 })
+
 export const createResultLogInput = z
   .object({
     result_id: idSchema,
@@ -92,12 +100,17 @@ export const createResultLogInput = z
   .refine((value) => value.value !== undefined || value.comment !== undefined, {
     message: 'A value or comment is required.',
   })
+
 export const orpcCreateResultLogInput = createResultLogInput.safeExtend({
   idempotency_key: idempotencyKeySchema,
 })
+
 export const listResultLogsInput = pageInputSchema.extend({ result_id: idSchema })
+
 export const clearResultLogCommentInput = idInputSchema
+
 export const deleteResultLogInput = idInputSchema
+
 export const setHabitLogInput = z
   .object({
     comment: z
@@ -115,6 +128,7 @@ export const setHabitLogInput = z
       ),
   })
   .strict()
+
 export const listHabitLogsInput = z
   .object({
     ...pageInputSchema.shape,
@@ -127,6 +141,7 @@ export const listHabitLogsInput = z
     message: 'To must not precede from.',
     path: ['to'],
   })
+
 export const resultWriteInput = z.discriminatedUnion('operation', [
   z.discriminatedUnion('metric_type', [
     createResultArms[0].extend({ operation: z.literal('create'), title: z.string().trim().min(1) }),
@@ -140,6 +155,7 @@ export const resultWriteInput = z.discriminatedUnion('operation', [
     title: z.string().trim().min(1).optional(),
   }),
 ])
+
 export const recordResultProgressInput = z.union([
   createResultLogInput.safeExtend({ target: z.literal('result') }),
   setHabitLogInput.extend({
@@ -147,6 +163,7 @@ export const recordResultProgressInput = z.union([
     comment: z.string().trim().min(1).optional(),
   }),
 ])
+
 export const listResultsInput = pageInputSchema
   .extend({ objective_id: idSchema.optional() })
   .extend({
@@ -178,8 +195,11 @@ export const listResultsInput = pageInputSchema
         : value.window === undefined,
     'Only silent/unmarked attention requires a resolved window.',
   )
+
 export const resultListToolInput = listResultsInput.safeExtend({ operation: z.literal('list') })
+
 export const resultGetToolInput = getResultInput.extend({ operation: z.literal('get') })
+
 export const resultHistoryToolInput = listResultLogsInput.extend({
   operation: z.literal('history'),
   kind: z
@@ -187,11 +207,13 @@ export const resultHistoryToolInput = listResultLogsInput.extend({
     .describe('Evidence stream to page; get returns current figures regardless of this window.'),
   window: readWindowSchema.optional(),
 })
+
 export const resultReadInput = z.discriminatedUnion('operation', [
   resultListToolInput,
   resultGetToolInput,
   resultHistoryToolInput,
 ])
+
 export const resultDeleteToolInput = deletionInputSchema
 
 export const resultHistoryInput = resultHistoryToolInput.omit({ operation: true })

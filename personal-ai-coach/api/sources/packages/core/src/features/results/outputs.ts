@@ -1,27 +1,26 @@
-import { resultIdentitySchema } from './record-contract.js'
-import { pageSchema } from '../../contracts/paging.js'
-/** Feature-owned response schemas; no execution imports. */
 import { z } from 'zod'
-import { idSchema } from '../../contracts/input.js'
-import {
-  continuationPageFields,
-  deletionOutputSchema,
-  readerPageSchema,
-  resolvedReadWindowSchema,
-} from '../../contracts/mcp.js'
-import { changedSchema } from '../../contracts/outputs.js'
-import { resultHistoryToolInput, resultListToolInput } from './inputs.js'
 import {
   habitLogSchema,
   resultLogSchema,
   resultSchema,
   trendPointSchema,
-} from './record-contract.js'
+  resultIdentitySchema,
+} from './records.js'
+import { idSchema, changedSchema, pageSchema } from '../../shared/schemas.js'
+import {
+  continuationPageFields,
+  deletionOutputSchema,
+  readerPageSchema,
+  resolvedReadWindowSchema,
+} from '../../shared/mcp/schemas.js'
+import { resultHistoryToolInput, resultListToolInput } from './inputs.js'
+
 export const resultListToolOutput = readerPageSchema(
   resultSchema,
   'result_read',
   resultListToolInput.safeExtend(continuationPageFields),
 ).safeExtend({ operation: z.literal('list') })
+
 export const resultReadOutput = z.union([
   resultListToolOutput,
   z.strictObject({ operation: z.literal('get'), result: resultSchema }),
@@ -68,7 +67,9 @@ export const resultReadOutput = z.union([
     window: resolvedReadWindowSchema,
   }),
 ])
+
 export const resultMutationOutput = z.strictObject({ result: resultSchema, changed: changedSchema })
+
 export const resultDeleteToolOutput = deletionOutputSchema(resultIdentitySchema, {
   results: z.literal(1),
   result_logs: z.number().int().nonnegative(),

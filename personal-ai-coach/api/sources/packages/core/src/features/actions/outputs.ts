@@ -1,21 +1,20 @@
-import { idSchema } from '../../contracts/input.js'
-import { resolvedReadWindowSchema } from '../../contracts/mcp.js'
-import { pageSchema } from '../../contracts/paging.js'
-/** Feature-owned response schemas; no execution imports. */
 import { z } from 'zod'
+import { actionLogSchema, actionSchema } from './records.js'
+import { idSchema, changedSchema, pageSchema } from '../../shared/schemas.js'
 import {
+  resolvedReadWindowSchema,
   continuationPageFields,
   deletionOutputSchema,
   readerPageSchema,
-} from '../../contracts/mcp.js'
-import { changedSchema } from '../../contracts/outputs.js'
+} from '../../shared/mcp/schemas.js'
 import { actionHistoryToolInput, actionListToolInput } from './inputs.js'
-import { actionLogSchema, actionSchema } from './record-contract.js'
+
 export const actionListToolOutput = readerPageSchema(
   actionSchema,
   'action_read',
   actionListToolInput.safeExtend({ ...continuationPageFields, cycle_id: idSchema }),
 ).safeExtend({ operation: z.literal('list') })
+
 export const actionReadOutput = z.union([
   actionListToolOutput,
   z.strictObject({ operation: z.literal('get'), action: actionSchema }),
@@ -29,7 +28,9 @@ export const actionReadOutput = z.union([
     window: resolvedReadWindowSchema,
   }),
 ])
+
 export const actionMutationOutput = z.strictObject({ action: actionSchema, changed: changedSchema })
+
 export const actionDeleteToolOutput = deletionOutputSchema(
   actionSchema.pick({ id: true, title: true }),
   { actions: z.literal(1), action_logs: z.number().int().nonnegative() },

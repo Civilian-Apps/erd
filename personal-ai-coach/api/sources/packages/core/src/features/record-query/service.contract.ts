@@ -1,7 +1,8 @@
 /** Pure service declarations; implementations live in service.ts. */
-import { recordQuerySchema } from '../../contracts/projections.js'
-import { defineService } from '../../contracts/service-types.js'
 import * as inputs from './inputs.js'
+import { recordQuerySchema } from '../../shared/projections.js'
+import { defineService } from '../../shared/services/definition.js'
+
 export const queryRecord = defineService(inputs.queryRecordInput, recordQuerySchema, {
   access: 'retained-read',
   effect: 'read',

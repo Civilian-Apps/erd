@@ -1,14 +1,16 @@
-import { objectiveDeletionPreviewSchema, objectiveListServiceSchema } from './outputs.js'
-/** Pure service declarations; implementations live in service.ts. */
-import { z } from 'zod'
-import { deleteResultSchema } from '../../contracts/outputs.js'
-import { objectiveDetailSchema, objectiveWriteResultSchema } from '../../contracts/projections.js'
-import { defineService } from '../../contracts/service-types.js'
 import * as inputs from './inputs.js'
+import { objectiveCreated } from './events.js'
+import { objectiveDeletionPreviewSchema, objectiveListServiceSchema } from './outputs.js'
+import { objectiveDetailSchema, objectiveWriteResultSchema } from '../../shared/projections.js'
+import { z } from 'zod'
+import { deleteResultSchema } from '../../shared/schemas.js'
+import { defineService } from '../../shared/services/definition.js'
+
 export const createObjective = defineService(
   z.union([inputs.orpcCreateObjectiveInput, inputs.createObjectiveInput]),
   objectiveWriteResultSchema,
   {
+    emits: [{ event: objectiveCreated, when: 'After durable creation; no replay duplicate.' }],
     access: 'entitled-write',
     effect: 'write',
     retry:
@@ -26,6 +28,7 @@ export const createObjective = defineService(
     ],
   },
 )
+
 export const listObjectives = defineService(
   inputs.listObjectivesInput,
   objectiveListServiceSchema,
@@ -46,6 +49,7 @@ export const listObjectives = defineService(
     ],
   },
 )
+
 export const getObjective = defineService(inputs.getObjectiveInput, objectiveDetailSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -62,6 +66,7 @@ export const getObjective = defineService(inputs.getObjectiveInput, objectiveDet
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const updateObjective = defineService(
   inputs.updateObjectiveInput,
   objectiveWriteResultSchema,
@@ -82,6 +87,7 @@ export const updateObjective = defineService(
     ],
   },
 )
+
 export const deleteObjective = defineService(inputs.deleteObjectiveInput, deleteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',

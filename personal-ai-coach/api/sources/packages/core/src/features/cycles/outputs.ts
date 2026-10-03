@@ -1,8 +1,12 @@
 import { z } from 'zod'
-import { idSchema, timestampSchema } from '../../contracts/input.js'
-import { changedSchema, deleteResultSchema } from '../../contracts/outputs.js'
-import { pageSchema } from '../../contracts/paging.js'
-import { cycleSchema } from './record-contract.js'
+import { cycleSchema } from './records.js'
+import {
+  idSchema,
+  timestampSchema,
+  changedSchema,
+  deleteResultSchema,
+  pageSchema,
+} from '../../shared/schemas.js'
 
 export const cycleLineSchema = z
   .strictObject({ range: z.string(), time_gone_pct: z.number().min(0).max(100) })

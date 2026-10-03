@@ -18,3 +18,8 @@ export const deleteExampleInput = z.object({ id: z.uuid() })
 export type DeleteExampleInput = z.infer<typeof deleteExampleInput>
 export const deleteExampleResult = z.object({ id: z.uuid() })
 export type DeleteExampleResult = z.infer<typeof deleteExampleResult>
+
+/** JSON payload shared by the scaffold tool and its widget declaration. */
+export const exampleWidgetPayloadSchema = z.object({
+  examples: exampleListRow.extend({ created_at: z.iso.datetime() }).array(),
+})

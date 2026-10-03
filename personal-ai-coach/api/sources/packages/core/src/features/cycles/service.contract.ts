@@ -1,14 +1,19 @@
-/** Pure service declarations; implementations live in service.ts. */
-import {
-  cycleDetailSchema,
-  cycleWriteResultSchema,
-  pageSchema,
-} from '../../contracts/projections.js'
-import { defineService } from '../../contracts/service-types.js'
 import * as inputs from './inputs.js'
+import { cycleArchived, cycleCreated } from './events.js'
 import { cycleDeletionPreviewSchema, deleteCycleResultSchema } from './outputs.js'
-import { cycleSchema } from './record-contract.js'
+import { cycleDetailSchema, cycleWriteResultSchema } from '../../shared/projections.js'
+import { pageSchema } from '../../shared/schemas.js'
+import { defineService } from '../../shared/services/definition.js'
+import { cycleSchema } from './records.js'
+
 export const createCycle = defineService(inputs.createCycleInput, cycleWriteResultSchema, {
+  emits: [
+    { event: cycleCreated, when: 'After durable creation; no replay duplicate.' },
+    {
+      event: cycleArchived,
+      when: 'When creation replaces an incumbent active cycle; reason replaced.',
+    },
+  ],
   access: 'entitled-write',
   effect: 'write',
   retry:
@@ -25,7 +30,14 @@ export const createCycle = defineService(inputs.createCycleInput, cycleWriteResu
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const getActiveCycle = defineService(inputs.getActiveCycleInput, cycleSchema.nullable(), {
+  emits: [
+    {
+      event: cycleArchived,
+      when: 'When lazy expiry actually archives the active cycle; reason expired.',
+    },
+  ],
   access: 'retained-read',
   effect: 'write',
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
@@ -41,6 +53,7 @@ export const getActiveCycle = defineService(inputs.getActiveCycleInput, cycleSch
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const getStoredActiveCycle = defineService(
   inputs.getActiveCycleInput,
   cycleSchema.nullable(),
@@ -61,6 +74,7 @@ export const getStoredActiveCycle = defineService(
     ],
   },
 )
+
 export const previewCycleDeletion = defineService(
   inputs.previewCycleDeletionInput,
   cycleDeletionPreviewSchema,
@@ -81,6 +95,7 @@ export const previewCycleDeletion = defineService(
     ],
   },
 )
+
 export const getCycle = defineService(inputs.getCycleInput, cycleDetailSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -97,6 +112,7 @@ export const getCycle = defineService(inputs.getCycleInput, cycleDetailSchema, {
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const listCycles = defineService(inputs.listCyclesInput, pageSchema(cycleSchema), {
   access: 'retained-read',
   effect: 'read',
@@ -113,7 +129,14 @@ export const listCycles = defineService(inputs.listCyclesInput, pageSchema(cycle
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const updateCycle = defineService(inputs.updateCycleInput, cycleWriteResultSchema, {
+  emits: [
+    {
+      event: cycleArchived,
+      when: 'When status changes to archived (manual), or activation replaces the incumbent (replaced); never for date/field edits or no-op status.',
+    },
+  ],
   access: 'entitled-write',
   effect: 'write',
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
@@ -129,6 +152,7 @@ export const updateCycle = defineService(inputs.updateCycleInput, cycleWriteResu
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const deleteCycle = defineService(inputs.deleteCycleInput, deleteCycleResultSchema, {
   access: 'entitled-write',
   effect: 'delete',

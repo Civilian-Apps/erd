@@ -1,10 +1,21 @@
-import { sessionListServiceSchema, storedSessionSchema } from './outputs.js'
-/** Pure service declarations; implementations live in service.ts. */
-import { loadBriefingResultSchema, sessionDetailSchema } from '../../contracts/projections.js'
-import { defineService } from '../../contracts/service-types.js'
 import * as inputs from './inputs.js'
-import { closeSessionResultSchema } from './outputs.js'
+import { sessionStarted, sessionSummaryWritten } from './events.js'
+import {
+  sessionListServiceSchema,
+  storedSessionSchema,
+  loadBriefingResultSchema,
+  closeSessionResultSchema,
+} from './outputs.js'
+import { sessionDetailSchema } from '../../shared/projections.js'
+import { defineService } from '../../shared/services/definition.js'
+
 export const loadBriefing = defineService(inputs.loadBriefingInput, loadBriefingResultSchema, {
+  emits: [
+    {
+      event: sessionStarted,
+      when: 'Only when a new session is persisted; not existing-session reuse.',
+    },
+  ],
   access: 'session-start',
   trustedContext: 'session-origin',
   effect: 'write',
@@ -21,6 +32,7 @@ export const loadBriefing = defineService(inputs.loadBriefingInput, loadBriefing
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const listSessions = defineService(inputs.listSessionsInput, sessionListServiceSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -37,6 +49,7 @@ export const listSessions = defineService(inputs.listSessionsInput, sessionListS
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const getSession = defineService(inputs.getSessionInput, sessionDetailSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -53,7 +66,14 @@ export const getSession = defineService(inputs.getSessionInput, sessionDetailSch
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const closeSession = defineService(inputs.closeSessionInput, closeSessionResultSchema, {
+  emits: [
+    {
+      event: sessionSummaryWritten,
+      when: 'On the first successful close with summary; not replay or forced stale close.',
+    },
+  ],
   access: 'entitled-write',
   effect: 'write',
   retry: 'Return the originally saved closure on retry; never overwrite its summary.',

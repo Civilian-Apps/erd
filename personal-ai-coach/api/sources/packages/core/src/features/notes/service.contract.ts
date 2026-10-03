@@ -1,15 +1,25 @@
-import { noteDeletionPreviewSchema, noteListServiceSchema } from './outputs.js'
-/** Pure service declarations; implementations live in service.ts. */
-import { z } from 'zod'
-import { deleteResultSchema } from '../../contracts/outputs.js'
-import { defineService } from '../../contracts/service-types.js'
 import * as inputs from './inputs.js'
-import { noteWriteResultSchema } from './outputs.js'
-import { noteSchema } from './record-contract.js'
+import { noteCreated } from './events.js'
+import {
+  noteDeletionPreviewSchema,
+  noteListServiceSchema,
+  noteWriteResultSchema,
+} from './outputs.js'
+import { z } from 'zod'
+import { deleteResultSchema } from '../../shared/schemas.js'
+import { defineService } from '../../shared/services/definition.js'
+import { noteSchema } from './records.js'
+
 export const addNote = defineService(
   z.union([inputs.orpcAddNoteInput, inputs.addNoteInput]),
   noteWriteResultSchema,
   {
+    emits: [
+      {
+        event: noteCreated,
+        when: 'After durable creation; not autosave updates or receipt replay.',
+      },
+    ],
     access: 'entitled-write',
     effect: 'write',
     retry:
@@ -27,6 +37,7 @@ export const addNote = defineService(
     ],
   },
 )
+
 export const updateNote = defineService(inputs.updateNoteInput, noteWriteResultSchema, {
   access: 'entitled-write',
   effect: 'write',
@@ -43,6 +54,7 @@ export const updateNote = defineService(inputs.updateNoteInput, noteWriteResultS
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const listNotes = defineService(inputs.listNotesInput, noteListServiceSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -59,6 +71,7 @@ export const listNotes = defineService(inputs.listNotesInput, noteListServiceSch
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const getNote = defineService(inputs.getNoteInput, noteSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -75,6 +88,7 @@ export const getNote = defineService(inputs.getNoteInput, noteSchema, {
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const deleteNote = defineService(inputs.deleteNoteInput, deleteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',

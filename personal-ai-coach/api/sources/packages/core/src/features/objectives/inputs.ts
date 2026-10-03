@@ -5,10 +5,11 @@ import {
   idInputSchema,
   idSchema,
   idempotencyKeySchema,
-  objectiveStatusSchema,
   pageInputSchema,
-} from '../../contracts/input.js'
-import { deletionInputSchema } from '../../contracts/mcp.js'
+} from '../../shared/schemas.js'
+import { objectiveStatusSchema } from './records.js'
+import { deletionInputSchema } from '../../shared/mcp/schemas.js'
+
 export const createObjectiveInput = z
   .object({
     title: z.string(),
@@ -21,9 +22,11 @@ export const createObjectiveInput = z
       ),
   })
   .strict()
+
 export const orpcCreateObjectiveInput = createObjectiveInput.extend({
   idempotency_key: idempotencyKeySchema,
 })
+
 export const updateObjectiveInput = idInputSchema.extend({
   title: z.string().optional(),
   description: z.string().optional(),
@@ -34,14 +37,19 @@ export const updateObjectiveInput = idInputSchema.extend({
     ),
   status: objectiveStatusSchema.optional(),
 })
+
 export const previewObjectiveDeletionInput = idInputSchema
+
 export const deleteObjectiveInput = idInputSchema.extend({
   preview_id: idSchema.describe(
     'Server impact preview ID; trusted application approval must already exist.',
   ),
 })
+
 export const getObjectiveInput = idInputSchema
+
 export const listObjectivesInput = pageInputSchema.extend({ cycle_id: idSchema.optional() })
+
 export const objectiveWriteInput = z.discriminatedUnion('operation', [
   createObjectiveInput.extend({
     operation: z.literal('create'),
@@ -53,10 +61,14 @@ export const objectiveWriteInput = z.discriminatedUnion('operation', [
     title: z.string().trim().min(1).optional(),
   }),
 ])
+
 export const objectiveListToolInput = listObjectivesInput.extend({ operation: z.literal('list') })
+
 export const objectiveGetToolInput = getObjectiveInput.extend({ operation: z.literal('get') })
+
 export const objectiveReadInput = z.discriminatedUnion('operation', [
   objectiveListToolInput,
   objectiveGetToolInput,
 ])
+
 export const objectiveDeleteToolInput = deletionInputSchema

@@ -1,15 +1,12 @@
-import { resultDeletionPreviewSchema, resultHistorySchema } from './outputs.js'
-/** Pure service declarations; implementations live in service.ts. */
-import { z } from 'zod'
-import { deleteResultSchema } from '../../contracts/outputs.js'
-import {
-  pageSchema,
-  resultDetailSchema,
-  resultWriteResultSchema,
-} from '../../contracts/projections.js'
-import { defineService } from '../../contracts/service-types.js'
 import * as inputs from './inputs.js'
-import { habitLogSchema, resultLogSchema, resultSchema } from './record-contract.js'
+import { resultUpdateRecorded } from './events.js'
+import { resultDeletionPreviewSchema, resultHistorySchema } from './outputs.js'
+import { resultDetailSchema, resultWriteResultSchema } from '../../shared/projections.js'
+import { z } from 'zod'
+import { deleteResultSchema, pageSchema } from '../../shared/schemas.js'
+import { defineService } from '../../shared/services/definition.js'
+import { habitLogSchema, resultLogSchema, resultSchema } from './records.js'
+
 export const createResult = defineService(
   z.union([inputs.orpcCreateResultInput, inputs.createResultInput]),
   resultWriteResultSchema,
@@ -31,6 +28,7 @@ export const createResult = defineService(
     ],
   },
 )
+
 export const listResults = defineService(inputs.listResultsInput, pageSchema(resultSchema), {
   access: 'retained-read',
   effect: 'read',
@@ -47,6 +45,7 @@ export const listResults = defineService(inputs.listResultsInput, pageSchema(res
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const getResult = defineService(inputs.getResultInput, resultDetailSchema, {
   access: 'retained-read',
   effect: 'read',
@@ -63,6 +62,7 @@ export const getResult = defineService(inputs.getResultInput, resultDetailSchema
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const updateResult = defineService(inputs.updateResultInput, resultWriteResultSchema, {
   access: 'entitled-write',
   effect: 'write',
@@ -79,6 +79,7 @@ export const updateResult = defineService(inputs.updateResultInput, resultWriteR
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const deleteResult = defineService(inputs.deleteResultInput, deleteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
@@ -95,10 +96,17 @@ export const deleteResult = defineService(inputs.deleteResultInput, deleteResult
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const createResultLog = defineService(
   z.union([inputs.orpcCreateResultLogInput, inputs.createResultLogInput]),
   resultWriteResultSchema,
   {
+    emits: [
+      {
+        event: resultUpdateRecorded,
+        when: 'When numeric/performance evidence or a milestone flip is saved; not comment-only rows.',
+      },
+    ],
     access: 'entitled-write',
     effect: 'write',
     retry:
@@ -116,6 +124,7 @@ export const createResultLog = defineService(
     ],
   },
 )
+
 export const listResultLogs = defineService(
   inputs.listResultLogsInput,
   pageSchema(resultLogSchema),
@@ -136,6 +145,7 @@ export const listResultLogs = defineService(
     ],
   },
 )
+
 export const clearResultLogComment = defineService(
   inputs.clearResultLogCommentInput,
   resultWriteResultSchema,
@@ -156,6 +166,7 @@ export const clearResultLogComment = defineService(
     ],
   },
 )
+
 export const deleteResultLog = defineService(inputs.deleteResultLogInput, resultWriteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
@@ -172,7 +183,14 @@ export const deleteResultLog = defineService(inputs.deleteResultLogInput, result
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const setHabitLog = defineService(inputs.setHabitLogInput, resultWriteResultSchema, {
+  emits: [
+    {
+      event: resultUpdateRecorded,
+      when: 'When a habit mark/unmark changes recorded progress; not comment-only changes or replay.',
+    },
+  ],
   access: 'entitled-write',
   effect: 'write',
   retry:
@@ -189,6 +207,7 @@ export const setHabitLog = defineService(inputs.setHabitLogInput, resultWriteRes
     'INTERNAL_SERVER_ERROR',
   ],
 })
+
 export const listHabitLogs = defineService(inputs.listHabitLogsInput, pageSchema(habitLogSchema), {
   access: 'retained-read',
   effect: 'read',

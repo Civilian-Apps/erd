@@ -1,14 +1,15 @@
 /** Feature-owned input schemas shared by permitted transports. */
 import { z } from 'zod'
+import { actionStatusSchema } from './records.js'
 import {
-  actionStatusSchema,
   dateSchema,
   idInputSchema,
   idSchema,
   idempotencyKeySchema,
   pageInputSchema,
-} from '../../contracts/input.js'
-import { deletionInputSchema, readWindowSchema } from '../../contracts/mcp.js'
+} from '../../shared/schemas.js'
+import { deletionInputSchema, readWindowSchema } from '../../shared/mcp/schemas.js'
+
 export const createActionInput = z
   .object({
     title: z.string(),
@@ -17,9 +18,11 @@ export const createActionInput = z
     description: z.string().nullable().optional(),
   })
   .strict()
+
 export const orpcCreateActionInput = createActionInput.extend({
   idempotency_key: idempotencyKeySchema,
 })
+
 export const updateActionInput = idInputSchema.extend({
   title: z.string().optional(),
   description: z.string().nullable().optional(),
@@ -31,20 +34,26 @@ export const updateActionInput = idInputSchema.extend({
   objective_id: idSchema.nullable().optional(),
   session_id: idSchema.nullable().optional(),
 })
+
 export const reorderActionInput = idInputSchema.extend({ sort_order: z.number().finite() })
+
 export const previewActionDeletionInput = idInputSchema
+
 export const deleteActionInput = idInputSchema.extend({
   preview_id: idSchema.describe(
     'Server impact preview ID; trusted application approval must already exist.',
   ),
 })
+
 export const getActionInput = idInputSchema
+
 const actionListFields = pageInputSchema.extend({
   cycle_id: idSchema.optional(),
   objective_id: idSchema.nullable().optional(),
   status: actionStatusSchema.optional(),
   due_before: dateSchema.optional(),
 })
+
 export const createActionLogInput = z
   .object({
     action_id: idSchema,
@@ -52,11 +61,15 @@ export const createActionLogInput = z
     comment: z.string().trim().min(1).optional(),
   })
   .strict()
+
 export const orpcCreateActionLogInput = createActionLogInput.extend({
   idempotency_key: idempotencyKeySchema,
 })
+
 export const listActionLogsInput = pageInputSchema.extend({ action_id: idSchema })
+
 export const clearActionLogCommentInput = idInputSchema
+
 export const actionWriteInput = z.discriminatedUnion('operation', [
   createActionInput.extend({
     operation: z.literal('create'),
@@ -71,9 +84,11 @@ export const actionWriteInput = z.discriminatedUnion('operation', [
       .describe('New due date. Omit to preserve; a previously set date cannot be cleared.'),
   }),
 ])
+
 export const recordActionProgressInput = createActionLogInput.extend({
   target: z.literal('action'),
 })
+
 export const listActionsInput = actionListFields
   .extend({
     outstanding: z
@@ -100,17 +115,22 @@ export const listActionsInput = actionListFields
     (value) => !(value.outstanding || value.overdue) || value.status !== 'done',
     'Outstanding and overdue filters exclude done actions.',
   )
+
 export const actionListToolInput = listActionsInput.safeExtend({ operation: z.literal('list') })
+
 export const actionGetToolInput = getActionInput.extend({ operation: z.literal('get') })
+
 export const actionHistoryToolInput = listActionLogsInput.extend({
   operation: z.literal('history'),
   window: readWindowSchema.optional(),
 })
+
 export const actionReadInput = z.discriminatedUnion('operation', [
   actionListToolInput,
   actionGetToolInput,
   actionHistoryToolInput,
 ])
+
 export const actionDeleteToolInput = deletionInputSchema
 
 export const actionHistoryInput = actionHistoryToolInput.omit({ operation: true })
