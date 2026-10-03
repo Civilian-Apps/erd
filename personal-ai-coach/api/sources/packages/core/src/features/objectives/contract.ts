@@ -15,7 +15,9 @@ export const createObjectiveInput = z
     deadline_at: dateSchema
       .nullable()
       .optional()
-      .describe('UI label: Deadline. Optional; omitted or null creates the objective with no deadline.'),
+      .describe(
+        'UI label: Deadline. Optional; omitted or null creates the objective with no deadline.',
+      ),
   })
   .strict()
 export const orpcCreateObjectiveInput = createObjectiveInput.extend({

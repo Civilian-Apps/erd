@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-10-03T00:40:56.772Z",
+  "generated_at": "2026-10-03T00:42:37.733Z",
   "base_revision": "5ef0e866c17c65714bf9e739fdb0272a2b637e98",
   "includes_working_tree_edits": true,
-  "contract_sha256": "3ee304814d413b314af551e1847d7e6fe666ff830db537ad0e00198bcf1767aa",
+  "contract_sha256": "8febdb896b9f944f6a43851750e6fb1b1f7ba1bffa4fb7f9588beb4431e50a4a",
   "openapi_sha256": "74fdc83058e3c3c3d66f7babb01b1070d28bb837595b21f780adcca072ce6cb9",
   "operations": 51,
   "files": [
@@ -88,7 +88,7 @@
     },
     {
       "path": "packages/core/src/features/objectives/contract.ts",
-      "sha256": "a8293e81adc28955ef3e71d44d0e730602976edae2826a2584552b4c44ec30ad"
+      "sha256": "8effdf4f73f74d0fea2757454584ce19404e2bc368873a28cedc1f23c7267475"
     },
     {
       "path": "packages/core/src/features/objectives/record-contract.ts",
