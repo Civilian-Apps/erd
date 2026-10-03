@@ -1,13 +1,14 @@
-/** Normative inputs: docs/ONTOLOGY.md and this feature's spec Interfaces. Client-safe. */
+/** Feature-owned input schemas shared by permitted transports. */
 import { z } from 'zod'
 import {
+  actionStatusSchema,
   dateSchema,
   idInputSchema,
   idSchema,
   idempotencyKeySchema,
   pageInputSchema,
-  actionStatusSchema,
 } from '../../contracts/input.js'
+import { deletionInputSchema, readWindowSchema } from '../../contracts/mcp.js'
 export const createActionInput = z
   .object({
     title: z.string(),
@@ -31,9 +32,14 @@ export const updateActionInput = idInputSchema.extend({
   session_id: idSchema.nullable().optional(),
 })
 export const reorderActionInput = idInputSchema.extend({ sort_order: z.number().finite() })
-export const deleteActionInput = idInputSchema
+export const previewActionDeletionInput = idInputSchema
+export const deleteActionInput = idInputSchema.extend({
+  preview_id: idSchema.describe(
+    'Server impact preview ID; trusted application approval must already exist.',
+  ),
+})
 export const getActionInput = idInputSchema
-export const listActionsInput = pageInputSchema.extend({
+const actionListFields = pageInputSchema.extend({
   cycle_id: idSchema.optional(),
   objective_id: idSchema.nullable().optional(),
   status: actionStatusSchema.optional(),
@@ -68,20 +74,8 @@ export const actionWriteInput = z.discriminatedUnion('operation', [
 export const recordActionProgressInput = createActionLogInput.extend({
   target: z.literal('action'),
 })
-
-// MCP transport contracts: reuse domain fields; keep handlers outside declarations.
-import {
-  readerPageSchema,
-  continuationPageFields,
-  readWindowSchema,
-  resolvedReadWindowSchema,
-  deletionInputSchema,
-  deletionOutputSchema,
-} from '../../contracts/mcp.js'
-import { actionSchema, actionLogSchema, changedSchema } from '../../contracts/projections.js'
-export const actionListToolInput = listActionsInput
+export const listActionsInput = actionListFields
   .extend({
-    operation: z.literal('list'),
     outstanding: z
       .literal(true)
       .optional()
@@ -106,6 +100,7 @@ export const actionListToolInput = listActionsInput
     (value) => !(value.outstanding || value.overdue) || value.status !== 'done',
     'Outstanding and overdue filters exclude done actions.',
   )
+export const actionListToolInput = listActionsInput.safeExtend({ operation: z.literal('list') })
 export const actionGetToolInput = getActionInput.extend({ operation: z.literal('get') })
 export const actionHistoryToolInput = listActionLogsInput.extend({
   operation: z.literal('history'),
@@ -116,27 +111,6 @@ export const actionReadInput = z.discriminatedUnion('operation', [
   actionGetToolInput,
   actionHistoryToolInput,
 ])
-const actionListToolOutput = readerPageSchema(
-  actionSchema,
-  'action_read',
-  actionListToolInput.safeExtend({ ...continuationPageFields, cycle_id: idSchema }),
-).safeExtend({ operation: z.literal('list') })
-export const actionReadOutput = z.union([
-  actionListToolOutput,
-  z.strictObject({ operation: z.literal('get'), action: actionSchema }),
-  readerPageSchema(
-    actionLogSchema,
-    'action_read',
-    actionHistoryToolInput.extend({ ...continuationPageFields, window: resolvedReadWindowSchema }),
-  ).safeExtend({
-    operation: z.literal('history'),
-    action_id: idSchema,
-    window: resolvedReadWindowSchema,
-  }),
-])
-export const actionMutationOutput = z.strictObject({ action: actionSchema, changed: changedSchema })
 export const actionDeleteToolInput = deletionInputSchema
-export const actionDeleteToolOutput = deletionOutputSchema(
-  actionSchema.pick({ id: true, title: true }),
-  { actions: z.literal(1), action_logs: z.number().int().nonnegative() },
-)
+
+export const actionHistoryInput = actionHistoryToolInput.omit({ operation: true })

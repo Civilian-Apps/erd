@@ -1,3 +1,4 @@
+import type { ServiceDefinition } from './service-types.js'
 /** Declarative MCP types and shared wire shapes. No handlers, services or SDK registration. */
 import { z, type ZodType } from 'zod'
 import type { ProductScope } from './scopes.js'
@@ -6,6 +7,13 @@ import { dateSchema, timestampSchema, idSchema, pageInputSchema } from './input.
 import { pageSchema } from './paging.js'
 
 export interface ToolDefinition {
+  /** Internal contract traceability; never publish this metadata to the model. */
+  readonly serviceBinding?: {
+    readonly status: 'planned' | 'bound'
+    readonly projection: string
+    readonly operations: Readonly<Record<string, readonly ServiceDefinition[]>>
+    readonly gap?: string
+  }
   readonly collection: string
   readonly name: string
   readonly title?: string

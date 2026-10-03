@@ -1,15 +1,20 @@
-/** Normative inputs: docs/ONTOLOGY.md and this feature's spec Interfaces. Client-safe. */
+/** Feature-owned input schemas shared by permitted transports. */
 import { z } from 'zod'
 import {
+  cadenceSchema,
   dateSchema,
   idInputSchema,
   idSchema,
   idempotencyKeySchema,
-  pageInputSchema,
   metricTypeSchema,
+  pageInputSchema,
   resultStatusSchema,
-  cadenceSchema,
 } from '../../contracts/input.js'
+import {
+  deletionInputSchema,
+  readWindowSchema,
+  resolvedReadWindowSchema,
+} from '../../contracts/mcp.js'
 const base = {
   objective_id: idSchema,
   title: z.string(),
@@ -57,8 +62,6 @@ export const orpcCreateResultInput = z.discriminatedUnion('metric_type', [
   createResultArms[3].extend({ idempotency_key: idempotencyKeySchema }),
   createResultArms[4].extend({ idempotency_key: idempotencyKeySchema }),
 ])
-// The service merges a patch with the owned stored row and validates the final type matrix;
-// callers need not repeat metric_type merely to edit a title or move an objective.
 export const updateResultInput = idInputSchema.extend({
   title: z.string().optional(),
   description: z.string().nullable().optional(),
@@ -73,8 +76,12 @@ export const updateResultInput = idInputSchema.extend({
   status: resultStatusSchema.optional(),
 })
 export const getResultInput = idInputSchema
-export const deleteResultInput = idInputSchema
-export const listResultsInput = pageInputSchema.extend({ objective_id: idSchema })
+export const previewResultDeletionInput = idInputSchema
+export const deleteResultInput = idInputSchema.extend({
+  preview_id: idSchema.describe(
+    'Server impact preview ID; trusted application approval must already exist.',
+  ),
+})
 export const createResultLogInput = z
   .object({
     result_id: idSchema,
@@ -93,6 +100,12 @@ export const clearResultLogCommentInput = idInputSchema
 export const deleteResultLogInput = idInputSchema
 export const setHabitLogInput = z
   .object({
+    comment: z
+      .string()
+      .trim()
+      .min(1)
+      .optional()
+      .describe('Optional evidence comment saved atomically with the requested habit day state.'),
     result_id: idSchema,
     day: dateSchema,
     marked: z
@@ -103,7 +116,12 @@ export const setHabitLogInput = z
   })
   .strict()
 export const listHabitLogsInput = z
-  .object({ result_id: idSchema, from: dateSchema.optional(), to: dateSchema.optional() })
+  .object({
+    ...pageInputSchema.shape,
+    result_id: idSchema,
+    from: dateSchema.optional(),
+    to: dateSchema.optional(),
+  })
   .strict()
   .refine((value) => !value.from || !value.to || value.from <= value.to, {
     message: 'To must not precede from.',
@@ -129,27 +147,9 @@ export const recordResultProgressInput = z.union([
     comment: z.string().trim().min(1).optional(),
   }),
 ])
-
-// MCP transport contracts: reuse domain fields; keep handlers outside declarations.
-import {
-  readerPageSchema,
-  continuationPageFields,
-  readWindowSchema,
-  resolvedReadWindowSchema,
-  deletionInputSchema,
-  deletionOutputSchema,
-} from '../../contracts/mcp.js'
-import {
-  resultSchema,
-  resultLogSchema,
-  habitLogSchema,
-  changedSchema,
-} from '../../contracts/projections.js'
-import { trendPointSchema } from './record-contract.js'
-export const resultListToolInput = listResultsInput
-  .partial({ objective_id: true })
+export const listResultsInput = pageInputSchema
+  .extend({ objective_id: idSchema.optional() })
   .extend({
-    operation: z.literal('list'),
     cycle_id: idSchema
       .optional()
       .describe(
@@ -178,6 +178,7 @@ export const resultListToolInput = listResultsInput
         : value.window === undefined,
     'Only silent/unmarked attention requires a resolved window.',
   )
+export const resultListToolInput = listResultsInput.safeExtend({ operation: z.literal('list') })
 export const resultGetToolInput = getResultInput.extend({ operation: z.literal('get') })
 export const resultHistoryToolInput = listResultLogsInput.extend({
   operation: z.literal('history'),
@@ -191,64 +192,6 @@ export const resultReadInput = z.discriminatedUnion('operation', [
   resultGetToolInput,
   resultHistoryToolInput,
 ])
-const resultListToolOutput = readerPageSchema(
-  resultSchema,
-  'result_read',
-  resultListToolInput.safeExtend(continuationPageFields),
-).safeExtend({ operation: z.literal('list') })
-export const resultReadOutput = z.union([
-  resultListToolOutput,
-  z.strictObject({ operation: z.literal('get'), result: resultSchema }),
-  readerPageSchema(
-    resultLogSchema,
-    'result_read',
-    resultHistoryToolInput.extend({
-      ...continuationPageFields,
-      kind: z.literal('result_logs'),
-      window: resolvedReadWindowSchema,
-    }),
-  ).safeExtend({
-    operation: z.literal('history'),
-    kind: z.literal('result_logs'),
-    result_id: idSchema,
-    window: resolvedReadWindowSchema,
-  }),
-  readerPageSchema(
-    habitLogSchema,
-    'result_read',
-    resultHistoryToolInput.extend({
-      ...continuationPageFields,
-      kind: z.literal('habit_logs'),
-      window: resolvedReadWindowSchema,
-    }),
-  ).safeExtend({
-    operation: z.literal('history'),
-    kind: z.literal('habit_logs'),
-    result_id: idSchema,
-    window: resolvedReadWindowSchema,
-  }),
-  readerPageSchema(
-    trendPointSchema,
-    'result_read',
-    resultHistoryToolInput.extend({
-      ...continuationPageFields,
-      kind: z.literal('trend'),
-      window: resolvedReadWindowSchema,
-    }),
-  ).safeExtend({
-    operation: z.literal('history'),
-    kind: z.literal('trend'),
-    result_id: idSchema,
-    window: resolvedReadWindowSchema,
-  }),
-])
-export const resultMutationOutput = z.strictObject({ result: resultSchema, changed: changedSchema })
 export const resultDeleteToolInput = deletionInputSchema
-export const resultDeleteToolOutput = deletionOutputSchema(
-  resultSchema.pick({ id: true, title: true }),
-  {
-    results: z.literal(1),
-    result_logs: z.number().int().nonnegative(),
-    habit_logs: z.number().int().nonnegative(),
-  },
-)
+
+export const resultHistoryInput = resultHistoryToolInput.omit({ operation: true })

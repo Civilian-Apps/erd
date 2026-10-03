@@ -1,8 +1,10 @@
+import type { ServiceDefinition } from '../../contracts/service-types.js'
 /** Client-safe oRPC contract vocabulary. Metadata declares policy; services enforce it. */
 import { oc } from '@orpc/contract'
 import { z } from 'zod'
 
 export interface ApiMeta {
+  service?: ServiceDefinition
   access: 'retained-read' | 'entitled-write' | 'account-management' | 'session-start'
   implementation: 'contract-only' | 'implemented'
 }
@@ -10,6 +12,7 @@ export interface ApiMeta {
 // Existing service error data, distinct from oRPC's input-validation issue payload.
 export const domainErrorData = z.object({
   error_code: z.string(),
+  outcome: z.enum(['not_applied', 'unknown']).optional(),
   constraint: z.string().nullable().optional(),
   table: z.string().nullable().optional(),
   message: z.string().optional(),
@@ -33,5 +36,6 @@ export const apiProcedure = oc
     NOT_FOUND: { data: domainErrorData.optional() },
     CONFLICT: { data: domainErrorData.optional() },
     TOO_MANY_REQUESTS: {},
+    INTERNAL_SERVER_ERROR: { data: domainErrorData.optional() },
     NOT_IMPLEMENTED: { data: z.object({ error_code: z.literal('NOT_IMPLEMENTED') }) },
   })

@@ -1,44 +1,40 @@
-// Client-safe return contracts. Source: ARCHITECTURE-DOC Specifications and
-// TECHNICAL-DESIGN Read model; ONTOLOGY entities/derived values; feature Interfaces.
-// Feature-owned schema halves are separate from their server-only fragment loaders.
 import { z } from 'zod'
-import { idSchema, timestampSchema } from './input.js'
-import { pageSchema, continuationsSchema } from './paging.js'
-import { profileSchema, userProfileSchema } from '../features/identity-billing/record-contract.js'
+import { actionLogSchema, actionSchema } from '../features/actions/record-contract.js'
+import {
+  cycleLineSchema,
+  cycleReadOutputSchema,
+  deleteCycleResultSchema,
+} from '../features/cycles/outputs.js'
 import { cycleSchema } from '../features/cycles/record-contract.js'
+import { profileSchema, userProfileSchema } from '../features/identity-billing/record-contract.js'
+import { noteSchema, notesFragmentSchema } from '../features/notes/record-contract.js'
 import { objectiveSchema } from '../features/objectives/record-contract.js'
 import {
-  resultSchema,
-  resultLogSchema,
   habitLogSchema,
+  resultLogSchema,
+  resultSchema,
   trendPointSchema,
 } from '../features/results/record-contract.js'
-import { actionSchema, actionLogSchema } from '../features/actions/record-contract.js'
-import { noteSchema, notesFragmentSchema } from '../features/notes/record-contract.js'
+import { closeSessionResultSchema } from '../features/sessions/outputs.js'
 import { sessionSchema } from '../features/sessions/record-contract.js'
+import { idSchema, timestampSchema } from './input.js'
+import { boundarySchema, changedSchema, deleteResultSchema, writeResultSchema } from './outputs.js'
+import { continuationsSchema, pageSchema } from './paging.js'
 export {
-  pageSchema,
-  continuationsSchema,
-  profileSchema,
-  userProfileSchema,
-  cycleSchema,
-  objectiveSchema,
-  resultSchema,
-  resultLogSchema,
-  habitLogSchema,
-  actionSchema,
   actionLogSchema,
+  actionSchema,
+  continuationsSchema,
+  cycleSchema,
+  habitLogSchema,
   noteSchema,
+  objectiveSchema,
+  pageSchema,
+  profileSchema,
+  resultLogSchema,
+  resultSchema,
   sessionSchema,
+  userProfileSchema,
 }
-export const boundarySchema = z.strictObject({
-  at: timestampSchema.nullable(),
-  session_id: idSchema.nullable(),
-  source: z.enum(['session', 'cycle_start', 'none']),
-})
-export const cycleLineSchema = z
-  .strictObject({ range: z.string(), time_gone_pct: z.number().min(0).max(100) })
-  .nullable()
 const parentFiguresSchema = z.strictObject({
   cycle: cycleSchema.nullable(),
   objectives: pageSchema(objectiveSchema, 50),
@@ -48,24 +44,6 @@ export const cycleDetailSchema = z.strictObject({
   objectives: pageSchema(objectiveSchema, 50),
   continuations: continuationsSchema,
 })
-/** F2 Cycles: list pages contain cycle summaries; a get returns one cycle without child collections. */
-export const cycleListSchema = pageSchema(cycleSchema)
-export const cyclePageToolSchema = cycleListSchema.extend({
-  continuation: z
-    .strictObject({
-      tool: z.literal('cycle_read'),
-      arguments: z.strictObject({
-        operation: z.literal('list'),
-        cursor: z.string().min(1),
-        limit: z.number().int().min(1).max(100),
-      }),
-    })
-    .nullable(),
-})
-export const cycleReadOutputSchema = z.union([
-  cyclePageToolSchema,
-  z.strictObject({ cycle: cycleSchema.nullable() }),
-])
 export const objectiveDetailSchema = z.strictObject({
   objective: objectiveSchema,
   cycle: cycleSchema,
@@ -89,80 +67,34 @@ export const actionDetailSchema = z.strictObject({
   action_logs: pageSchema(actionLogSchema),
   continuations: continuationsSchema,
 })
-export const noteDetailSchema = noteSchema
 export const sessionDetailSchema = z.strictObject({
   session: sessionSchema,
   actions: pageSchema(actionSchema),
   continuations: continuationsSchema,
 })
-export const sessionDocumentSchema = z.strictObject({
-  session: sessionSchema,
-  document: z.enum(['briefing', 'summary']),
-  text: z.string().nullable(),
-})
-export const changedSchema = z
-  .array(
-    z.strictObject({
-      entity: z.enum([
-        'user',
-        'cycle',
-        'objective',
-        'result',
-        'result_log',
-        'action',
-        'action_log',
-        'session',
-        'note',
-        'habit_log',
-      ]),
-      id: idSchema,
-    }),
-  )
-  .max(100)
-export function writeResultSchema<T extends z.ZodType>(record: T) {
-  return z.strictObject({ record, changed: changedSchema, continuations: continuationsSchema })
-}
-export const userWriteResultSchema = writeResultSchema(profileSchema)
 export const cycleWriteResultSchema = writeResultSchema(cycleDetailSchema)
-// Compact MCP projection; the shared application receipt stays unchanged.
-export const cycleMutationToolSchema = z.strictObject({
-  cycle: cycleSchema,
-  changed: changedSchema,
-})
-export const cycleDeletionPreviewSchema = z.strictObject({
-  operation: z.literal('preview'),
-  preview_id: idSchema,
-  expires_at: timestampSchema,
-  cycle: cycleSchema.pick({ id: true, start_at: true, end_at: true, status: true }),
-  deleted: z.strictObject({
-    cycles: z.literal(1),
-    objectives: z.number().int().nonnegative(),
-    results: z.number().int().nonnegative(),
-    result_logs: z.number().int().nonnegative(),
-    habit_logs: z.number().int().nonnegative(),
-    actions: z.number().int().nonnegative(),
-    action_logs: z.number().int().nonnegative(),
-  }),
-  retained: z.tuple([z.literal('notes'), z.literal('sessions')]),
-  active_remaining: z.boolean(),
-  approval: z.strictObject({ status: z.literal('required'), url: z.url() }),
-})
 export const objectiveWriteResultSchema = writeResultSchema(objectiveDetailSchema)
 export const resultWriteResultSchema = writeResultSchema(resultDetailSchema)
 export const actionWriteResultSchema = writeResultSchema(actionDetailSchema)
-export const noteWriteResultSchema = writeResultSchema(noteSchema)
 export const sessionWriteResultSchema = writeResultSchema(sessionDetailSchema)
-export const deleteResultSchema = z.strictObject({ id: idSchema })
-/** F2 Cycles deletion receipt; archived deletion may preserve a different active cycle. */
-export const deleteCycleResultSchema = deleteResultSchema.extend({ active_remaining: z.boolean() })
-export const cycleDeleteOutputSchema = z.union([
-  cycleDeletionPreviewSchema,
-  deleteCycleResultSchema.extend({ operation: z.literal('commit') }),
-])
 export {
-  checkoutSessionResultSchema,
+  cycleDeleteOutputSchema,
+  cycleDeletionPreviewSchema,
+  cycleLineSchema,
+  cycleListSchema,
+  cycleMutationToolSchema,
+  cyclePageToolSchema,
+  cycleReadOutputSchema,
+  deleteCycleResultSchema,
+} from '../features/cycles/outputs.js'
+export { userWriteResultSchema } from '../features/identity-billing/outputs.js'
+export {
   billingPortalSessionResultSchema,
+  checkoutSessionResultSchema,
 } from '../features/identity-billing/record-contract.js'
+export { noteDetailSchema, noteWriteResultSchema } from '../features/notes/outputs.js'
+export { closeSessionResultSchema, sessionDocumentSchema } from '../features/sessions/outputs.js'
+export { boundarySchema, changedSchema, deleteResultSchema, writeResultSchema } from './outputs.js'
 export const dashboardSchema = z.strictObject({
   as_of: timestampSchema,
   boundary: boundarySchema,
@@ -238,7 +170,6 @@ export const historySchema = z.strictObject({
   sessions: pageSchema(sessionSchema, 50),
   continuations: continuationsSchema,
 })
-/** Internal application composition only; not an MCP tool output. */
 export const recordQuerySchema = z.strictObject({
   as_of: timestampSchema,
   current: currentRecordSchema,
@@ -260,10 +191,6 @@ export const loadBriefingResultSchema = z.discriminatedUnion('access_state', [
     enablement: z.strictObject({ instruction: z.string(), signup_url: z.url() }),
   }),
 ])
-export const closeSessionResultSchema = z.strictObject({
-  session: sessionSchema,
-  boundary_moved_to: timestampSchema,
-})
 export type ProfileView = z.infer<typeof profileSchema>
 export type UserProfileView = z.infer<typeof userProfileSchema>
 export type CycleView = z.infer<typeof cycleSchema>

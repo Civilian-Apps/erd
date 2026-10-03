@@ -36,7 +36,7 @@ export const habitLogSchema = z
   .describe(
     'Habit log stored in habit_logs. The UI marks calendar days and lists them under Updates with the Marked column. One row per result/day; unmarking deletes the row. This is not append-only history.',
   )
-export const resultSchema = z.strictObject({
+const resultFields = z.strictObject({
   id: idSchema,
   objective_id: idSchema,
   title: z.string(),
@@ -86,6 +86,63 @@ export const resultSchema = z.strictObject({
   habit_logs_since_boundary: z.number().int().nonnegative().nullable(),
   performance_share: z.number().nullable(),
 })
+/** Public responses include derived habit endpoints (0/100), not nullable storage columns. */
+export const resultIdentitySchema = resultFields.pick({ id: true, title: true })
+export const resultSchema = z
+  .discriminatedUnion('metric_type', [
+    resultFields.extend({
+      metric_type: z.literal('number'),
+      start_value: z.number(),
+      target_value: z.number(),
+      cadence: z.null(),
+      per: z.null(),
+      since: z.null(),
+    }),
+    resultFields.extend({
+      metric_type: z.literal('percentage'),
+      current_value: z.number().min(0).max(100),
+      boundary_value: z.number().min(0).max(100),
+      start_value: z.number().min(0).max(100),
+      target_value: z.number().min(0).max(100),
+      cadence: z.null(),
+      per: z.null(),
+      since: z.null(),
+      unit: z.null(),
+    }),
+    resultFields.extend({
+      metric_type: z.literal('milestone'),
+      start_value: z.literal(0),
+      target_value: z.literal(1),
+      current_value: z.union([z.literal(0), z.literal(1)]),
+      boundary_value: z.union([z.literal(0), z.literal(1)]),
+      cadence: z.null(),
+      per: z.null(),
+      since: z.null(),
+      unit: z.null(),
+    }),
+    resultFields.extend({
+      metric_type: z.literal('habit'),
+      start_value: z.literal(0),
+      target_value: z.literal(100),
+      cadence: cadenceSchema,
+      per: z.number().int().positive(),
+      since: dateSchema,
+      unit: z.null(),
+    }),
+    resultFields.extend({
+      metric_type: z.literal('performance'),
+      target_value: z.number(),
+      since: dateSchema,
+      cadence: z.null(),
+      per: z.null(),
+    }),
+  ])
+  .refine(
+    (value) =>
+      !['number', 'percentage'].includes(value.metric_type) ||
+      value.start_value !== value.target_value,
+    'Value-type target must differ from its baseline.',
+  )
 export const trendPointSchema = z.discriminatedUnion('kind', [
   z.strictObject({
     kind: z.literal('value'),

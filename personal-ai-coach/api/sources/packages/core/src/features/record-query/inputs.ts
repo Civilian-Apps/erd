@@ -1,7 +1,6 @@
-/** Internal application query contract. Retired from the public MCP catalogue; no tool may wrap this generic reader. */
-/** Normative inputs: docs/ONTOLOGY.md and this feature's spec Interfaces. Client-safe. */
+/** Feature-owned input schemas shared by permitted transports. */
 import { z } from 'zod'
-import { idSchema, dateSchema, timestampSchema, cursorSchema } from '../../contracts/input.js'
+import { cursorSchema, dateSchema, idSchema, timestampSchema } from '../../contracts/input.js'
 const boundSchema = z.union([dateSchema, timestampSchema])
 export const recordQueryFilters = z
   .object({

@@ -1,14 +1,13 @@
-/** Shared cycle contracts. Identity and deletion approval never come from model arguments. */
+/** Feature-owned input schemas shared by permitted transports. */
 import { z } from 'zod'
 import {
   dateSchema,
-  idSchema,
+  emptyInputSchema,
   idInputSchema,
+  idSchema,
   idempotencyKeySchema,
   pageInputSchema,
-  emptyInputSchema,
 } from '../../contracts/input.js'
-
 const start = dateSchema.describe(
   'UI label: Starts. Calendar date, YYYY-MM-DD. Required on create; omit on update to preserve.',
 )
@@ -46,7 +45,6 @@ const updateCycleBase = z.strictObject({
   intention,
   status: z.enum(['active', 'archived']).optional(),
 })
-// The service must validate a one-date patch after merging with the owned stored row.
 export const updateCycleInput = updateCycleBase.refine(validDates, dateError)
 export const getCycleInput = idInputSchema
 export const getActiveCycleInput = emptyInputSchema
