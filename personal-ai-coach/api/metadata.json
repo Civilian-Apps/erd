@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-10-04T10:22:17.448Z",
-  "base_revision": "5ef0e866c17c65714bf9e739fdb0272a2b637e98",
-  "includes_working_tree_edits": true,
-  "contract_sha256": "c5020b50a095946eb4b2d02a683f240482548e35d7885060d59d73ee463a44d9",
+  "generated_at": "2026-10-04T14:30:00.172Z",
+  "base_revision": "6f9e771c44dfd3c98e76c2018f649226460b2335",
+  "includes_working_tree_edits": false,
+  "contract_sha256": "72ab967244045ac6559f5d1ac109f2797c596902c4505f382c749e362ac4a7c3",
   "openapi_sha256": "46cf1d8e1b26323ae7d082069201c582135355078b08ce6d0c988ae6c510ee4f",
   "services_sha256": "cc451e77dcb9d81ced0e5e88b90269330fe67f95862d79b6b1c501d81a45ffc8",
   "services": 56,
@@ -10,7 +10,7 @@
   "files": [
     {
       "path": "docs/ONTOLOGY.md",
-      "sha256": "285ee590308c9e2085f9b1470c600ea3ee1dd579e6412f856dc3ceb0e5c81656"
+      "sha256": "70d81c5350a8fba7c9d30d71b0ab70af79bfff652ad6c60423b4834db7ad61a9"
     },
     {
       "path": "packages/core/src/contracts/api.ts",
@@ -294,11 +294,11 @@
     },
     {
       "path": "packages/core/src/shared/schemas.ts",
-      "sha256": "2d8a87f0a902688545b49926d48b250e569c9340487ef09335f7bc17536f02ca"
+      "sha256": "e952375c8db3d034994e9f3d4ec742a03a0840ec5583750006971cba1714b83f"
     },
     {
       "path": "packages/core/src/shared/scopes.ts",
-      "sha256": "f41f298213863ea94402fdd37359cc9ce8c3117be744615d4feb92f961ee51b2"
+      "sha256": "a9b006f75159762949817e7ee47170d4120b840ec6ed85bd3b6387da78c50318"
     },
     {
       "path": "packages/core/src/shared/services/definition.ts",

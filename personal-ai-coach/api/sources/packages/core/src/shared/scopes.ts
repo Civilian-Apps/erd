@@ -1,4 +1,3 @@
-
 // OAuth product scopes (AP-11 / rail R9) — the ONE definition the provider,
 // the MCP route, the consent page and the tool registry all import. Client-safe
 // (no imports, no I/O): the consent page renders these labels in the browser.
@@ -15,13 +14,10 @@ export const PRODUCT_SCOPES = ['coach:read', 'coach:write'] as const
 
 export type ProductScope = (typeof PRODUCT_SCOPES)[number]
 
-
 export const IDENTITY_SCOPES = ['openid', 'profile', 'email', 'offline_access'] as const
-
 
 /** Every scope the authorization server supports and advertises. */
 export const SUPPORTED_SCOPES = [...IDENTITY_SCOPES, ...PRODUCT_SCOPES] as const
-
 
 /** Consent-screen copy per scope; unknown scopes render raw. */
 export const SCOPE_LABELS: Readonly<Record<string, string>> = {
@@ -32,7 +28,6 @@ export const SCOPE_LABELS: Readonly<Record<string, string>> = {
   'coach:read': 'Read your coaching record',
   'coach:write': 'Run coaching sessions and update your coaching record',
 }
-
 
 export function hasScope(granted: readonly string[], required: ProductScope): boolean {
   return granted.includes(required)

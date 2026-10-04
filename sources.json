@@ -3,11 +3,10 @@
     "repository": "Civilian-Apps/personal-ai-coach",
     "ref": "main",
     "schema": "packages/core/src/contracts/schema.ts",
-    "revision": "5ef0e866c17c65714bf9e739fdb0272a2b637e98",
+    "revision": "6f9e771c44dfd3c98e76c2018f649226460b2335",
     "schemaSha256": "a590a39585413c0983397fee7a9f6df1447d93469df310e3a6af61df5d2b1eb4",
-    "kind": "local",
-    "dirty": true,
-    "publication": "draft",
+    "kind": "git",
+    "dirty": false,
     "inputs": {
       "packages/core/src/contracts/schema.ts": "a590a39585413c0983397fee7a9f6df1447d93469df310e3a6af61df5d2b1eb4"
     },
@@ -90,7 +89,7 @@
     ],
     "rulesSha256": "a3f632ff6961a367c7f5c3ef210647e7cf3172430b376a361b0ac036e64f314a",
     "apiDocs": {
-      "metadataSha256": "bd7662254bdb87a33633f993ebd0910f766611a735124c980f0286bac87ca00a",
+      "metadataSha256": "2f7265cd12eb65e079dc092e745dfdd73e18b7e6a6aa432a6b06463acbd788df",
       "openapiSha256": "46cf1d8e1b26323ae7d082069201c582135355078b08ce6d0c988ae6c510ee4f",
       "operations": 55,
       "serviceCatalog": {
@@ -98,7 +97,7 @@
         "operations": 56
       },
       "inputs": {
-        "docs/ONTOLOGY.md": "285ee590308c9e2085f9b1470c600ea3ee1dd579e6412f856dc3ceb0e5c81656",
+        "docs/ONTOLOGY.md": "70d81c5350a8fba7c9d30d71b0ab70af79bfff652ad6c60423b4834db7ad61a9",
         "packages/core/src/contracts/api.ts": "7cdb5d40f078c3d16060274f801b46014735b71a819582be3ffbeee4b8b8e231",
         "packages/core/src/contracts/application.ts": "d24e6b9e9df012cdb4d3f18af418a56ed420ad5fd3cb97cb87e60bdd0e42f0ee",
         "packages/core/src/contracts/pages.ts": "c0b10683c403ea110a017589f25a55c43c3830d170b66ce37dfde842902191ce",
@@ -169,24 +168,24 @@
         "packages/core/src/shared/mcp/schemas.ts": "190693376aa5c6206d61339d877570c87fb4edf2978b60bf3d6c656db646ea69",
         "packages/core/src/shared/mcp/types.ts": "b2cf2d2ac756d327cb16be772e12e93ccf9e4906b8256119d3f48c8d9d2f1097",
         "packages/core/src/shared/projections.ts": "d007becacbed67e32777dc41fd344cdeb766eb54e55eee4470547badc6eca4e6",
-        "packages/core/src/shared/schemas.ts": "2d8a87f0a902688545b49926d48b250e569c9340487ef09335f7bc17536f02ca",
-        "packages/core/src/shared/scopes.ts": "f41f298213863ea94402fdd37359cc9ce8c3117be744615d4feb92f961ee51b2",
+        "packages/core/src/shared/schemas.ts": "e952375c8db3d034994e9f3d4ec742a03a0840ec5583750006971cba1714b83f",
+        "packages/core/src/shared/scopes.ts": "a9b006f75159762949817e7ee47170d4120b840ec6ed85bd3b6387da78c50318",
         "packages/core/src/shared/services/definition.ts": "8327b1623037b075c7e9f4e708858d8bc0e7f439114fc91eea1cac58831823d5"
       }
     },
     "apiMap": {
-      "graphSha256": "14e882ddc76f918d3e45c6be244682d4164fa51d5eef02b289c85281543be04c",
+      "graphSha256": "8c79c7827e532c9be8d8226f181fc394145dc6125f7c9e18467a155b8d8d7c6a",
       "snapshot": "drizzle/meta/0015_snapshot.json",
-      "snapshotSha256": "6ac45743f779295acd6457d93c7450f954884e94a564b33f4de6dcbb969da2df",
+      "snapshotSha256": "c856942706da474c54982dfd5f8b6d27e27c8373a41b9796f052813f4d289ba1",
       "openapiSha256": "46cf1d8e1b26323ae7d082069201c582135355078b08ce6d0c988ae6c510ee4f",
       "operations": 55,
       "links": 1135,
       "findings": 1
     },
     "architecture": {
-      "architectureSha256": "a5c83c9e1b3fbda89e8dd3e3228769dcb70466995c53e36b9419523f54e94b7c",
+      "architectureSha256": "bd9515cb00a760e9d28d3d8854a3a2a0cb066ce5a26c9562ee60989fe2f45cdc",
       "catalogSha256": "cc451e77dcb9d81ced0e5e88b90269330fe67f95862d79b6b1c501d81a45ffc8",
-      "apiMapSha256": "14e882ddc76f918d3e45c6be244682d4164fa51d5eef02b289c85281543be04c",
+      "apiMapSha256": "8c79c7827e532c9be8d8226f181fc394145dc6125f7c9e18467a155b8d8d7c6a",
       "nodes": 229,
       "connections": 393,
       "openEnds": 27

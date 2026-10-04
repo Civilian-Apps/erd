@@ -94,18 +94,18 @@ trusted application approval. The catalogue and eval specifications are material
 **10 entities, eleven named tool entries** — one row per entity; each links to its drill-down. "Deletable" = the
 person can delete the entity (permanently, cascading — FR-002); history entities are never user-deleted.
 
-| #   | Entity                                  | Purpose                                                   | Parent                     | Deletable          | MCP tools owned                                                |
-| --- | --------------------------------------- | --------------------------------------------------------- | -------------------------- | ------------------ | -------------------------------------------------------------- |
-| 1   | [User](#entity-1--user)                 | Account, profile, entitlement, coach context              | —                          | **yes** (web-only) | `user_read` · `user_update`                                                   |
-| 2   | [Cycle](#entity-2--cycle)               | Time-bounded coaching period (+ intention)                | User                       | **yes**            | `cycle_lifecycle` · `cycle_update` · `cycle_read` · `cycle_delete`                                   |
-| 3   | [Objective](#entity-3--objective)       | Goal inside the active cycle                              | Cycle                      | **yes**            | `objective_read` · `objective_write` · `objective_delete`                                              |
-| 4   | [Result](#entity-4--result)             | Measurable outcome, one of five metric types              | Objective                  | **yes**            | `result_read` · `result_write` · `result_delete`                                                 |
-| 5   | [ResultLog](#entity-5--resultlog) | Timestamped Result value or reading                       | Result                     | no (history)       | `progress_record` (Result half)                                 |
-| 6   | [Action](#entity-6--action)             | Short-term commitment with a due date                     | Cycle (Objective optional) | **yes**            | `action_read` · `action_write` · `action_delete` · `progress_record` (status half)                |
-| 7   | [ActionLog](#entity-7--actionlog)       | Status history behind `Action.status`                     | Action                     | no (history)       | `progress_record` (writes the row)                              |
-| 8   | [Session](#entity-8--session)           | Coaching session (briefing, headline, summary attributes) | User                       | no                 | `session_read` · `session_start` · `session_close` |
-| 9   | [Note](#entity-9--note)                 | Free-form coaching context, standalone                    | User                       | **yes**            | `note_read` · `note_write` · `note_delete`                                                   |
-| 10  | [HabitLog](#entity-10--habitlog)      | A day a habit happened — state, toggleable                | Result (`habit`)           | no (state)         | `progress_record` (habit shape)                                 |
+| #   | Entity                            | Purpose                                                   | Parent                     | Deletable          | MCP tools owned                                                                    |
+| --- | --------------------------------- | --------------------------------------------------------- | -------------------------- | ------------------ | ---------------------------------------------------------------------------------- |
+| 1   | [User](#entity-1--user)           | Account, profile, entitlement, coach context              | —                          | **yes** (web-only) | `user_read` · `user_update`                                                        |
+| 2   | [Cycle](#entity-2--cycle)         | Time-bounded coaching period (+ intention)                | User                       | **yes**            | `cycle_lifecycle` · `cycle_update` · `cycle_read` · `cycle_delete`                 |
+| 3   | [Objective](#entity-3--objective) | Goal inside the active cycle                              | Cycle                      | **yes**            | `objective_read` · `objective_write` · `objective_delete`                          |
+| 4   | [Result](#entity-4--result)       | Measurable outcome, one of five metric types              | Objective                  | **yes**            | `result_read` · `result_write` · `result_delete`                                   |
+| 5   | [ResultLog](#entity-5--resultlog) | Timestamped Result value or reading                       | Result                     | no (history)       | `progress_record` (Result half)                                                    |
+| 6   | [Action](#entity-6--action)       | Short-term commitment with a due date                     | Cycle (Objective optional) | **yes**            | `action_read` · `action_write` · `action_delete` · `progress_record` (status half) |
+| 7   | [ActionLog](#entity-7--actionlog) | Status history behind `Action.status`                     | Action                     | no (history)       | `progress_record` (writes the row)                                                 |
+| 8   | [Session](#entity-8--session)     | Coaching session (briefing, headline, summary attributes) | User                       | no                 | `session_read` · `session_start` · `session_close`                                 |
+| 9   | [Note](#entity-9--note)           | Free-form coaching context, standalone                    | User                       | **yes**            | `note_read` · `note_write` · `note_delete`                                         |
+| 10  | [HabitLog](#entity-10--habitlog)  | A day a habit happened — state, toggleable                | Result (`habit`)           | no (state)         | `progress_record` (habit shape)                                                    |
 
 ```
 User
@@ -131,36 +131,36 @@ User
 
 ## Entity 1 — User
 
-| Attribute                           | Type          | Auto?          | Description                                                                                                                                                                                                        |
-| ----------------------------------- | ------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `id`                                | uuid          | auto           |                                                                                                                                                                                                                    |
-| `name` | string | no | Chosen coaching/display name, used verbatim. Optional to provide: empty string means unknown and gives a neutral greeting. Editable as “What should we call you?”; social login may initialize it but must preserve later user edits. Billing names are separate. |
-| `email`                             | string        | auto (OAuth)   | Login identifier; unique; read-only on every surface in the POC. **Never a key:** every relationship uses `user.id`, and Stripe events resolve by `stripe_customer_id`, so a later change-email feature (MVP, CB-050 Let people change their login email) needs no data migration |
-| `about_me`                          | text          | no             | Free-form context                                                                                                                                                                                                  |
-| `timezone`                          | string (IANA) | no             | Defaults to the zone the client reports at sign-up; shown as the zone name with its current UTC offset. Drives the boundary, due dates, and cycle-position arithmetic                                              |
-| `stripe_customer_id`                | string?       | auto (billing) | Nullable, **unique** — maps Stripe webhooks back to the user                                                                                                                                                       |
-| `created_at`                        | timestamp     | auto           |                                                                                                                                                                                                                    |
+| Attribute            | Type          | Auto?          | Description                                                                                                                                                                                                                                                                       |
+| -------------------- | ------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                 | uuid          | auto           |                                                                                                                                                                                                                                                                                   |
+| `name`               | string        | no             | Chosen coaching/display name, used verbatim. Optional to provide: empty string means unknown and gives a neutral greeting. Editable as “What should we call you?”; social login may initialize it but must preserve later user edits. Billing names are separate.                 |
+| `email`              | string        | auto (OAuth)   | Login identifier; unique; read-only on every surface in the POC. **Never a key:** every relationship uses `user.id`, and Stripe events resolve by `stripe_customer_id`, so a later change-email feature (MVP, CB-050 Let people change their login email) needs no data migration |
+| `about_me`           | text          | no             | Free-form context                                                                                                                                                                                                                                                                 |
+| `timezone`           | string (IANA) | no             | Defaults to the zone the client reports at sign-up; shown as the zone name with its current UTC offset. Drives the boundary, due dates, and cycle-position arithmetic                                                                                                             |
+| `stripe_customer_id` | string?       | auto (billing) | Nullable, **unique** — maps Stripe webhooks back to the user                                                                                                                                                                                                                      |
+| `created_at`         | timestamp     | auto           |                                                                                                                                                                                                                                                                                   |
 
-| #   | Action                                                                               | Description                                                                                                                                                                                                                              | MCP?         |
-| --- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| 1   | `createUser(email, timezone)`                                                        | Creates the account (names come later)                                                                                                                                                                                                   | system       |
-| 2   | `getUser(id)`                                                                        | Read user profile                                                                                                                                                                                                                        | internal     |
-| 3   | `updateUser({ name?, about_me?, timezone? })`                      | Update editable POC profile fields. Web: an account action, available in every subscription state. Chat (`user_update`): requires an active subscription                                                                                                                                                                                                       | **MCP**      |
-| 4   | `getSubscriptionProjection(id)` | Derive billing read state from local subscription rows; official Stripe plugin owns lifecycle writes                                                                                                                                                                                                      | system       |
-| 5   | `createCheckoutSession()`                                                            | Create a short-lived Stripe Checkout destination — the path to a **new** subscription: the first one from Onboarding, or a replacement from Settings **Resubscribe** after a canceled plan (PRD A1). Refused while an active or past-due subscription exists. Entitlement is granted by the webhook projection, never by the return from checkout | **web-only** |
-| 6a  | `getBillingDetails()`                                                                | Web-only Settings display read of plan, price and payment method from Stripe (see below); account-management access, nulls for no subscription |
-| 6   | `createBillingPortalSession()`                                                       | Create a short-lived Stripe Customer Portal destination — every transactional act on an **existing** subscription                                                                                                                        | **web-only** |
-| 7   | `deleteUser(reauth_context)`                                                         | Cancel billing; permanently delete the account and descendants; revoke sessions                                                                                                                                                          | **web-only** |
+| #   | Action                                        | Description                                                                                                                                                                                                                                                                                                                                       | MCP?         |
+| --- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| 1   | `createUser(email, timezone)`                 | Creates the account (names come later)                                                                                                                                                                                                                                                                                                            | system       |
+| 2   | `getUser(id)`                                 | Read user profile                                                                                                                                                                                                                                                                                                                                 | internal     |
+| 3   | `updateUser({ name?, about_me?, timezone? })` | Update editable POC profile fields. Web: an account action, available in every subscription state. Chat (`user_update`): requires an active subscription                                                                                                                                                                                          | **MCP**      |
+| 4   | `getSubscriptionProjection(id)`               | Derive billing read state from local subscription rows; official Stripe plugin owns lifecycle writes                                                                                                                                                                                                                                              | system       |
+| 5   | `createCheckoutSession()`                     | Create a short-lived Stripe Checkout destination — the path to a **new** subscription: the first one from Onboarding, or a replacement from Settings **Resubscribe** after a canceled plan (PRD A1). Refused while an active or past-due subscription exists. Entitlement is granted by the webhook projection, never by the return from checkout | **web-only** |
+| 6a  | `getBillingDetails()`                         | Web-only Settings display read of plan, price and payment method from Stripe (see below); account-management access, nulls for no subscription                                                                                                                                                                                                    |
+| 6   | `createBillingPortalSession()`                | Create a short-lived Stripe Customer Portal destination — every transactional act on an **existing** subscription                                                                                                                                                                                                                                 | **web-only** |
+| 7   | `deleteUser(reauth_context)`                  | Cancel billing; permanently delete the account and descendants; revoke sessions                                                                                                                                                                                                                                                                   | **web-only** |
 
 The following User read fields are **derived from local subscription storage**, not columns on
 User. One shared projection selects existing paid access ahead of incomplete checkout attempts and
 maps raw Stripe states to the product states. No live Stripe request runs on ordinary reads.
 
-| Derived field | Type | Source |
-|---|---|---|
-| `subscription_status` | enum | `incomplete · active · past_due · canceled`; default incomplete; entitled iff active |
-| `subscription_cancel_at_period_end` | boolean | Selected subscription cancellation flag; false without a subscription |
-| `subscription_current_period_end` | timestamp? | Selected subscription period end; null without a subscription |
+| Derived field                       | Type       | Source                                                                               |
+| ----------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
+| `subscription_status`               | enum       | `incomplete · active · past_due · canceled`; default incomplete; entitled iff active |
+| `subscription_cancel_at_period_end` | boolean    | Selected subscription cancellation flag; false without a subscription                |
+| `subscription_current_period_end`   | timestamp? | Selected subscription period end; null without a subscription                        |
 
 Settings shows status and the renewal or scheduled-cancellation date from this projection. Plan,
 price and payment method are not stored or projected: the web-only `billing.get_details`
@@ -195,31 +195,31 @@ intention is the conversational handle if one is wanted.
 
 **Derived, not stored** (§ Derived values): **achievement %** — the mean of the cycle's objectives' progress %, computed over the retained subtree for archived cycles too; **time gone %** — how much of the cycle's span has elapsed; **length in weeks**. A cycle whose objectives all lack a percentage has no achievement figure.
 
-| #   | Action                                                         | Description                                                                                                                                                                                                    | MCP?                               |
-| --- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| 1   | `createCycle(start_at, end_at, idempotency_key, intention?)`                    | Creates cycle + archives previous                                                                                                                                                                              | via `cycle_lifecycle(create)`          |
-| 2   | `getActiveCycle(user_id)`                                      | Get current active cycle                                                                                                                                                                                       | internal                           |
-| 3   | `getCycle(id)`                                                 | Read one cycle — active or archived — with its objectives and its derived time gone, length, and achievement. Backs Cycle detail (`/cycles/:id`)                                                               | via `cycle_read(get)`, cycle summary only                           |
-| 4   | `listCycles()`                                                 | Every cycle the person has run, active first and then archived by `start_at` descending, each with its derived achievement and length. Backs the Cycles screen (`/cycles`)                                     | via `cycle_read(list)`                           |
+| #   | Action                                                         | Description                                                                                                                                                                                                    | MCP?                                                                  |
+| --- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| 1   | `createCycle(start_at, end_at, idempotency_key, intention?)`   | Creates cycle + archives previous                                                                                                                                                                              | via `cycle_lifecycle(create)`                                         |
+| 2   | `getActiveCycle(user_id)`                                      | Get current active cycle                                                                                                                                                                                       | internal                                                              |
+| 3   | `getCycle(id)`                                                 | Read one cycle — active or archived — with its objectives and its derived time gone, length, and achievement. Backs Cycle detail (`/cycles/:id`)                                                               | via `cycle_read(get)`, cycle summary only                             |
+| 4   | `listCycles()`                                                 | Every cycle the person has run, active first and then archived by `start_at` descending, each with its derived achievement and length. Backs the Cycles screen (`/cycles`)                                     | via `cycle_read(list)`                                                |
 | 5   | `updateCycle(id, { status?, intention?, start_at?, end_at? })` | **Archive / re-activate** (`status`) / set intention / adjust dates (recomputes length, time gone, and every boundary-dependent figure)                                                                        | via `cycle_update (field edits) / cycle_lifecycle(archive\|activate)` |
-| 6   | `archiveExpiredCycles()`                                       | System maintenance: mark `active → archived` once `end_at` passes                                                                                                                                              | system                             |
-| 7   | `deleteCycle(id, preview_id)`                                              | **Hard delete** — the row and its descendants are removed permanently. Destructive annotation. The mistake-recovery path — archive is the normal end-of-life. Deleting the active cycle leaves no active cycle | via `cycle_delete(commit)`          |
-| 8 | `previewCycleDeletion(id)` | Complete server impact and genuine application approval handoff; no domain deletion | via `cycle_delete(preview)` |
-| 9 | `getStoredActiveCycle()` | Pure owned stored-active summary or null; never runs expiry | via `cycle_read(get, id=active)` |
+| 6   | `archiveExpiredCycles()`                                       | System maintenance: mark `active → archived` once `end_at` passes                                                                                                                                              | system                                                                |
+| 7   | `deleteCycle(id, preview_id)`                                  | **Hard delete** — the row and its descendants are removed permanently. Destructive annotation. The mistake-recovery path — archive is the normal end-of-life. Deleting the active cycle leaves no active cycle | via `cycle_delete(commit)`                                            |
+| 8   | `previewCycleDeletion(id)`                                     | Complete server impact and genuine application approval handoff; no domain deletion                                                                                                                            | via `cycle_delete(preview)`                                           |
+| 9   | `getStoredActiveCycle()`                                       | Pure owned stored-active summary or null; never runs expiry                                                                                                                                                    | via `cycle_read(get, id=active)`                                      |
 
 ---
 
 ## Entity 3 — Objective
 
-| Attribute     | Type       | Auto? | Description                                                                             |
-| ------------- | ---------- | ----- | --------------------------------------------------------------------------------------- |
-| `id`          | uuid       | auto  |                                                                                         |
-| `cycle_id`    | FK → Cycle | auto  | Inherited from active Cycle                                                             |
-| `title`       | string     | no    | Short goal name                                                                         |
-| `description` | text       | no    | The goal in detail                                                                      |
+| Attribute     | Type       | Auto? | Description                                                                                   |
+| ------------- | ---------- | ----- | --------------------------------------------------------------------------------------------- |
+| `id`          | uuid       | auto  |                                                                                               |
+| `cycle_id`    | FK → Cycle | auto  | Inherited from active Cycle                                                                   |
+| `title`       | string     | no    | Short goal name                                                                               |
+| `description` | text       | no    | The goal in detail                                                                            |
 | `deadline_at` | date?      | no    | Optional mid-cycle deadline; null means never set. Once set it can be replaced, never cleared |
-| `status`      | enum       | no    | `on_track · off_track · completed` (default `on_track`) — agent-set, person-overridable |
-| `created_at`  | timestamp  | auto  |                                                                                         |
+| `status`      | enum       | no    | `on_track · off_track · completed` (default `on_track`) — agent-set, person-overridable       |
+| `created_at`  | timestamp  | auto  |                                                                                               |
 
 **Objective status is a coaching judgement.** `on_track · off_track · completed` — set by the agent from the conversation and the evidence, and overridable by the person on the web. It is deliberately **not derived**: "off track" needs a pace judgement no formula in this product produces, and the coach must be able to disagree with the arithmetic. `completed` is **suggested, never applied**: when every Result under the objective is `completed`, surfaces offer "Mark completed"; nothing sets it automatically.
 
@@ -231,13 +231,13 @@ arithmetic over recorded evidence; the status is the coach's judgement. 100% doe
 (the pace is wrong) or 40% and on track (the plan expects that). Surfaces show both and never
 substitute one for the other; a percentage is never coloured by a status.
 
-| #   | Action                                                                 | Description                                                                                                               | MCP?                          |
-| --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| 1   | `createObjective(title, description, deadline_at?)`                    | Creates within active Cycle                                                                                               | via `objective_write(create)` |
-| 2   | `getObjective(id)`                                                     | Read with Results + Actions                                                                                               | internal                      |
-| 3   | `listObjectives(cycle_id?)`                                            | List objectives for a cycle, in creation order (the order short codes follow)                                             | internal                      |
+| #   | Action                                                                 | Description                                                                                                                                          | MCP?                          |
+| --- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| 1   | `createObjective(title, description, deadline_at?)`                    | Creates within active Cycle                                                                                                                          | via `objective_write(create)` |
+| 2   | `getObjective(id)`                                                     | Read with Results + Actions                                                                                                                          | internal                      |
+| 3   | `listObjectives(cycle_id?)`                                            | List objectives for a cycle, in creation order (the order short codes follow)                                                                        | internal                      |
 | 4   | `updateObjective(id, { title?, description?, deadline_at?, status? })` | Edit fields, including `status` (`on_track · off_track · completed`). `deadline_at` sets or replaces; null is rejected — a deadline is never cleared | via `objective_write(update)` |
-| 5   | `deleteObjective(id, preview_id)`                                                  | **Hard delete** — permanent, with its results and actions. Destructive annotation. No restore in POC — recovery is Growth | via `objective_delete` |
+| 5   | `deleteObjective(id, preview_id)`                                      | **Hard delete** — permanent, with its results and actions. Destructive annotation. No restore in POC — recovery is Growth                            | via `objective_delete`        |
 
 ---
 
@@ -262,12 +262,12 @@ substitute one for the other; a percentage is never coloured by a status.
 **Five metric types, two evidence shapes.** Three types store a figure through ResultLogs; two
 store _evidence_ and derive their figure from it:
 
-| `metric_type` | What it stores                                                                     | What it shows                                                                 | Current value (derived)                                                             |
-| ------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `number`      | `start_value`, `target_value`, `unit`; ResultLogs                               | `12,000 / 50,000` (unit in the hero target phrase and the editable Unit fact) | The latest ResultLog's value, else `start_value`                                 |
-| `percentage`  | `start_value`, `target_value`; ResultLogs                                       | `61% / 80%`                                                                   | The latest ResultLog's value, else `start_value`                                 |
-| `milestone`   | ResultLogs with value 0 or 1                                                    | `0 / 1`                                                                       | The latest ResultLog's value, else 0                                             |
-| `habit`       | `cadence`, `per`, `since`; HabitLogs (the days it happened)                       | `55% / 100%` — an execution rate where 100% is perfect                        | The habit rate (§ Derived values)                                                   |
+| `metric_type` | What it stores                                                                  | What it shows                                                                 | Current value (derived)                                                             |
+| ------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `number`      | `start_value`, `target_value`, `unit`; ResultLogs                               | `12,000 / 50,000` (unit in the hero target phrase and the editable Unit fact) | The latest ResultLog's value, else `start_value`                                    |
+| `percentage`  | `start_value`, `target_value`; ResultLogs                                       | `61% / 80%`                                                                   | The latest ResultLog's value, else `start_value`                                    |
+| `milestone`   | ResultLogs with value 0 or 1                                                    | `0 / 1`                                                                       | The latest ResultLog's value, else 0                                                |
+| `habit`       | `cadence`, `per`, `since`; HabitLogs (the days it happened)                     | `55% / 100%` — an execution rate where 100% is perfect                        | The habit rate (§ Derived values)                                                   |
 | `performance` | `target_value`, `unit`, `since`, optional `start_value`; ResultLogs as readings | `6.9 / 7.5 h` — the running average against the target                        | The mean of all readings in the cycle, to one decimal; `start_value` or 0 when none |
 
 **Per-type validity matrix** — enforced as one database `CHECK` per `metric_type`, and restated by
@@ -306,13 +306,13 @@ session; short code (`A1`, `B2`); the trend series. Charts are projections of th
 chart-specific column exists or may be added, and lower-is-better needs no `direction` field: it
 falls out of `start_value > target_value`.
 
-| #   | Action                                                                                                                                         | Description                                                                                                                        | MCP?                       |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| 1   | `createResult(objective_id, title, metric_type, { target_value?, start_value?, unit?, cadence?, per?, since?, description? })`                 | Create Result; the type-scoped fields are validated against the matrix                                                             | via `result_write(create)` |
-| 2   | `getResult(id)`                                                                                                                                | Read with its evidence and derived figures                                                                                         | internal                   |
-| 3   | `listResults(objective_id)`                                                                                                                    | List Results for an objective, in creation order (the order short codes follow)                                                    | internal                   |
-| 4   | `updateResult(id, { title?, description?, objective_id?, metric_type?, target_value?, start_value?, unit?, cadence?, per?, since?, status? })` | Adjust the measure, move it to another objective, set `status`; `metric_type` only while no evidence exists                        | via `result_write(update)` |
-| 5   | `deleteResult(id, preview_id)`                                                                                                                             | **Hard delete** — permanent, with its ResultLogs and HabitLogs. Destructive annotation. No restore in POC — recovery is Growth | via `result_delete` |
+| #   | Action                                                                                                                                         | Description                                                                                                                    | MCP?                       |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------- |
+| 1   | `createResult(objective_id, title, metric_type, { target_value?, start_value?, unit?, cadence?, per?, since?, description? })`                 | Create Result; the type-scoped fields are validated against the matrix                                                         | via `result_write(create)` |
+| 2   | `getResult(id)`                                                                                                                                | Read with its evidence and derived figures                                                                                     | internal                   |
+| 3   | `listResults(objective_id)`                                                                                                                    | List Results for an objective, in creation order (the order short codes follow)                                                | internal                   |
+| 4   | `updateResult(id, { title?, description?, objective_id?, metric_type?, target_value?, start_value?, unit?, cadence?, per?, since?, status? })` | Adjust the measure, move it to another objective, set `status`; `metric_type` only while no evidence exists                    | via `result_write(update)` |
+| 5   | `deleteResult(id, preview_id)`                                                                                                                 | **Hard delete** — permanent, with its ResultLogs and HabitLogs. Destructive annotation. No restore in POC — recovery is Growth | via `result_delete`        |
 
 ---
 
@@ -354,12 +354,12 @@ The record is therefore honest-by-default rather than immutable: the surfaces st
 value, and a correction is still normally an append, but the person owns their history and can take
 an entry out of it.
 
-| #   | Action                                            | Description                                                                      | MCP?                         |
-| --- | ------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------- |
+| #   | Action                                         | Description                                                                   | MCP?                          |
+| --- | ---------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------- |
 | 1   | `createResultLog(result_id, value?, comment?)` | Creates a ResultLog — the result's current value derives from it at read time | via `progress_record(result)` |
-| 2   | `listResultLogs(result_id, since?)`            | History, newest first                                                            | internal                     |
-| 3   | `clearResultLogComment(id)`                    | Sets `comment` to null; the row stays                                            | **web-only**                 |
-| 4   | `deleteResultLog(id)`                          | Removes the entry permanently; derived figures recompute from what remains       | **web-only**                 |
+| 2   | `listResultLogs(result_id, since?)`            | History, newest first                                                         | internal                      |
+| 3   | `clearResultLogComment(id)`                    | Sets `comment` to null; the row stays                                         | **web-only**                  |
+| 4   | `deleteResultLog(id)`                          | Removes the entry permanently; derived figures recompute from what remains    | **web-only**                  |
 
 ---
 
@@ -373,7 +373,7 @@ an entry out of it.
 | `title`        | string          | no    | **Required.** The short commitment shown in every action list — "Write article #4"                                                                                                            |
 | `description`  | text?           | no    | Optional longer context — the detail behind the commitment, read on Action detail                                                                                                             |
 | `due_at`       | date?           | no    | Required once set and required by `action_write(create)`; a web-created empty action may lack it until the person sets it (UI-SPEC § Create via empty detail screen)                          |
-| `status`       | enum            | no    | `open · in_progress · done` (default `open`) — set only through `progress_record`                                                                                                              |
+| `status`       | enum            | no    | `open · in_progress · done` (default `open`) — set only through `progress_record`                                                                                                             |
 | `sort_order`   | decimal?        | no    | The person's own arrangement of the outstanding list, within its objective group. Decimal so a drop between two rows writes one row. Null sorts last, by `due_at`. **Never set by the agent** |
 | `session_id`   | FK → Session?   | auto  | Auto-set from the originating session at create; reassignable by the person on Action detail, including to none                                                                               |
 | `created_at`   | timestamp       | auto  |                                                                                                                                                                                               |
@@ -407,13 +407,13 @@ card read the same order as the Actions screen, so a card and the screen never d
 
 **Derived, not stored** (§ Derived values): overdue; done since the last session.
 
-| #   | Action                                                                                         | Description                                                                                                                | MCP?                       |
-| --- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| 1   | `createAction(title, due_at, { objective_id?, description? })`                                 | Commit to a new action; `cycle_id` follows the objective or the active cycle                                               | via `action_write(create)` |
-| 2   | `getAction(id)`                                                                                | Read                                                                                                                       | internal                   |
-| 3   | `listActions(cycle_id, { objective_id?, status?, due_before? })`                               | Filtered list, in the person's order                                                                                       | internal                   |
+| #   | Action                                                                                         | Description                                                                                                                 | MCP?                       |
+| --- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 1   | `createAction(title, due_at, { objective_id?, description? })`                                 | Commit to a new action; `cycle_id` follows the objective or the active cycle                                                | via `action_write(create)` |
+| 2   | `getAction(id)`                                                                                | Read                                                                                                                        | internal                   |
+| 3   | `listActions(cycle_id, { objective_id?, status?, due_before? })`                               | Filtered list, in the person's order                                                                                        | internal                   |
 | 4   | `updateAction(id, { title?, description?, due_at?, objective_id?, session_id?, sort_order? })` | Edit intent, links, and order — **never status** (status moves via `progress_record`); `sort_order` is web-only in practice | via `action_write(update)` |
-| 5   | `deleteAction(id, preview_id)`                                                                             | **Hard delete** — permanent, with its ActionLog rows. Destructive annotation. No restore in POC — recovery is Growth       | via `action_delete` |
+| 5   | `deleteAction(id, preview_id)`                                                                 | **Hard delete** — permanent, with its ActionLog rows. Destructive annotation. No restore in POC — recovery is Growth        | via `action_delete`        |
 
 ---
 
@@ -430,11 +430,11 @@ _Timestamped status record — the history behind Action.status._
 | `session_id`  | FK → Session? | auto  | Populated from MCP call context when an open session exists; NULL for web-originated changes. Lets `closeSession` read session activity directly |
 | `recorded_at` | timestamp     | auto  |                                                                                                                                                  |
 
-| #   | Action                                         | Description                                              | MCP?                         |
-| --- | ---------------------------------------------- | -------------------------------------------------------- | ---------------------------- |
+| #   | Action                                         | Description                                              | MCP?                          |
+| --- | ---------------------------------------------- | -------------------------------------------------------- | ----------------------------- |
 | 1   | `createActionLog(action_id, status, comment?)` | Append an entry — a status change **or** a comment alone | via `progress_record(action)` |
-| 2   | `listActionLogs(action_id)`                     | History                                                  | internal                     |
-| 3   | `clearActionLogComment(id)`                    | Sets `comment` to null; the row stays                    | **web-only**                 |
+| 2   | `listActionLogs(action_id)`                    | History                                                  | internal                      |
+| 3   | `clearActionLogComment(id)`                    | Sets `comment` to null; the row stays                    | **web-only**                  |
 
 **A repeated status is a valid entry, not a no-op.** `status` may equal
 the action's current status; the entry then records a **comment against an unchanged status** — how a
@@ -487,20 +487,20 @@ order, with template language only. Reasoning about what the figures mean happen
 never in the document. Every figure inside it comes from § Derived values, so a briefing can never
 disagree with the app.
 
-| Order | Section                          | Content (retrieval only)                                                                                                                                                                                                    |
-| ----- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| lede  | `Prepared <date>`                | Cycle date range and time gone; achievement against time gone; open actions and how many are overdue                                                                                                                        |
-| 1     | How to read this document        | The id key (O objective, R result, A action, N note, S session), the line grammar for Result and Action lines, and the absolute since-boundary ("since S2, Mon 22 Jun")                                                     |
-| 2     | Flags                            | Threshold retrievals, no reasoning: overdue actions; results never updated; results silent since the boundary; habits with no marks since the boundary. Empty state names the thresholds passed                             |
-| 3     | Cycle position                   | Four fields: Cycle (date range, time gone), Intention, Pace (achievement against time gone: ahead of / behind / level with the clock), Scope (counts of objectives, results, actions)                                       |
+| Order | Section                       | Content (retrieval only)                                                                                                                                                                                                    |
+| ----- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| lede  | `Prepared <date>`             | Cycle date range and time gone; achievement against time gone; open actions and how many are overdue                                                                                                                        |
+| 1     | How to read this document     | The id key (O objective, R result, A action, N note, S session), the line grammar for Result and Action lines, and the absolute since-boundary ("since S2, Mon 22 Jun")                                                     |
+| 2     | Flags                         | Threshold retrievals, no reasoning: overdue actions; results never updated; results silent since the boundary; habits with no marks since the boundary. Empty state names the thresholds passed                             |
+| 3     | Cycle position                | Four fields: Cycle (date range, time gone), Intention, Pace (achievement against time gone: ahead of / behind / level with the clock), Scope (counts of objectives, results, actions)                                       |
 | 4     | ResultLogs since S<n>, <date> | Per moved result: `From X to Y (up Δ), N updates`, with result comments as `Comment (date): "…"`; then **Results with no updates** (standing value, last recorded); habits report marked days and the rate change in points |
-| 5     | Progress by type                 | Objectives by status; results by count and completion with the average across the measurable; actions by status with the overdue count; notes on record and since the boundary                                              |
-| 6     | Objectives in full               | Every objective (status, completion, deadline, movement) with every result beneath it (value of target, completion, status, movement)                                                                                       |
-| 7     | Actions, open                    | Every open and in-progress action in the person's order: status, due date, overdue, `Objective:` and `Source session:` as named fields, description                                                                         |
-| 8     | Notes                            | Notes since the boundary as date-plus-text lines; if none, the four most recent on record, so labelled                                                                                                                      |
-| 9     | Last session, in summary         | The previous session's id and date, its facts (type, vendor, duration, actions created), its summary in full                                                                                                                |
-| 10    | Session history                  | Up to six earlier sessions: id, date, type, vendor, duration, actions created, and the headline verbatim                                                                                                                    |
-| 11    | Recap                            | Pace, every overdue action, the next due action, and the last session's headline — primacy and recency against lost-in-the-middle recall                                                                                    |
+| 5     | Progress by type              | Objectives by status; results by count and completion with the average across the measurable; actions by status with the overdue count; notes on record and since the boundary                                              |
+| 6     | Objectives in full            | Every objective (status, completion, deadline, movement) with every result beneath it (value of target, completion, status, movement)                                                                                       |
+| 7     | Actions, open                 | Every open and in-progress action in the person's order: status, due date, overdue, `Objective:` and `Source session:` as named fields, description                                                                         |
+| 8     | Notes                         | Notes since the boundary as date-plus-text lines; if none, the four most recent on record, so labelled                                                                                                                      |
+| 9     | Last session, in summary      | The previous session's id and date, its facts (type, vendor, duration, actions created), its summary in full                                                                                                                |
+| 10    | Session history               | Up to six earlier sessions: id, date, type, vendor, duration, actions created, and the headline verbatim                                                                                                                    |
+| 11    | Recap                         | Pace, every overdue action, the next due action, and the last session's headline — primacy and recency against lost-in-the-middle recall                                                                                    |
 
 Rules: **every line opens with its record id** (`R4 Run 120 km.`); **every line is labelled fields
 in a fixed order**, never a sentence about the person; **section names are ontology names**;
@@ -542,13 +542,13 @@ Notes have no type and no target in the POC. Relevance comes from _when_ a note 
 read alongside the result logs, action outcomes, and session that fall in the same window, and
 the web groups it as "Since last session" or "Earlier" against the boundary.
 
-| #   | Action                     | Description                                                                                                         | MCP?                     |
-| --- | -------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| 1   | `addNote(text)`            | Capture free text; rejected when `text` is blank                                                                    | via `note_write(create)` |
-| 2   | `updateNote(id, { text })` | Revise the text; blanking a saved note is rejected rather than wiping it                                            | via `note_write(update)` |
-| 3   | `getNote(id)`              | Read                                                                                                                | internal                 |
-| 4   | `listNotes(since?)`        | Reverse-chronological timeline                                                                                      | internal                 |
-| 5   | `deleteNote(id, preview_id)`           | **Hard delete** — permanent. Destructive annotation. Ships on both surfaces. No restore in POC — recovery is Growth | via `note_delete` |
+| #   | Action                       | Description                                                                                                         | MCP?                     |
+| --- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| 1   | `addNote(text)`              | Capture free text; rejected when `text` is blank                                                                    | via `note_write(create)` |
+| 2   | `updateNote(id, { text })`   | Revise the text; blanking a saved note is rejected rather than wiping it                                            | via `note_write(update)` |
+| 3   | `getNote(id)`                | Read                                                                                                                | internal                 |
+| 4   | `listNotes(since?)`          | Reverse-chronological timeline                                                                                      | internal                 |
+| 5   | `deleteNote(id, preview_id)` | **Hard delete** — permanent. Destructive annotation. Ships on both surfaces. No restore in POC — recovery is Growth | via `note_delete`        |
 
 ---
 
@@ -572,10 +572,10 @@ itself the record that it did not happen._
   recomputed from the marks on hand.
 - A comment on a habit is a `ResultLog` with `value = null` (Entity 5).
 
-| #   | Action                                  | Description                           | MCP?                                |
-| --- | --------------------------------------- | ------------------------------------- | ----------------------------------- |
-| 1   | `setHabitLog(result_id, day, marked)`  | Insert or delete the row for that day | via `progress_record(result, habit)` |
-| 2   | `listHabitLogs(result_id, from?, to?, cursor?, limit?)` | A bounded page of marked days in a window           | internal                            |
+| #   | Action                                                  | Description                               | MCP?                                 |
+| --- | ------------------------------------------------------- | ----------------------------------------- | ------------------------------------ |
+| 1   | `setHabitLog(result_id, day, marked)`                   | Insert or delete the row for that day     | via `progress_record(result, habit)` |
+| 2   | `listHabitLogs(result_id, from?, to?, cursor?, limit?)` | A bounded page of marked days in a window | internal                             |
 
 ---
 
@@ -683,16 +683,16 @@ Definitions are declarations under `packages/core/src/features/`; runtime availa
 separate from contract existence. The complete declaration catalogue and operation eval mappings are materialized; shared-service
 implementation and live evaluation remain pending. See [contract handoff](../packages/core/src/contracts/evals/MCP-CONTRACTS.md).
 
-| Collection / declaration module | Dedicated public tools | Exclusive responsibility |
-|---|---|---|
-| Cycles — `tools/cycles.ts` | `cycle_read`, `cycle_update`, `cycle_lifecycle`, `cycle_delete` | list/get; field edits; create/archive/activate; deletion preview/commit |
-| Objectives — `tools/objectives.ts` | `objective_read`, `objective_write`, `objective_delete` | list/get; create/update; permanent deletion |
-| Results — `tools/results.ts` | `result_read`, `result_write`, `result_delete` | list/get and result evidence reads; create/update; permanent deletion |
-| Actions — `tools/actions.ts` | `action_read`, `action_write`, `action_delete` | list/get and action history reads; create/update intent and links; permanent deletion |
-| Notes — `tools/notes.ts` | `note_read`, `note_write`, `note_delete` | list/get; create/update; permanent deletion |
-| User — `tools/users.ts` | `user_read`, `user_update` | read permitted coaching profile; update editable profile fields |
-| Sessions — `tools/sessions.ts` | `session_read`, `session_start`, `session_close` | list/get; open/resume with briefing; explicitly end and persist summary |
-| Progress — `tools/progress.ts` | `progress_record` | record result evidence/habit logs and action outcomes; no generic record reads |
+| Collection / declaration module    | Dedicated public tools                                          | Exclusive responsibility                                                              |
+| ---------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Cycles — `tools/cycles.ts`         | `cycle_read`, `cycle_update`, `cycle_lifecycle`, `cycle_delete` | list/get; field edits; create/archive/activate; deletion preview/commit               |
+| Objectives — `tools/objectives.ts` | `objective_read`, `objective_write`, `objective_delete`         | list/get; create/update; permanent deletion                                           |
+| Results — `tools/results.ts`       | `result_read`, `result_write`, `result_delete`                  | list/get and result evidence reads; create/update; permanent deletion                 |
+| Actions — `tools/actions.ts`       | `action_read`, `action_write`, `action_delete`                  | list/get and action history reads; create/update intent and links; permanent deletion |
+| Notes — `tools/notes.ts`           | `note_read`, `note_write`, `note_delete`                        | list/get; create/update; permanent deletion                                           |
+| User — `tools/users.ts`            | `user_read`, `user_update`                                      | read permitted coaching profile; update editable profile fields                       |
+| Sessions — `tools/sessions.ts`     | `session_read`, `session_start`, `session_close`                | list/get; open/resume with briefing; explicitly end and persist summary               |
+| Progress — `tools/progress.ts`     | `progress_record`                                               | record result evidence/habit logs and action outcomes; no generic record reads        |
 
 Read tools require `coach:read`; writes, including `session_start`, require `coach:write`.
 Annotations cover every arm's actual effects. Action field edits exclude status and order:
@@ -714,10 +714,10 @@ conversation's `source_url`.
 
 Returns a **typed** `access_state`, never prose the model must interpret:
 
-| `access_state` | Rest of the payload                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `access_state` | Rest of the payload                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `active`       | The standardised briefing (Entity 8 content contract) as `briefing_notes`, plus its structured twin: cycle (date range, intention, time gone, achievement — or `null` for no active cycle) · objectives with results, statuses, progress, and movement since the last session · actions open in the person's order, with overdue · notes since the boundary with canonical web URLs · the last session's headline and summary · profile (chosen name, about-me, timezone) · stale-session context if one is open |
-| `unpaid`       | `enablement` only: the instruction to relay and the signup link. **No coaching state.** Do not coach, do not write, do not imply access                                                                                                                                                                                                                                                                                                                                                                         |
+| `unpaid`       | `enablement` only: the instruction to relay and the signup link. **No coaching state.** Do not coach, do not write, do not imply access                                                                                                                                                                                                                                                                                                                                                                          |
 
 `force_new: true` closes a stale open session without a summary and starts a fresh one — use only
 when the person declines to resume. Creates the Session row and persists `briefing_notes`; it is a
@@ -738,11 +738,11 @@ closed by the person.
 
 ### 3 · `cycle_lifecycle(operation, ...)`
 
-| Operation | Required | Effect |
-|---|---|---|
-| create | start_at, end_at, idempotency_key; intention optional | Create active cycle and archive incumbent atomically; explicit dates |
-| archive | owned UUID | Archive while retaining descendants |
-| activate | owned UUID | Activate selected cycle and archive incumbent |
+| Operation | Required                                              | Effect                                                               |
+| --------- | ----------------------------------------------------- | -------------------------------------------------------------------- |
+| create    | start_at, end_at, idempotency_key; intention optional | Create active cycle and archive incumbent atomically; explicit dates |
+| archive   | owned UUID                                            | Archive while retaining descendants                                  |
+| activate  | owned UUID                                            | Activate selected cycle and archive incumbent                        |
 
 Field edits use cycle_update; permanent deletion uses cycle_delete. Shared services return the
 application detail receipt; MCP projects cycle and changed identifiers. Create keys are scoped to
@@ -755,11 +755,11 @@ that lookup. F2 Cycles § MCP contract owns detailed replay, lifecycle and failu
 
 ### 4 · `objective_write(operation, ...)` and `objective_delete`
 
-| `operation` | Required                                                     | Effect                                                                                                                                                                                        |
-| ----------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `create`    | `title`, `description`; `deadline_at?`                       | Creates within the active cycle. Requires an active cycle to exist                                                                                                                            |
+| `operation` | Required                                                     | Effect                                                                                                                                                                                                                                                                 |
+| ----------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `create`    | `title`, `description`; `deadline_at?`                       | Creates within the active cycle. Requires an active cycle to exist                                                                                                                                                                                                     |
 | `update`    | `id`; any of `title`, `description`, `deadline_at`, `status` | Edits the goal, including `status` (`on_track` · `off_track` · `completed`) — your judgement from the conversation and the evidence, not a calculation; the person can override it on the web. A deadline can be moved, never removed: `deadline_at: null` is rejected |
-| `delete`    | `id`                                                         | Removes the objective and its results and actions. Permanent, no recovery in POC. Confirm with the person first                                                                               |
+| `delete`    | `id`                                                         | Removes the objective and its results and actions. Permanent, no recovery in POC. Confirm with the person first                                                                                                                                                        |
 
 "Drop it" and "delete it" are the same act in the POC — there is no separate drop state. Returns the
 objective with its results, actions, its status, its short code, and its derived progress % and
@@ -795,10 +795,10 @@ comments, links, and overdue state.
 The single tool for logging what actually happened. Append-only for values, readings, and action
 outcomes; a toggle for habit days. It adds evidence, never overwrites it.
 
-| `target` | Required                                                                                                                                                                       | Effect                                                                                                                                                                                                                                                                                                  |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `target` | Required                                                                                                                                                                       | Effect                                                                                                                                                                                                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `result` | `result_id`; then by type — value types: `value`; `milestone`: `value` 0 or 1; `performance`: `value` (a reading, one decimal); `habit`: `day`, `marked`; any type: `comment?` | Value types and performance: records a ResultLog, from which the current value derives. Habit: inserts or deletes the HabitLog for `day`; a `comment` alone records a ResultLog with `value = null`. A `comment` with no new value on a value type records a ResultLog at the unchanged value |
-| `action` | `action_id`, `status` (`open \| in_progress \| done`); `comment?`                                                                                                              | Records an ActionLog row and sets the action's status to the one supplied                                                                                                                                                                                                                               |
+| `action` | `action_id`, `status` (`open \| in_progress \| done`); `comment?`                                                                                                              | Records an ActionLog row and sets the action's status to the one supplied                                                                                                                                                                                                                     |
 
 **`status` may repeat the action's current status.** That is the comment path: "still blocked on the
 interview" is recorded by passing the unchanged status with a `comment`, which appends a timestamped
@@ -863,15 +863,15 @@ name or `queryRecord` alias is exposed. Internal services and oRPC procedures ma
 records; that does not make them MCP tools. The registry in `contracts/tools.ts` is the only
 executable definition inventory, and only implemented entries are published.
 
-| Read capability formerly supplied by queryRecord | Exclusive intended owner | Contract state |
-|---|---|---|
-| Cycle index and selected cycle, dates/status/derived figures | cycle_read | Defined, service implementation pending |
-| Permitted profile and user timezone | user_read | Defined, implementation pending |
-| Objectives and their current/boundary figures, filtered by cycle | objective_read | Defined, implementation pending |
-| Results, derived figures and trend; result-log and habit-log evidence windows | result_read | Defined, implementation pending |
-| Actions/current status and action-log evidence windows | action_read | Defined, implementation pending |
-| Notes and note timeline/window | note_read | Defined, implementation pending |
-| Saved sessions, briefing/summary documents and last-completed-session boundary | session_read | Defined, implementation pending |
+| Read capability formerly supplied by queryRecord                               | Exclusive intended owner | Contract state                          |
+| ------------------------------------------------------------------------------ | ------------------------ | --------------------------------------- |
+| Cycle index and selected cycle, dates/status/derived figures                   | cycle_read               | Defined, service implementation pending |
+| Permitted profile and user timezone                                            | user_read                | Defined, implementation pending         |
+| Objectives and their current/boundary figures, filtered by cycle               | objective_read           | Defined, implementation pending         |
+| Results, derived figures and trend; result-log and habit-log evidence windows  | result_read              | Defined, implementation pending         |
+| Actions/current status and action-log evidence windows                         | action_read              | Defined, implementation pending         |
+| Notes and note timeline/window                                                 | note_read                | Defined, implementation pending         |
+| Saved sessions, briefing/summary documents and last-completed-session boundary | session_read             | Defined, implementation pending         |
 
 Evidence histories belong to their result/action reader; do not additionally expose another
 reader for the same evidence operation. Date windows, retention, isolation and current-versus-past
@@ -901,7 +901,6 @@ The following former generic read specification is retained for internal applica
 and migration traceability only. It is not a public tool contract; no MCP adapter may wrap it.
 Its old MCP publication instruction is superseded by Exclusive read ownership above. New entity
 contracts inherit relevant data semantics without inheriting the generic return surface.
-
 
 Internal composition reads the coaching record without opening a session. All input
 fields are optional: `queryRecord()` returns current context; `filters` narrow the records;
@@ -989,24 +988,24 @@ prefixes (`cycle_read`) with explicit membership in plural collections (`cycles`
 change schema/API naming or imply single-row output for a grouped reader. Custom SQL in `drizzle/0006_product_integrity.sql`
 completes grants, trigger invariants and the Action session-reference delete column list.
 
-| Ontology                    | `packages/core/src/contracts/schema.ts` | `packages/core/src/contracts/tools.ts` / `router.ts`                                       | Status  |
-| --------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------ | ------- |
-| Entity 1 User               | `user` + derived `subscription` projection                                 | `updateUser`; web-only `createCheckoutSession`, `createBillingPortalSession`, `deleteUser` | schema ready; surfaces pending |
-| Entity 2 Cycle              | `cycles`                                | `cycle_read`, `cycle_update`, `cycle_lifecycle` | schema ready; tools contract-only |
-| Entity 3 Objective          | `objectives`                            | `objective_write`                                                                          | schema ready; surfaces pending |
-| Entity 4 Result             | `results` (+ per-type `CHECK`s)         | `result_write`                                                                             | schema ready; surfaces pending |
-| Entity 5 ResultLog       | `result_logs` (insert-only)          | `progress_record(result)`; web-only `clearResultLogComment`                              | schema ready; surfaces pending |
-| Entity 6 Action             | `actions`                               | `action_write`; web-only `sort_order` write                                                | schema ready; surfaces pending |
-| Entity 7 ActionLog          | `action_logs` (insert-only)             | `progress_record(action)`; web-only `clearActionLogComment`                                 | schema ready; surfaces pending |
-| Entity 8 Session            | `sessions`                              | `loadBriefing`, `closeSession`                                                             | schema ready; surfaces pending |
-| Entity 9 Note               | `notes`                                 | `note_write`                                                                               | schema ready; surfaces pending |
-| Entity 10 HabitLog         | `habit_logs` (unique `result_id, day`) | `progress_record(result, habit)`                                                            | schema ready; surfaces pending |
-| § Tool 12 cycle_delete | — (no domain entity changes) | cycleDeleteInput; cycleDeleteTool; previewCycleDeletion/deleteCycle; cycle-delete.json | contract-only; preview/approval persistence pending |
-| § Tool 11 cycle_update | — (no new tables) | cycleUpdateInput; cycleUpdateTool; updateCycle; cycle-update.json | contract-only |
-| § Tool 10 cycle_read | — (no new tables) | cycleReadInput; cycleReadTool; listCycles/getCycle; cycle-read.json | contract-only |
-| § Exclusive read ownership | — (no new tables) | Future entity readers replace public queryRecord; internal RecordQuery composition retained | pending |
-| § Derived values            | — (no columns)                          | one derivation module, imported by every procedure and tool                                | pending |
-| § Briefing content contract | —                                       | `loadBriefing` assembler                                                                   | pending |
+| Ontology                    | `packages/core/src/contracts/schema.ts`    | `packages/core/src/contracts/tools.ts` / `router.ts`                                        | Status                                              |
+| --------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Entity 1 User               | `user` + derived `subscription` projection | `updateUser`; web-only `createCheckoutSession`, `createBillingPortalSession`, `deleteUser`  | schema ready; surfaces pending                      |
+| Entity 2 Cycle              | `cycles`                                   | `cycle_read`, `cycle_update`, `cycle_lifecycle`                                             | schema ready; tools contract-only                   |
+| Entity 3 Objective          | `objectives`                               | `objective_write`                                                                           | schema ready; surfaces pending                      |
+| Entity 4 Result             | `results` (+ per-type `CHECK`s)            | `result_write`                                                                              | schema ready; surfaces pending                      |
+| Entity 5 ResultLog          | `result_logs` (insert-only)                | `progress_record(result)`; web-only `clearResultLogComment`                                 | schema ready; surfaces pending                      |
+| Entity 6 Action             | `actions`                                  | `action_write`; web-only `sort_order` write                                                 | schema ready; surfaces pending                      |
+| Entity 7 ActionLog          | `action_logs` (insert-only)                | `progress_record(action)`; web-only `clearActionLogComment`                                 | schema ready; surfaces pending                      |
+| Entity 8 Session            | `sessions`                                 | `loadBriefing`, `closeSession`                                                              | schema ready; surfaces pending                      |
+| Entity 9 Note               | `notes`                                    | `note_write`                                                                                | schema ready; surfaces pending                      |
+| Entity 10 HabitLog          | `habit_logs` (unique `result_id, day`)     | `progress_record(result, habit)`                                                            | schema ready; surfaces pending                      |
+| § Tool 12 cycle_delete      | — (no domain entity changes)               | cycleDeleteInput; cycleDeleteTool; previewCycleDeletion/deleteCycle; cycle-delete.json      | contract-only; preview/approval persistence pending |
+| § Tool 11 cycle_update      | — (no new tables)                          | cycleUpdateInput; cycleUpdateTool; updateCycle; cycle-update.json                           | contract-only                                       |
+| § Tool 10 cycle_read        | — (no new tables)                          | cycleReadInput; cycleReadTool; listCycles/getCycle; cycle-read.json                         | contract-only                                       |
+| § Exclusive read ownership  | — (no new tables)                          | Future entity readers replace public queryRecord; internal RecordQuery composition retained | pending                                             |
+| § Derived values            | — (no columns)                             | one derivation module, imported by every procedure and tool                                 | pending                                             |
+| § Briefing content contract | —                                          | `loadBriefing` assembler                                                                    | pending                                             |
 
 ## Deferred to MVP / Growth
 
