@@ -89,7 +89,7 @@
   ],
   "rulesSha256": "a3f632ff6961a367c7f5c3ef210647e7cf3172430b376a361b0ac036e64f314a",
   "apiDocs": {
-    "metadataSha256": "7296012395942a1becd52e548a33a952a1a439afc612045d933108809a8422b4",
+    "metadataSha256": "785b4055476daac9a59752de9bd6fce1a24d07a8dfcdbfa637ebfd84363e18ce",
     "openapiSha256": "46cf1d8e1b26323ae7d082069201c582135355078b08ce6d0c988ae6c510ee4f",
     "operations": 55,
     "serviceCatalog": {
@@ -174,7 +174,7 @@
     }
   },
   "apiMap": {
-    "graphSha256": "efa194ca3852430d97362d1e3048d319e5842a0b94347529042782b53a8f5b34",
+    "graphSha256": "52a46b9225673508928b0e091ab14b55611618e04fd054d18980898f0c9c19ac",
     "snapshot": "drizzle/meta/0015_snapshot.json",
     "snapshotSha256": "6ac45743f779295acd6457d93c7450f954884e94a564b33f4de6dcbb969da2df",
     "openapiSha256": "46cf1d8e1b26323ae7d082069201c582135355078b08ce6d0c988ae6c510ee4f",
@@ -183,9 +183,9 @@
     "findings": 1
   },
   "architecture": {
-    "architectureSha256": "0ef91e021f695018f246e179c3685cef99c1785881e1740c199b2e8f20f9c735",
+    "architectureSha256": "21a35994ea692394b3f9aa90b726a3c244d219bf54378ba9ff4659ceb8a9ff73",
     "catalogSha256": "1cbfbdc720599b99cdba02197cf81c8676972cd55ff78ffb2e20603ba01b027f",
-    "apiMapSha256": "efa194ca3852430d97362d1e3048d319e5842a0b94347529042782b53a8f5b34",
+    "apiMapSha256": "52a46b9225673508928b0e091ab14b55611618e04fd054d18980898f0c9c19ac",
     "nodes": 225,
     "connections": 353,
     "openEnds": 27
