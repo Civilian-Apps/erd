@@ -13,6 +13,7 @@ import {
 export const getUser = defineService(inputs.getUserInput, userProfileSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { user: 'read', subscription: 'read', oauth_consent: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/identity-billing/service.contract.ts#getUser',
   requirement: 'docs/feature-specs/F1-identity.md',
@@ -36,6 +37,7 @@ export const updateUser = defineService(inputs.updateUserInput, userWriteResultS
   ],
   access: 'account-management',
   effect: 'write',
+  tables: { user: 'write', subscription: 'read', oauth_consent: 'read' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/identity-billing/service.contract.ts#updateUser',
   requirement: 'docs/feature-specs/F1-identity.md',
@@ -59,6 +61,8 @@ export const deleteUser = defineService(inputs.deleteUserInput, deleteResultSche
   ],
   access: 'account-management',
   effect: 'delete',
+  tables: { user: 'delete' },
+  external: 'stripe',
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/identity-billing/service.contract.ts#deleteUser',
   requirement: 'docs/feature-specs/F1-identity.md',
@@ -79,6 +83,8 @@ export const createCheckoutSession = defineService(
   {
     access: 'account-management',
     effect: 'external',
+    tables: { user: 'read', subscription: 'read' },
+    external: 'stripe',
     retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
     source: 'packages/core/src/features/identity-billing/service.contract.ts#createCheckoutSession',
     requirement: 'docs/feature-specs/F1-identity.md',
@@ -100,6 +106,8 @@ export const createBillingPortalSession = defineService(
   {
     access: 'account-management',
     effect: 'external',
+    tables: { user: 'read' },
+    external: 'stripe',
     retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
     source:
       'packages/core/src/features/identity-billing/service.contract.ts#createBillingPortalSession',
@@ -122,6 +130,8 @@ export const getBillingDetails = defineService(
   {
     access: 'account-management',
     effect: 'external',
+    tables: { subscription: 'read' },
+    external: 'stripe',
     retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
     source: 'packages/core/src/features/identity-billing/service.contract.ts#getBillingDetails',
     requirement: 'docs/feature-specs/F1-identity.md',

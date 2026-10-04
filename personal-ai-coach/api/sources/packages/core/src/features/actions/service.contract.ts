@@ -18,6 +18,14 @@ export const createAction = defineService(
     emits: [{ event: actionCreated, when: 'After durable creation; no replay duplicate.' }],
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      actions: 'write',
+      cycles: 'read',
+      objectives: 'read',
+      sessions: 'read',
+      action_logs: 'read',
+      idempotency_keys: 'write',
+    },
     retry:
       'API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.',
     source: 'packages/core/src/features/actions/service.contract.ts#createAction',
@@ -37,6 +45,7 @@ export const createAction = defineService(
 export const listActions = defineService(inputs.listActionsInput, actionListServiceSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { actions: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/actions/service.contract.ts#listActions',
   requirement: 'docs/feature-specs/F5-actions.md',
@@ -54,6 +63,13 @@ export const listActions = defineService(inputs.listActionsInput, actionListServ
 export const getAction = defineService(inputs.getActionInput, actionDetailSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: {
+    actions: 'read',
+    cycles: 'read',
+    objectives: 'read',
+    sessions: 'read',
+    action_logs: 'read',
+  },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/actions/service.contract.ts#getAction',
   requirement: 'docs/feature-specs/F5-actions.md',
@@ -71,6 +87,13 @@ export const getAction = defineService(inputs.getActionInput, actionDetailSchema
 export const updateAction = defineService(inputs.updateActionInput, actionWriteResultSchema, {
   access: 'entitled-write',
   effect: 'write',
+  tables: {
+    actions: 'write',
+    cycles: 'read',
+    objectives: 'read',
+    sessions: 'read',
+    action_logs: 'read',
+  },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/actions/service.contract.ts#updateAction',
   requirement: 'docs/feature-specs/F5-actions.md',
@@ -88,6 +111,13 @@ export const updateAction = defineService(inputs.updateActionInput, actionWriteR
 export const reorderAction = defineService(inputs.reorderActionInput, actionWriteResultSchema, {
   access: 'entitled-write',
   effect: 'write',
+  tables: {
+    actions: 'write',
+    cycles: 'read',
+    objectives: 'read',
+    sessions: 'read',
+    action_logs: 'read',
+  },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/actions/service.contract.ts#reorderAction',
   requirement: 'docs/feature-specs/F5-actions.md',
@@ -105,6 +135,7 @@ export const reorderAction = defineService(inputs.reorderActionInput, actionWrit
 export const deleteAction = defineService(inputs.deleteActionInput, deleteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
+  tables: { actions: 'delete' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/actions/service.contract.ts#deleteAction',
   requirement: 'docs/feature-specs/F5-actions.md',
@@ -131,6 +162,14 @@ export const createActionLog = defineService(
     ],
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      action_logs: 'write',
+      actions: 'write',
+      cycles: 'read',
+      objectives: 'read',
+      sessions: 'read',
+      idempotency_keys: 'write',
+    },
     retry:
       'API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.',
     source: 'packages/core/src/features/actions/service.contract.ts#createActionLog',
@@ -153,6 +192,7 @@ export const listActionLogs = defineService(
   {
     access: 'retained-read',
     effect: 'read',
+    tables: { action_logs: 'read' },
     retry: 'Safe to retry with the same resolved filters and cursor.',
     source: 'packages/core/src/features/actions/service.contract.ts#listActionLogs',
     requirement: 'docs/feature-specs/F5-actions.md',
@@ -174,6 +214,13 @@ export const clearActionLogComment = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      action_logs: 'write',
+      actions: 'read',
+      cycles: 'read',
+      objectives: 'read',
+      sessions: 'read',
+    },
     retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
     source: 'packages/core/src/features/actions/service.contract.ts#clearActionLogComment',
     requirement: 'docs/feature-specs/F5-actions.md',
@@ -195,6 +242,7 @@ export const previewActionDeletion = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: { actions: 'read', action_logs: 'read' },
     retry:
       'Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.',
     source: 'packages/core/src/features/actions/service.contract.ts#previewActionDeletion',
@@ -214,6 +262,7 @@ export const previewActionDeletion = defineService(
 export const readActionHistory = defineService(inputs.actionHistoryInput, actionHistorySchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { actions: 'read', action_logs: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/actions/service.contract.ts#readActionHistory',
   requirement: 'docs/feature-specs/F5-actions.md',

@@ -4,7 +4,7 @@
   "schema": {
     "source": "packages/core/src/contracts/schema.ts",
     "ontology": "docs/ONTOLOGY.md",
-    "relationship": "Source reference only; service-to-table access is not declared or enforced here."
+    "relationship": "Each service declares the tables it touches (`tables`); names are checked against this schema by a contract test. Declarations are design obligations, not enforced access."
   },
   "scaffold_mcp": [
     {
@@ -8906,6 +8906,12 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "cycles": "write",
+        "objectives": "read",
+        "idempotency_keys": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Actor/operation/key-scoped original-outcome replay, including post-commit response failures.",
       "emits": [
@@ -9318,6 +9324,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "write",
+      "tables": {
+        "cycles": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [
@@ -9451,6 +9461,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "cycles": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -9589,6 +9603,16 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "cycles": "read",
+        "objectives": "read",
+        "results": "read",
+        "result_logs": "read",
+        "habit_logs": "read",
+        "actions": "read",
+        "action_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -9800,6 +9824,11 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "cycles": "read",
+        "objectives": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -10111,6 +10140,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "cycles": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -10283,6 +10316,11 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "cycles": "write",
+        "objectives": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [
@@ -10733,6 +10771,10 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "delete",
+      "tables": {
+        "cycles": "delete"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -10819,6 +10861,15 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "objectives": "read",
+        "results": "read",
+        "result_logs": "read",
+        "habit_logs": "read",
+        "actions": "read",
+        "action_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.",
       "emits": [],
@@ -10988,6 +11039,14 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "objectives": "write",
+        "cycles": "read",
+        "results": "read",
+        "actions": "read",
+        "idempotency_keys": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.",
       "emits": [
@@ -12641,6 +12700,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "objectives": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -12853,6 +12916,13 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "objectives": "read",
+        "cycles": "read",
+        "results": "read",
+        "actions": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -14380,6 +14450,13 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "objectives": "write",
+        "cycles": "read",
+        "results": "read",
+        "actions": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -15996,6 +16073,10 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "delete",
+      "tables": {
+        "objectives": "delete"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -16078,6 +16159,12 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "results": "read",
+        "result_logs": "read",
+        "habit_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -16615,6 +16702,12 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "results": "read",
+        "result_logs": "read",
+        "habit_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.",
       "emits": [],
@@ -16766,6 +16859,15 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "results": "write",
+        "cycles": "read",
+        "objectives": "read",
+        "result_logs": "read",
+        "habit_logs": "read",
+        "idempotency_keys": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.",
       "emits": [],
@@ -19057,6 +19159,11 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "results": "read",
+        "cycles": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -20254,6 +20361,14 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "results": "read",
+        "cycles": "read",
+        "objectives": "read",
+        "result_logs": "read",
+        "habit_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -21964,6 +22079,14 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "results": "write",
+        "cycles": "read",
+        "objectives": "read",
+        "result_logs": "read",
+        "habit_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -23823,6 +23946,10 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "delete",
+      "tables": {
+        "results": "delete"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -23905,6 +24032,15 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "result_logs": "write",
+        "results": "read",
+        "cycles": "read",
+        "objectives": "read",
+        "habit_logs": "read",
+        "idempotency_keys": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.",
       "emits": [
@@ -25727,6 +25863,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "result_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -25872,6 +26012,14 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "result_logs": "write",
+        "results": "read",
+        "cycles": "read",
+        "objectives": "read",
+        "habit_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -27635,6 +27783,14 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "delete",
+      "tables": {
+        "result_logs": "delete",
+        "results": "read",
+        "cycles": "read",
+        "objectives": "read",
+        "habit_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -29398,6 +29554,14 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "habit_logs": "write",
+        "results": "read",
+        "cycles": "read",
+        "objectives": "read",
+        "result_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Repeated desired day state is safe; a comment is evidence and must not be blindly repeated.",
       "emits": [
@@ -31198,6 +31362,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "habit_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -31340,6 +31508,11 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "actions": "read",
+        "action_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -31570,6 +31743,11 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "actions": "read",
+        "action_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.",
       "emits": [],
@@ -31715,6 +31893,15 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "actions": "write",
+        "cycles": "read",
+        "objectives": "read",
+        "sessions": "read",
+        "action_logs": "read",
+        "idempotency_keys": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.",
       "emits": [
@@ -32528,6 +32715,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "actions": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -32799,6 +32990,14 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "actions": "read",
+        "cycles": "read",
+        "objectives": "read",
+        "sessions": "read",
+        "action_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -33446,6 +33645,14 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "actions": "write",
+        "cycles": "read",
+        "objectives": "read",
+        "sessions": "read",
+        "action_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -34206,6 +34413,14 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "actions": "write",
+        "cycles": "read",
+        "objectives": "read",
+        "sessions": "read",
+        "action_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -34910,6 +35125,10 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "delete",
+      "tables": {
+        "actions": "delete"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -34992,6 +35211,15 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "action_logs": "write",
+        "actions": "write",
+        "cycles": "read",
+        "objectives": "read",
+        "sessions": "read",
+        "idempotency_keys": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.",
       "emits": [
@@ -35765,6 +35993,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "action_logs": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -35909,6 +36141,14 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "action_logs": "write",
+        "actions": "read",
+        "cycles": "read",
+        "objectives": "read",
+        "sessions": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -36609,6 +36849,10 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "notes": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.",
       "emits": [],
@@ -36749,6 +36993,11 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "notes": "write",
+        "idempotency_keys": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.",
       "emits": [
@@ -36938,6 +37187,10 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "notes": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -37106,6 +37359,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "notes": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -37304,6 +37561,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "notes": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -37399,6 +37660,10 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "delete",
+      "tables": {
+        "notes": "delete"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -37481,6 +37746,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "sessions": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -37740,6 +38009,16 @@
       "readiness": "contract-only",
       "access": "session-start",
       "effect": "write",
+      "tables": {
+        "sessions": "write",
+        "user": "read",
+        "cycles": "read",
+        "objectives": "read",
+        "results": "read",
+        "actions": "read",
+        "notes": "read"
+      },
+      "external": null,
       "trusted_context": "session-origin",
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [
@@ -45219,6 +45498,10 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "sessions": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -45562,6 +45845,11 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "sessions": "read",
+        "actions": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -45921,6 +46209,10 @@
       "readiness": "contract-only",
       "access": "entitled-write",
       "effect": "write",
+      "tables": {
+        "sessions": "write"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Return the originally saved closure on retry; never overwrite its summary.",
       "emits": [
@@ -46159,6 +46451,19 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "cycles": "read",
+        "objectives": "read",
+        "results": "read",
+        "result_logs": "read",
+        "habit_logs": "read",
+        "actions": "read",
+        "action_logs": "read",
+        "notes": "read",
+        "sessions": "read",
+        "user": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -50344,6 +50649,12 @@
       "readiness": "contract-only",
       "access": "retained-read",
       "effect": "read",
+      "tables": {
+        "user": "read",
+        "subscription": "read",
+        "oauth_consent": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Safe to retry with the same resolved filters and cursor.",
       "emits": [],
@@ -50473,6 +50784,12 @@
       "readiness": "contract-only",
       "access": "account-management",
       "effect": "write",
+      "tables": {
+        "user": "write",
+        "subscription": "read",
+        "oauth_consent": "read"
+      },
+      "external": null,
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [
@@ -50641,6 +50958,10 @@
       "readiness": "contract-only",
       "access": "account-management",
       "effect": "delete",
+      "tables": {
+        "user": "delete"
+      },
+      "external": "stripe",
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [
@@ -50704,6 +51025,11 @@
       "readiness": "contract-only",
       "access": "account-management",
       "effect": "external",
+      "tables": {
+        "user": "read",
+        "subscription": "read"
+      },
+      "external": "stripe",
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -50752,6 +51078,10 @@
       "readiness": "contract-only",
       "access": "account-management",
       "effect": "external",
+      "tables": {
+        "user": "read"
+      },
+      "external": "stripe",
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],
@@ -50800,6 +51130,10 @@
       "readiness": "contract-only",
       "access": "account-management",
       "effect": "external",
+      "tables": {
+        "subscription": "read"
+      },
+      "external": "stripe",
       "trusted_context": null,
       "retry": "Inspect state after uncertain outcomes; never infer rollback from a response failure.",
       "emits": [],

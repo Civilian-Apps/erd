@@ -16,6 +16,7 @@ export const createCycle = defineService(inputs.createCycleInput, cycleWriteResu
   ],
   access: 'entitled-write',
   effect: 'write',
+  tables: { cycles: 'write', objectives: 'read', idempotency_keys: 'write' },
   retry:
     'Actor/operation/key-scoped original-outcome replay, including post-commit response failures.',
   source: 'packages/core/src/features/cycles/service.contract.ts#createCycle',
@@ -40,6 +41,7 @@ export const getActiveCycle = defineService(inputs.getActiveCycleInput, cycleSch
   ],
   access: 'retained-read',
   effect: 'write',
+  tables: { cycles: 'write' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/cycles/service.contract.ts#getActiveCycle',
   requirement: 'docs/feature-specs/F2-cycles.md',
@@ -60,6 +62,7 @@ export const getStoredActiveCycle = defineService(
   {
     access: 'retained-read',
     effect: 'read',
+    tables: { cycles: 'read' },
     retry: 'Safe to retry with the same resolved filters and cursor.',
     source: 'packages/core/src/features/cycles/service.contract.ts#getStoredActiveCycle',
     requirement: 'docs/feature-specs/F2-cycles.md',
@@ -81,6 +84,15 @@ export const previewCycleDeletion = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      cycles: 'read',
+      objectives: 'read',
+      results: 'read',
+      result_logs: 'read',
+      habit_logs: 'read',
+      actions: 'read',
+      action_logs: 'read',
+    },
     retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
     source: 'packages/core/src/features/cycles/service.contract.ts#previewCycleDeletion',
     requirement: 'docs/feature-specs/F2-cycles.md',
@@ -99,6 +111,7 @@ export const previewCycleDeletion = defineService(
 export const getCycle = defineService(inputs.getCycleInput, cycleDetailSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { cycles: 'read', objectives: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/cycles/service.contract.ts#getCycle',
   requirement: 'docs/feature-specs/F2-cycles.md',
@@ -116,6 +129,7 @@ export const getCycle = defineService(inputs.getCycleInput, cycleDetailSchema, {
 export const listCycles = defineService(inputs.listCyclesInput, pageSchema(cycleSchema), {
   access: 'retained-read',
   effect: 'read',
+  tables: { cycles: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/cycles/service.contract.ts#listCycles',
   requirement: 'docs/feature-specs/F2-cycles.md',
@@ -139,6 +153,7 @@ export const updateCycle = defineService(inputs.updateCycleInput, cycleWriteResu
   ],
   access: 'entitled-write',
   effect: 'write',
+  tables: { cycles: 'write', objectives: 'read' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/cycles/service.contract.ts#updateCycle',
   requirement: 'docs/feature-specs/F2-cycles.md',
@@ -156,6 +171,7 @@ export const updateCycle = defineService(inputs.updateCycleInput, cycleWriteResu
 export const deleteCycle = defineService(inputs.deleteCycleInput, deleteCycleResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
+  tables: { cycles: 'delete' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/cycles/service.contract.ts#deleteCycle',
   requirement: 'docs/feature-specs/F2-cycles.md',

@@ -190,6 +190,8 @@ export function validateApplication(definition: ApplicationDefinition): void {
   for (const [group, entries] of Object.entries(definition.services)) {
     for (const [name, service] of Object.entries(entries)) {
       if (approved.has(service)) throw new Error(`Duplicate service declaration: ${group}.${name}`)
+      if (service.effect === 'external' && !service.external?.trim())
+        throw new Error(`External service must name its system: ${group}.${name}`)
       approved.add(service)
     }
   }

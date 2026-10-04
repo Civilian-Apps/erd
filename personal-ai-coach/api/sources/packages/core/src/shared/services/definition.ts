@@ -25,6 +25,8 @@ export type ServiceAccess =
 
 export type ServiceEffect = 'read' | 'write' | 'delete' | 'external'
 
+export type TableAccess = 'read' | 'write' | 'delete'
+
 export type ServiceError =
   | 'UNAUTHORIZED'
   | 'BAD_REQUEST'
@@ -39,6 +41,16 @@ export interface ServicePolicy {
   readonly emits?: readonly EventEmission[]
   readonly access: ServiceAccess
   readonly effect: ServiceEffect
+  /**
+   * Database tables whose rows this operation returns or changes, by physical table name, with
+   * the strongest access (`write` may also read). Include side tables such as `idempotency_keys`.
+   * Leave out tables removed only by a foreign-key cascade and `product_events` (see `emits`).
+   * Names are plain strings so declarations stay free of database imports; a contract test
+   * checks them against the schema. `{}` means the operation touches no table.
+   */
+  readonly tables: Readonly<Record<string, TableAccess>>
+  /** The external system this operation calls. Required when `effect` is `external`. */
+  readonly external?: string
   readonly retry: string
   readonly source?: string
   readonly trustedContext?: 'session-origin'

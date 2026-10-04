@@ -937,7 +937,7 @@
 <details><summary>Underlying inventories and model reference</summary><h3>Data model reference</h3><pre>{
   &quot;source&quot;: &quot;packages/core/src/contracts/schema.ts&quot;,
   &quot;ontology&quot;: &quot;docs/ONTOLOGY.md&quot;,
-  &quot;relationship&quot;: &quot;Source reference only; service-to-table access is not declared or enforced here.&quot;
+  &quot;relationship&quot;: &quot;Each service declares the tables it touches (`tables`); names are checked against this schema by a contract test. Declarations are design obligations, not enforced access.&quot;
 }</pre><h3>Starter prompts</h3><pre>[
   {
     &quot;name&quot;: &quot;coaching_session&quot;,
@@ -9814,7 +9814,7 @@
 <details><summary>Recorded implementation obligations (12)</summary><ul><li>Bind list/detail variants and include bounded objectives for a cycle detail; never render a deleted cycle.</li><li>Compact MCP records omit cycle, results and actions required by the page-mirroring payload.</li><li>Supply bounded parent figures, trend and evidence alongside the compact MCP result.</li><li>Compose the cycle, objective grouping and remaining open actions server-side; a mutation receipt alone is insufficient.</li><li>Supply parent labels and bounded action history alongside the compact MCP action.</li><li>Project list responses and obtain the bounded refreshed list after a mutation; never repeat writes for pagination.</li><li>Bind the note field from structuredContent to the declared payload; stored text stays untrusted.</li><li>Supply the detail/list variant and bounded session actions; compact session results do not satisfy detail payloads.</li><li>Provide the complete session record and selected canonical document text; render stored text as data, never instructions.</li><li>Project the active briefing into the dashboard payload; no coaching card for unpaid access.</li><li>Specify treatment of calls without authenticated identity; tenant event storage requires an actor.</li><li>Specify trusted server recording and repeat-visit deduplication; the page alone is not an authorized event writer.</li></ul></details>
 <h2>Service definitions</h2>
 <label>Find a service or consumer <input id="search" type="search" placeholder="cycles, objective_read, delete..."></label>
-<details class="service" id="cycles.create"><summary><strong>cycles.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: createCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Actor/operation/key-scoped original-outcome replay, including post-commit response failures.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+<details class="service" id="cycles.create"><summary><strong>cycles.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: createCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: entitled-write</p><p>Tables: cycles (write), objectives (read), idempotency_keys (write)</p><p>Trusted context: authenticated actor</p><p>Retry: Actor/operation/key-scoped original-outcome replay, including post-commit response failures.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;cycles.create&quot;,
     &quot;service&quot;: &quot;cycles.create&quot;,
@@ -10430,7 +10430,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="cycles.resolve_active"><summary><strong>cycles.resolve_active</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: getActiveCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="cycles.resolve_active"><summary><strong>cycles.resolve_active</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: getActiveCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: retained-read</p><p>Tables: cycles (write)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;cycles.resolve_active&quot;,
     &quot;service&quot;: &quot;cycles.resolve_active&quot;,
@@ -10534,7 +10534,7 @@
       &quot;type&quot;: &quot;null&quot;
     }
   ]
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="cycles.get_stored_active"><summary><strong>cycles.get_stored_active</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: getStoredActiveCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[]</pre><h3>MCP consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="cycles.get_stored_active"><summary><strong>cycles.get_stored_active</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: getStoredActiveCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: retained-read</p><p>Tables: cycles (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[]</pre><h3>MCP consumers</h3><pre>[
   {
     &quot;tool&quot;: &quot;cycle_read&quot;,
     &quot;collection&quot;: &quot;cycles&quot;,
@@ -10986,7 +10986,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="cycles.preview_deletion"><summary><strong>cycles.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: previewCycleDeletion</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="cycles.preview_deletion"><summary><strong>cycles.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: previewCycleDeletion</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: entitled-write</p><p>Tables: cycles (read), objectives (read), results (read), result_logs (read), habit_logs (read), actions (read), action_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;cycles.preview_deletion&quot;,
     &quot;service&quot;: &quot;cycles.preview_deletion&quot;,
@@ -11420,7 +11420,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="cycles.get"><summary><strong>cycles.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: getCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="cycles.get"><summary><strong>cycles.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: getCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: retained-read</p><p>Tables: cycles (read), objectives (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;cycles.get&quot;,
     &quot;service&quot;: &quot;cycles.get&quot;,
@@ -12045,7 +12045,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="cycles.list"><summary><strong>cycles.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: listCycles</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="cycles.list"><summary><strong>cycles.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: listCycles</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: retained-read</p><p>Tables: cycles (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;cycles.list&quot;,
     &quot;service&quot;: &quot;cycles.list&quot;,
@@ -12530,7 +12530,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="cycles.update"><summary><strong>cycles.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: updateCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="cycles.update"><summary><strong>cycles.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: updateCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: entitled-write</p><p>Tables: cycles (write), objectives (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;cycles.update&quot;,
     &quot;service&quot;: &quot;cycles.update&quot;,
@@ -13618,7 +13618,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="cycles.delete"><summary><strong>cycles.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: deleteCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="cycles.delete"><summary><strong>cycles.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/cycles/service.contract.ts">Feature declaration: deleteCycle</a></p><p>Requirement: docs/feature-specs/F2-cycles.md · Access: entitled-write</p><p>Tables: cycles (delete)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;cycles.delete&quot;,
     &quot;service&quot;: &quot;cycles.delete&quot;,
@@ -13927,7 +13927,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="objectives.preview_deletion"><summary><strong>objectives.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: previewObjectiveDeletion</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="objectives.preview_deletion"><summary><strong>objectives.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: previewObjectiveDeletion</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: entitled-write</p><p>Tables: objectives (read), results (read), result_logs (read), habit_logs (read), actions (read), action_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;objectives.preview_deletion&quot;,
     &quot;service&quot;: &quot;objectives.preview_deletion&quot;,
@@ -14273,7 +14273,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="objectives.create"><summary><strong>objectives.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: createObjective</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="objectives.create"><summary><strong>objectives.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: createObjective</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: entitled-write</p><p>Tables: objectives (write), cycles (read), results (read), actions (read), idempotency_keys (write)</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;objectives.create&quot;,
     &quot;service&quot;: &quot;objectives.create&quot;,
@@ -16147,7 +16147,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="objectives.list"><summary><strong>objectives.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: listObjectives</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="objectives.list"><summary><strong>objectives.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: listObjectives</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: retained-read</p><p>Tables: objectives (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;objectives.list&quot;,
     &quot;service&quot;: &quot;objectives.list&quot;,
@@ -16718,7 +16718,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="objectives.get"><summary><strong>objectives.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: getObjective</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="objectives.get"><summary><strong>objectives.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: getObjective</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: retained-read</p><p>Tables: objectives (read), cycles (read), results (read), actions (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;objectives.get&quot;,
     &quot;service&quot;: &quot;objectives.get&quot;,
@@ -18604,7 +18604,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="objectives.update"><summary><strong>objectives.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: updateObjective</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="objectives.update"><summary><strong>objectives.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: updateObjective</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: entitled-write</p><p>Tables: objectives (write), cycles (read), results (read), actions (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;objectives.update&quot;,
     &quot;service&quot;: &quot;objectives.update&quot;,
@@ -20446,7 +20446,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="objectives.delete"><summary><strong>objectives.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: deleteObjective</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="objectives.delete"><summary><strong>objectives.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/objectives/service.contract.ts">Feature declaration: deleteObjective</a></p><p>Requirement: docs/feature-specs/F3-objectives.md · Access: entitled-write</p><p>Tables: objectives (delete)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;objectives.delete&quot;,
     &quot;service&quot;: &quot;objectives.delete&quot;,
@@ -20705,7 +20705,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="results.history"><summary><strong>results.history</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: readResultHistory</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[]</pre><h3>MCP consumers</h3><pre>[
+]</pre></details></details><details class="service" id="results.history"><summary><strong>results.history</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: readResultHistory</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Tables: results (read), result_logs (read), habit_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[]</pre><h3>MCP consumers</h3><pre>[
   {
     &quot;tool&quot;: &quot;result_read&quot;,
     &quot;collection&quot;: &quot;results&quot;,
@@ -24349,7 +24349,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="results.preview_deletion"><summary><strong>results.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: previewResultDeletion</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="results.preview_deletion"><summary><strong>results.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: previewResultDeletion</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Tables: results (read), result_logs (read), habit_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;results.preview_deletion&quot;,
     &quot;service&quot;: &quot;results.preview_deletion&quot;,
@@ -24659,7 +24659,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="results.create"><summary><strong>results.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: createResult</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="results.create"><summary><strong>results.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: createResult</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Tables: results (write), cycles (read), objectives (read), result_logs (read), habit_logs (read), idempotency_keys (write)</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;results.create&quot;,
     &quot;service&quot;: &quot;results.create&quot;,
@@ -28440,7 +28440,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="results.list"><summary><strong>results.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: listResults</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="results.list"><summary><strong>results.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: listResults</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Tables: results (read), cycles (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;results.list&quot;,
     &quot;service&quot;: &quot;results.list&quot;,
@@ -32744,7 +32744,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="results.get"><summary><strong>results.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: getResult</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="results.get"><summary><strong>results.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: getResult</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Tables: results (read), cycles (read), objectives (read), result_logs (read), habit_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;results.get&quot;,
     &quot;service&quot;: &quot;results.get&quot;,
@@ -37561,7 +37561,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="results.update"><summary><strong>results.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: updateResult</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="results.update"><summary><strong>results.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: updateResult</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Tables: results (write), cycles (read), objectives (read), result_logs (read), habit_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;results.update&quot;,
     &quot;service&quot;: &quot;results.update&quot;,
@@ -40910,7 +40910,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="results.delete"><summary><strong>results.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: deleteResult</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="results.delete"><summary><strong>results.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: deleteResult</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Tables: results (delete)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;results.delete&quot;,
     &quot;service&quot;: &quot;results.delete&quot;,
@@ -41151,7 +41151,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="result_logs.create"><summary><strong>result_logs.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: createResultLog</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="result_logs.create"><summary><strong>result_logs.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: createResultLog</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Tables: result_logs (write), results (read), cycles (read), objectives (read), habit_logs (read), idempotency_keys (write)</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;result_logs.create&quot;,
     &quot;service&quot;: &quot;result_logs.create&quot;,
@@ -44350,7 +44350,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="result_logs.list"><summary><strong>result_logs.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: listResultLogs</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="result_logs.list"><summary><strong>result_logs.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: listResultLogs</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Tables: result_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;result_logs.list&quot;,
     &quot;service&quot;: &quot;result_logs.list&quot;,
@@ -44471,7 +44471,7 @@
     &quot;next_cursor&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="result_logs.clear_comment"><summary><strong>result_logs.clear_comment</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: clearResultLogComment</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="result_logs.clear_comment"><summary><strong>result_logs.clear_comment</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: clearResultLogComment</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Tables: result_logs (write), results (read), cycles (read), objectives (read), habit_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;result_logs.clear_comment&quot;,
     &quot;service&quot;: &quot;result_logs.clear_comment&quot;,
@@ -46210,7 +46210,7 @@
     &quot;continuations&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="result_logs.delete"><summary><strong>result_logs.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: deleteResultLog</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="result_logs.delete"><summary><strong>result_logs.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: deleteResultLog</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Tables: result_logs (delete), results (read), cycles (read), objectives (read), habit_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;result_logs.delete&quot;,
     &quot;service&quot;: &quot;result_logs.delete&quot;,
@@ -47949,7 +47949,7 @@
     &quot;continuations&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="habit_logs.set"><summary><strong>habit_logs.set</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: setHabitLog</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Repeated desired day state is safe; a comment is evidence and must not be blindly repeated.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="habit_logs.set"><summary><strong>habit_logs.set</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: setHabitLog</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: entitled-write</p><p>Tables: habit_logs (write), results (read), cycles (read), objectives (read), result_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Repeated desired day state is safe; a comment is evidence and must not be blindly repeated.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;habit_logs.set&quot;,
     &quot;service&quot;: &quot;habit_logs.set&quot;,
@@ -51126,7 +51126,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="habit_logs.list"><summary><strong>habit_logs.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: listHabitLogs</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="habit_logs.list"><summary><strong>habit_logs.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/results/service.contract.ts">Feature declaration: listHabitLogs</a></p><p>Requirement: docs/feature-specs/F4-results.md · Access: retained-read</p><p>Tables: habit_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;habit_logs.list&quot;,
     &quot;service&quot;: &quot;habit_logs.list&quot;,
@@ -51244,7 +51244,7 @@
     &quot;next_cursor&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="actions.history"><summary><strong>actions.history</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: readActionHistory</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[]</pre><h3>MCP consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="actions.history"><summary><strong>actions.history</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: readActionHistory</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: retained-read</p><p>Tables: actions (read), action_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[]</pre><h3>MCP consumers</h3><pre>[
   {
     &quot;tool&quot;: &quot;action_read&quot;,
     &quot;collection&quot;: &quot;actions&quot;,
@@ -52226,7 +52226,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="actions.preview_deletion"><summary><strong>actions.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: previewActionDeletion</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="actions.preview_deletion"><summary><strong>actions.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: previewActionDeletion</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Tables: actions (read), action_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;actions.preview_deletion&quot;,
     &quot;service&quot;: &quot;actions.preview_deletion&quot;,
@@ -52524,7 +52524,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="actions.create"><summary><strong>actions.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: createAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="actions.create"><summary><strong>actions.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: createAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Tables: actions (write), cycles (read), objectives (read), sessions (read), action_logs (read), idempotency_keys (write)</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;actions.create&quot;,
     &quot;service&quot;: &quot;actions.create&quot;,
@@ -53609,7 +53609,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="actions.list"><summary><strong>actions.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: listActions</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="actions.list"><summary><strong>actions.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: listActions</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: retained-read</p><p>Tables: actions (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;actions.list&quot;,
     &quot;service&quot;: &quot;actions.list&quot;,
@@ -54632,7 +54632,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="actions.get"><summary><strong>actions.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: getAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="actions.get"><summary><strong>actions.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: getAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: retained-read</p><p>Tables: actions (read), cycles (read), objectives (read), sessions (read), action_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;actions.get&quot;,
     &quot;service&quot;: &quot;actions.get&quot;,
@@ -56031,7 +56031,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="actions.update"><summary><strong>actions.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: updateAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="actions.update"><summary><strong>actions.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: updateAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Tables: actions (write), cycles (read), objectives (read), sessions (read), action_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;actions.update&quot;,
     &quot;service&quot;: &quot;actions.update&quot;,
@@ -57068,7 +57068,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="actions.reorder"><summary><strong>actions.reorder</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: reorderAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="actions.reorder"><summary><strong>actions.reorder</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: reorderAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Tables: actions (write), cycles (read), objectives (read), sessions (read), action_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;actions.reorder&quot;,
     &quot;service&quot;: &quot;actions.reorder&quot;,
@@ -57748,7 +57748,7 @@
     &quot;continuations&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="actions.delete"><summary><strong>actions.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: deleteAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="actions.delete"><summary><strong>actions.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: deleteAction</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Tables: actions (delete)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;actions.delete&quot;,
     &quot;service&quot;: &quot;actions.delete&quot;,
@@ -57983,7 +57983,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="action_logs.create"><summary><strong>action_logs.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: createActionLog</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="action_logs.create"><summary><strong>action_logs.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: createActionLog</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Tables: action_logs (write), actions (write), cycles (read), objectives (read), sessions (read), idempotency_keys (write)</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;action_logs.create&quot;,
     &quot;service&quot;: &quot;action_logs.create&quot;,
@@ -60133,7 +60133,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="action_logs.list"><summary><strong>action_logs.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: listActionLogs</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="action_logs.list"><summary><strong>action_logs.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: listActionLogs</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: retained-read</p><p>Tables: action_logs (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;action_logs.list&quot;,
     &quot;service&quot;: &quot;action_logs.list&quot;,
@@ -60253,7 +60253,7 @@
     &quot;next_cursor&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="action_logs.clear_comment"><summary><strong>action_logs.clear_comment</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: clearActionLogComment</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="action_logs.clear_comment"><summary><strong>action_logs.clear_comment</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/actions/service.contract.ts">Feature declaration: clearActionLogComment</a></p><p>Requirement: docs/feature-specs/F5-actions.md · Access: entitled-write</p><p>Tables: action_logs (write), actions (read), cycles (read), objectives (read), sessions (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;action_logs.clear_comment&quot;,
     &quot;service&quot;: &quot;action_logs.clear_comment&quot;,
@@ -60929,7 +60929,7 @@
     &quot;continuations&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="notes.preview_deletion"><summary><strong>notes.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: previewNoteDeletion</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="notes.preview_deletion"><summary><strong>notes.preview_deletion</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: previewNoteDeletion</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: entitled-write</p><p>Tables: notes (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;notes.preview_deletion&quot;,
     &quot;service&quot;: &quot;notes.preview_deletion&quot;,
@@ -61217,7 +61217,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="notes.create"><summary><strong>notes.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: addNote</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="notes.create"><summary><strong>notes.create</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: addNote</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: entitled-write</p><p>Tables: notes (write), idempotency_keys (write)</p><p>Trusted context: authenticated actor</p><p>Retry: API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;notes.create&quot;,
     &quot;service&quot;: &quot;notes.create&quot;,
@@ -61521,7 +61521,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="notes.update"><summary><strong>notes.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: updateNote</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="notes.update"><summary><strong>notes.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: updateNote</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: entitled-write</p><p>Tables: notes (write)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;notes.update&quot;,
     &quot;service&quot;: &quot;notes.update&quot;,
@@ -61809,7 +61809,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="notes.list"><summary><strong>notes.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: listNotes</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="notes.list"><summary><strong>notes.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: listNotes</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: retained-read</p><p>Tables: notes (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;notes.list&quot;,
     &quot;service&quot;: &quot;notes.list&quot;,
@@ -62308,7 +62308,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="notes.get"><summary><strong>notes.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: getNote</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="notes.get"><summary><strong>notes.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: getNote</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: retained-read</p><p>Tables: notes (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;notes.get&quot;,
     &quot;service&quot;: &quot;notes.get&quot;,
@@ -62704,7 +62704,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="notes.delete"><summary><strong>notes.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: deleteNote</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="notes.delete"><summary><strong>notes.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/notes/service.contract.ts">Feature declaration: deleteNote</a></p><p>Requirement: docs/feature-specs/F6-notes.md · Access: entitled-write</p><p>Tables: notes (delete)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;notes.delete&quot;,
     &quot;service&quot;: &quot;notes.delete&quot;,
@@ -62934,7 +62934,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="sessions.get_stored"><summary><strong>sessions.get_stored</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: readStoredSession</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[]</pre><h3>MCP consumers</h3><pre>[
+]</pre></details></details><details class="service" id="sessions.get_stored"><summary><strong>sessions.get_stored</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: readStoredSession</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: retained-read</p><p>Tables: sessions (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[]</pre><h3>MCP consumers</h3><pre>[
   {
     &quot;tool&quot;: &quot;session_read&quot;,
     &quot;collection&quot;: &quot;sessions&quot;,
@@ -63783,7 +63783,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="sessions.start"><summary><strong>sessions.start</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: loadBriefing</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: session-start</p><p>Trusted context: session-origin</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="sessions.start"><summary><strong>sessions.start</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: loadBriefing</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: session-start</p><p>Tables: sessions (write), user (read), cycles (read), objectives (read), results (read), actions (read), notes (read)</p><p>Trusted context: session-origin</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;sessions.start&quot;,
     &quot;service&quot;: &quot;sessions.start&quot;,
@@ -79405,7 +79405,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="sessions.list"><summary><strong>sessions.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: listSessions</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="sessions.list"><summary><strong>sessions.list</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: listSessions</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: retained-read</p><p>Tables: sessions (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;sessions.list&quot;,
     &quot;service&quot;: &quot;sessions.list&quot;,
@@ -80338,7 +80338,7 @@
       ]
     }
   }
-]</pre></details></details><details class="service" id="sessions.get"><summary><strong>sessions.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: getSession</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="sessions.get"><summary><strong>sessions.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: getSession</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: retained-read</p><p>Tables: sessions (read), actions (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;sessions.get&quot;,
     &quot;service&quot;: &quot;sessions.get&quot;,
@@ -80673,7 +80673,7 @@
     &quot;continuations&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="sessions.close"><summary><strong>sessions.close</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: closeSession</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: entitled-write</p><p>Trusted context: authenticated actor</p><p>Retry: Return the originally saved closure on retry; never overwrite its summary.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="sessions.close"><summary><strong>sessions.close</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/sessions/service.contract.ts">Feature declaration: closeSession</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: entitled-write</p><p>Tables: sessions (write)</p><p>Trusted context: authenticated actor</p><p>Retry: Return the originally saved closure on retry; never overwrite its summary.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;sessions.close&quot;,
     &quot;service&quot;: &quot;sessions.close&quot;,
@@ -81087,7 +81087,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="record.query"><summary><strong>record.query</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/record-query/service.contract.ts">Feature declaration: queryRecord</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="record.query"><summary><strong>record.query</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/record-query/service.contract.ts">Feature declaration: queryRecord</a></p><p>Requirement: docs/feature-specs/F7-sessions.md · Access: retained-read</p><p>Tables: cycles (read), objectives (read), results (read), result_logs (read), habit_logs (read), actions (read), action_logs (read), notes (read), sessions (read), user (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;record.query&quot;,
     &quot;service&quot;: &quot;record.query&quot;,
@@ -85248,7 +85248,7 @@
     &quot;current&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="user.get"><summary><strong>user.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: getUser</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: retained-read</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="user.get"><summary><strong>user.get</strong> · read · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: getUser</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: retained-read</p><p>Tables: user (read), subscription (read), oauth_consent (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Safe to retry with the same resolved filters and cursor.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;user.get&quot;,
     &quot;service&quot;: &quot;user.get&quot;,
@@ -85415,7 +85415,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="user.update"><summary><strong>user.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: updateUser</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="user.update"><summary><strong>user.update</strong> · write · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: updateUser</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Tables: user (write), subscription (read), oauth_consent (read)</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;user.update&quot;,
     &quot;service&quot;: &quot;user.update&quot;,
@@ -85666,7 +85666,7 @@
       &quot;additionalProperties&quot;: false
     }
   }
-]</pre></details></details><details class="service" id="user.delete"><summary><strong>user.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: deleteUser</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+]</pre></details></details><details class="service" id="user.delete"><summary><strong>user.delete</strong> · delete · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: deleteUser</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Tables: user (delete) · External system: stripe</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;user.delete&quot;,
     &quot;service&quot;: &quot;user.delete&quot;,
@@ -85700,7 +85700,7 @@
     &quot;id&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="billing.create_checkout_session"><summary><strong>billing.create_checkout_session</strong> · external · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: createCheckoutSession</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="billing.create_checkout_session"><summary><strong>billing.create_checkout_session</strong> · external · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: createCheckoutSession</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Tables: user (read), subscription (read) · External system: stripe</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;billing.create_checkout_session&quot;,
     &quot;service&quot;: &quot;billing.create_checkout_session&quot;,
@@ -85724,7 +85724,7 @@
     &quot;url&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="billing.create_portal_session"><summary><strong>billing.create_portal_session</strong> · external · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: createBillingPortalSession</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="billing.create_portal_session"><summary><strong>billing.create_portal_session</strong> · external · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: createBillingPortalSession</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Tables: user (read) · External system: stripe</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;billing.create_portal_session&quot;,
     &quot;service&quot;: &quot;billing.create_portal_session&quot;,
@@ -85748,7 +85748,7 @@
     &quot;url&quot;
   ],
   &quot;additionalProperties&quot;: false
-}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="billing.get_details"><summary><strong>billing.get_details</strong> · external · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: getBillingDetails</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE</p><h3>API consumers</h3><pre>[
+}</pre><details><summary>Public MCP input/output shapes for comparison</summary><pre>[]</pre></details></details><details class="service" id="billing.get_details"><summary><strong>billing.get_details</strong> · external · contract-only</summary><p><a href="sources/packages/core/src/features/identity-billing/service.contract.ts">Feature declaration: getBillingDetails</a></p><p>Requirement: docs/feature-specs/F1-identity.md · Access: account-management</p><p>Tables: subscription (read) · External system: stripe</p><p>Trusted context: authenticated actor</p><p>Retry: Inspect state after uncertain outcomes; never infer rollback from a response failure.</p><p>Expected errors: UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND, CONFLICT, NOT_IMPLEMENTED, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE</p><h3>API consumers</h3><pre>[
   {
     &quot;operation&quot;: &quot;billing.get_details&quot;,
     &quot;service&quot;: &quot;billing.get_details&quot;,

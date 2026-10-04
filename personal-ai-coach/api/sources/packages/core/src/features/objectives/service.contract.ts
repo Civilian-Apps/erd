@@ -13,6 +13,13 @@ export const createObjective = defineService(
     emits: [{ event: objectiveCreated, when: 'After durable creation; no replay duplicate.' }],
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      objectives: 'write',
+      cycles: 'read',
+      results: 'read',
+      actions: 'read',
+      idempotency_keys: 'write',
+    },
     retry:
       'API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.',
     source: 'packages/core/src/features/objectives/service.contract.ts#createObjective',
@@ -35,6 +42,7 @@ export const listObjectives = defineService(
   {
     access: 'retained-read',
     effect: 'read',
+    tables: { objectives: 'read' },
     retry: 'Safe to retry with the same resolved filters and cursor.',
     source: 'packages/core/src/features/objectives/service.contract.ts#listObjectives',
     requirement: 'docs/feature-specs/F3-objectives.md',
@@ -53,6 +61,7 @@ export const listObjectives = defineService(
 export const getObjective = defineService(inputs.getObjectiveInput, objectiveDetailSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { objectives: 'read', cycles: 'read', results: 'read', actions: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/objectives/service.contract.ts#getObjective',
   requirement: 'docs/feature-specs/F3-objectives.md',
@@ -73,6 +82,7 @@ export const updateObjective = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: { objectives: 'write', cycles: 'read', results: 'read', actions: 'read' },
     retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
     source: 'packages/core/src/features/objectives/service.contract.ts#updateObjective',
     requirement: 'docs/feature-specs/F3-objectives.md',
@@ -91,6 +101,7 @@ export const updateObjective = defineService(
 export const deleteObjective = defineService(inputs.deleteObjectiveInput, deleteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
+  tables: { objectives: 'delete' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/objectives/service.contract.ts#deleteObjective',
   requirement: 'docs/feature-specs/F3-objectives.md',
@@ -111,6 +122,14 @@ export const previewObjectiveDeletion = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      objectives: 'read',
+      results: 'read',
+      result_logs: 'read',
+      habit_logs: 'read',
+      actions: 'read',
+      action_logs: 'read',
+    },
     retry:
       'Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.',
     source: 'packages/core/src/features/objectives/service.contract.ts#previewObjectiveDeletion',

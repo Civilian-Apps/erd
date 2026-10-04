@@ -19,6 +19,15 @@ export const loadBriefing = defineService(inputs.loadBriefingInput, loadBriefing
   access: 'session-start',
   trustedContext: 'session-origin',
   effect: 'write',
+  tables: {
+    sessions: 'write',
+    user: 'read',
+    cycles: 'read',
+    objectives: 'read',
+    results: 'read',
+    actions: 'read',
+    notes: 'read',
+  },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/sessions/service.contract.ts#loadBriefing',
   requirement: 'docs/feature-specs/F7-sessions.md',
@@ -36,6 +45,7 @@ export const loadBriefing = defineService(inputs.loadBriefingInput, loadBriefing
 export const listSessions = defineService(inputs.listSessionsInput, sessionListServiceSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { sessions: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/sessions/service.contract.ts#listSessions',
   requirement: 'docs/feature-specs/F7-sessions.md',
@@ -53,6 +63,7 @@ export const listSessions = defineService(inputs.listSessionsInput, sessionListS
 export const getSession = defineService(inputs.getSessionInput, sessionDetailSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { sessions: 'read', actions: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/sessions/service.contract.ts#getSession',
   requirement: 'docs/feature-specs/F7-sessions.md',
@@ -76,6 +87,7 @@ export const closeSession = defineService(inputs.closeSessionInput, closeSession
   ],
   access: 'entitled-write',
   effect: 'write',
+  tables: { sessions: 'write' },
   retry: 'Return the originally saved closure on retry; never overwrite its summary.',
   source: 'packages/core/src/features/sessions/service.contract.ts#closeSession',
   requirement: 'docs/feature-specs/F7-sessions.md',
@@ -93,6 +105,7 @@ export const closeSession = defineService(inputs.closeSessionInput, closeSession
 export const readStoredSession = defineService(inputs.readStoredSessionInput, storedSessionSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { sessions: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/sessions/service.contract.ts#readStoredSession',
   requirement: 'docs/feature-specs/F7-sessions.md',

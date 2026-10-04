@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-04T09:33:28.239Z",
+  "generated_at": "2026-10-04T10:22:17.448Z",
   "base_revision": "5ef0e866c17c65714bf9e739fdb0272a2b637e98",
   "includes_working_tree_edits": true,
-  "contract_sha256": "0ae13560502777ea9bf38c2688c14363ea6b4c0716f4d8d292d39160cb3fcba5",
+  "contract_sha256": "c5020b50a095946eb4b2d02a683f240482548e35d7885060d59d73ee463a44d9",
   "openapi_sha256": "46cf1d8e1b26323ae7d082069201c582135355078b08ce6d0c988ae6c510ee4f",
-  "services_sha256": "1cbfbdc720599b99cdba02197cf81c8676972cd55ff78ffb2e20603ba01b027f",
+  "services_sha256": "cc451e77dcb9d81ced0e5e88b90269330fe67f95862d79b6b1c501d81a45ffc8",
   "services": 56,
   "operations": 55,
   "files": [
@@ -18,7 +18,7 @@
     },
     {
       "path": "packages/core/src/contracts/application.ts",
-      "sha256": "f35e48d708d8d4b198c503b001fca375c06e213444a9745526f6d0a1fe444595"
+      "sha256": "d24e6b9e9df012cdb4d3f18af418a56ed420ad5fd3cb97cb87e60bdd0e42f0ee"
     },
     {
       "path": "packages/core/src/contracts/pages.ts",
@@ -62,7 +62,7 @@
     },
     {
       "path": "packages/core/src/features/actions/service.contract.ts",
-      "sha256": "0e5f1199da7d9c340ce036d3d2a251bdec81f3ceb35c06dd8cf6f78bae49db89"
+      "sha256": "05038000c4b7b763b3faba8841f6fcb4cb81979c8f3bfab5e8c2d2b558525cb7"
     },
     {
       "path": "packages/core/src/features/cycles/api.contract.ts",
@@ -90,7 +90,7 @@
     },
     {
       "path": "packages/core/src/features/cycles/service.contract.ts",
-      "sha256": "3d0ee97578d0da1ec2507f30ed66c1e33b6df9592a626dbbbec76b2e43ca6c8f"
+      "sha256": "923b03a2a9aef4ac7a16ac0ff6d04a2e2ab0527619a62e30ff7977712b551ada"
     },
     {
       "path": "packages/core/src/features/example/api.contract.ts",
@@ -134,7 +134,7 @@
     },
     {
       "path": "packages/core/src/features/identity-billing/service.contract.ts",
-      "sha256": "df64d142f4b88681ae327f5c88f26d72534275aaf870f2dbb34f3774488fc5c6"
+      "sha256": "2a5a4e29c0398216482af291fe1f99158f9b2ac2633b57c4796e2f7ed75b9848"
     },
     {
       "path": "packages/core/src/features/notes/api.contract.ts",
@@ -162,7 +162,7 @@
     },
     {
       "path": "packages/core/src/features/notes/service.contract.ts",
-      "sha256": "b4ffa77f496fa9a4bfeca2fc62ffe1d76fab8e3ab8698a271360064a001ce47e"
+      "sha256": "0d39839fe42fa71c20b4fc17e65e6bc0753914ec5fbd7dda34144e1be3ea9b04"
     },
     {
       "path": "packages/core/src/features/objectives/api.contract.ts",
@@ -190,7 +190,7 @@
     },
     {
       "path": "packages/core/src/features/objectives/service.contract.ts",
-      "sha256": "8764a6489b1a9265d2032988ff2568f15b4d9d6b28e10d73ddb49244a765d3ce"
+      "sha256": "aa35dce787a20dda4a59679d47748eebb1021fbd36b5ac96c520efcbe7217836"
     },
     {
       "path": "packages/core/src/features/record-query/api.contract.ts",
@@ -202,7 +202,7 @@
     },
     {
       "path": "packages/core/src/features/record-query/service.contract.ts",
-      "sha256": "56a90cccf85c376fd7eaa181a5efc02dd5742b115050bc74bbb3f5c28a3d0d76"
+      "sha256": "8aa4af0934ad94cb2e5d71bb600bc914ff35f7bf9ba4a33479a61406c6f620c7"
     },
     {
       "path": "packages/core/src/features/results/api.contract.ts",
@@ -230,7 +230,7 @@
     },
     {
       "path": "packages/core/src/features/results/service.contract.ts",
-      "sha256": "07cff63d49bde005e26824bdd880475719ed50f54c40cfbeba1ef0674e34d296"
+      "sha256": "48823083b65a3b5f206a6800328fac7447217dd307fe64703e3c7aba28dd555d"
     },
     {
       "path": "packages/core/src/features/sessions/api.contract.ts",
@@ -258,7 +258,7 @@
     },
     {
       "path": "packages/core/src/features/sessions/service.contract.ts",
-      "sha256": "2542c1ac1ced8112f8fd49d7a1ec7d917be6130af35762c15516f462ae067596"
+      "sha256": "38ab35ccc575b81a91dcf7082f710b7121677e9f950aeec98ed122648fac422a"
     },
     {
       "path": "packages/core/src/shared/api/contract-base.ts",
@@ -302,7 +302,7 @@
     },
     {
       "path": "packages/core/src/shared/services/definition.ts",
-      "sha256": "daaaa9fe78308c81e6f76fbbce8ead499278e5c89e8075d6b03c765a79bba918"
+      "sha256": "8327b1623037b075c7e9f4e708858d8bc0e7f439114fc91eea1cac58831823d5"
     }
   ]
 }

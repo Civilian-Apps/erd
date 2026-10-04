@@ -22,6 +22,7 @@ export const addNote = defineService(
     ],
     access: 'entitled-write',
     effect: 'write',
+    tables: { notes: 'write', idempotency_keys: 'write' },
     retry:
       'API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.',
     source: 'packages/core/src/features/notes/service.contract.ts#addNote',
@@ -41,6 +42,7 @@ export const addNote = defineService(
 export const updateNote = defineService(inputs.updateNoteInput, noteWriteResultSchema, {
   access: 'entitled-write',
   effect: 'write',
+  tables: { notes: 'write' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/notes/service.contract.ts#updateNote',
   requirement: 'docs/feature-specs/F6-notes.md',
@@ -58,6 +60,7 @@ export const updateNote = defineService(inputs.updateNoteInput, noteWriteResultS
 export const listNotes = defineService(inputs.listNotesInput, noteListServiceSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { notes: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/notes/service.contract.ts#listNotes',
   requirement: 'docs/feature-specs/F6-notes.md',
@@ -75,6 +78,7 @@ export const listNotes = defineService(inputs.listNotesInput, noteListServiceSch
 export const getNote = defineService(inputs.getNoteInput, noteSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { notes: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/notes/service.contract.ts#getNote',
   requirement: 'docs/feature-specs/F6-notes.md',
@@ -92,6 +96,7 @@ export const getNote = defineService(inputs.getNoteInput, noteSchema, {
 export const deleteNote = defineService(inputs.deleteNoteInput, deleteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
+  tables: { notes: 'delete' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/notes/service.contract.ts#deleteNote',
   requirement: 'docs/feature-specs/F6-notes.md',
@@ -112,6 +117,7 @@ export const previewNoteDeletion = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: { notes: 'read' },
     retry:
       'Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.',
     source: 'packages/core/src/features/notes/service.contract.ts#previewNoteDeletion',

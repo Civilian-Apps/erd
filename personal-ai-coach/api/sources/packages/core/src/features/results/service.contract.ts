@@ -13,6 +13,14 @@ export const createResult = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      results: 'write',
+      cycles: 'read',
+      objectives: 'read',
+      result_logs: 'read',
+      habit_logs: 'read',
+      idempotency_keys: 'write',
+    },
     retry:
       'API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.',
     source: 'packages/core/src/features/results/service.contract.ts#createResult',
@@ -32,6 +40,7 @@ export const createResult = defineService(
 export const listResults = defineService(inputs.listResultsInput, pageSchema(resultSchema), {
   access: 'retained-read',
   effect: 'read',
+  tables: { results: 'read', cycles: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/results/service.contract.ts#listResults',
   requirement: 'docs/feature-specs/F4-results.md',
@@ -49,6 +58,13 @@ export const listResults = defineService(inputs.listResultsInput, pageSchema(res
 export const getResult = defineService(inputs.getResultInput, resultDetailSchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: {
+    results: 'read',
+    cycles: 'read',
+    objectives: 'read',
+    result_logs: 'read',
+    habit_logs: 'read',
+  },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/results/service.contract.ts#getResult',
   requirement: 'docs/feature-specs/F4-results.md',
@@ -66,6 +82,13 @@ export const getResult = defineService(inputs.getResultInput, resultDetailSchema
 export const updateResult = defineService(inputs.updateResultInput, resultWriteResultSchema, {
   access: 'entitled-write',
   effect: 'write',
+  tables: {
+    results: 'write',
+    cycles: 'read',
+    objectives: 'read',
+    result_logs: 'read',
+    habit_logs: 'read',
+  },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/results/service.contract.ts#updateResult',
   requirement: 'docs/feature-specs/F4-results.md',
@@ -83,6 +106,7 @@ export const updateResult = defineService(inputs.updateResultInput, resultWriteR
 export const deleteResult = defineService(inputs.deleteResultInput, deleteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
+  tables: { results: 'delete' },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/results/service.contract.ts#deleteResult',
   requirement: 'docs/feature-specs/F4-results.md',
@@ -109,6 +133,14 @@ export const createResultLog = defineService(
     ],
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      result_logs: 'write',
+      results: 'read',
+      cycles: 'read',
+      objectives: 'read',
+      habit_logs: 'read',
+      idempotency_keys: 'write',
+    },
     retry:
       'API requires client-key replay; unkeyed MCP calls must inspect state after an uncertain outcome.',
     source: 'packages/core/src/features/results/service.contract.ts#createResultLog',
@@ -131,6 +163,7 @@ export const listResultLogs = defineService(
   {
     access: 'retained-read',
     effect: 'read',
+    tables: { result_logs: 'read' },
     retry: 'Safe to retry with the same resolved filters and cursor.',
     source: 'packages/core/src/features/results/service.contract.ts#listResultLogs',
     requirement: 'docs/feature-specs/F4-results.md',
@@ -152,6 +185,13 @@ export const clearResultLogComment = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: {
+      result_logs: 'write',
+      results: 'read',
+      cycles: 'read',
+      objectives: 'read',
+      habit_logs: 'read',
+    },
     retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
     source: 'packages/core/src/features/results/service.contract.ts#clearResultLogComment',
     requirement: 'docs/feature-specs/F4-results.md',
@@ -170,6 +210,13 @@ export const clearResultLogComment = defineService(
 export const deleteResultLog = defineService(inputs.deleteResultLogInput, resultWriteResultSchema, {
   access: 'entitled-write',
   effect: 'delete',
+  tables: {
+    result_logs: 'delete',
+    results: 'read',
+    cycles: 'read',
+    objectives: 'read',
+    habit_logs: 'read',
+  },
   retry: 'Inspect state after uncertain outcomes; never infer rollback from a response failure.',
   source: 'packages/core/src/features/results/service.contract.ts#deleteResultLog',
   requirement: 'docs/feature-specs/F4-results.md',
@@ -193,6 +240,13 @@ export const setHabitLog = defineService(inputs.setHabitLogInput, resultWriteRes
   ],
   access: 'entitled-write',
   effect: 'write',
+  tables: {
+    habit_logs: 'write',
+    results: 'read',
+    cycles: 'read',
+    objectives: 'read',
+    result_logs: 'read',
+  },
   retry:
     'Repeated desired day state is safe; a comment is evidence and must not be blindly repeated.',
   source: 'packages/core/src/features/results/service.contract.ts#setHabitLog',
@@ -211,6 +265,7 @@ export const setHabitLog = defineService(inputs.setHabitLogInput, resultWriteRes
 export const listHabitLogs = defineService(inputs.listHabitLogsInput, pageSchema(habitLogSchema), {
   access: 'retained-read',
   effect: 'read',
+  tables: { habit_logs: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/results/service.contract.ts#listHabitLogs',
   requirement: 'docs/feature-specs/F4-results.md',
@@ -231,6 +286,7 @@ export const previewResultDeletion = defineService(
   {
     access: 'entitled-write',
     effect: 'write',
+    tables: { results: 'read', result_logs: 'read', habit_logs: 'read' },
     retry:
       'Preview does not authorize deletion. Commit rechecks actor, target, impact, expiry and application approval; incomplete impact fails closed.',
     source: 'packages/core/src/features/results/service.contract.ts#previewResultDeletion',
@@ -250,6 +306,7 @@ export const previewResultDeletion = defineService(
 export const readResultHistory = defineService(inputs.resultHistoryInput, resultHistorySchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: { results: 'read', result_logs: 'read', habit_logs: 'read' },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/results/service.contract.ts#readResultHistory',
   requirement: 'docs/feature-specs/F4-results.md',

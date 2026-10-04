@@ -6,6 +6,18 @@ import { defineService } from '../../shared/services/definition.js'
 export const queryRecord = defineService(inputs.queryRecordInput, recordQuerySchema, {
   access: 'retained-read',
   effect: 'read',
+  tables: {
+    cycles: 'read',
+    objectives: 'read',
+    results: 'read',
+    result_logs: 'read',
+    habit_logs: 'read',
+    actions: 'read',
+    action_logs: 'read',
+    notes: 'read',
+    sessions: 'read',
+    user: 'read',
+  },
   retry: 'Safe to retry with the same resolved filters and cursor.',
   source: 'packages/core/src/features/record-query/service.contract.ts#queryRecord',
   requirement: 'docs/feature-specs/F7-sessions.md',
